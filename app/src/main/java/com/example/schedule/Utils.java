@@ -1,134 +1,32 @@
 package com.example.schedule;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.Contract;
 
-import java.util.Calendar;
-
 public class Utils {
-    public static void checkDonations(@NonNull Context context) {
+    private static int[] daysInMonths = new int[] {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    private static int[] daysInMonthsLeap = new int[] {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    private static String[] daysOfWeekNames = new String[] {"Понедельник", "Вторник", "Среда",
+            "Четверг", "Пятница", "Суббота", "Воскресенье"};
+    private static String[] monthsNames = new String[] {"Января", "Февраля", "Марта", "Апреля", "Мая", "Июня",
+            "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"};
+
+    /*public static void checkDonations(@NonNull Context context) {
         SharedPreferences saves = context.getSharedPreferences("ScheduleSaves", MODE_PRIVATE);
         String lastTimeDonationShowed = saves.getString("lastTimeDonationShowed", "");
         Calendar calendar = Calendar.getInstance();
         String curDay = String.format("%s.%s.%s", calendar.get(Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR));
-        /*if (!lastTimeDonationShowed.equals(curDay)) {
+if (!lastTimeDonationShowed.equals(curDay)) {
             SharedPreferences.Editor editor = saves.edit();
             editor.putString("lastTimeDonationShowed", curDay);
             editor.apply();
             Intent intent = new Intent(context, DonationActivity.class);
             context.startActivity(intent);
-        }*/
-    }
-
-    @NonNull
-    public static Schedule initSchedule(int subgroup) {
-        Schedule schedule;
-        switch (subgroup) {
-            case 1012:
-                schedule = new Schedule_1012();
-                break;
-            case 1021:
-                schedule = new Schedule_1021();
-                break;
-            case 1022:
-                schedule = new Schedule_1022();
-                break;
-            case 1031:
-                schedule = new Schedule_1031();
-                break;
-            case 1032:
-                schedule = new Schedule_1032();
-                break;
-            case 1041:
-                schedule = new Schedule_1041();
-                break;
-            case 1042:
-                schedule = new Schedule_1042();
-                break;
-            case 1051:
-                schedule = new Schedule_1051();
-                break;
-            case 1052:
-                schedule = new Schedule_1052();
-                break;
-            case 1061:
-                schedule = new Schedule_1061();
-                break;
-            case 1062:
-                schedule = new Schedule_1062();
-                break;
-            case 1071:
-                schedule = new Schedule_1071();
-                break;
-            case 1072:
-                schedule = new Schedule_1072();
-                break;
-            case 1081:
-                schedule = new Schedule_1081();
-                break;
-            case 1082:
-                schedule = new Schedule_1082();
-                break;
-            case 1091:
-                schedule = new Schedule_1091();
-                break;
-            case 1092:
-                schedule = new Schedule_1092();
-                break;
-            case 1093:
-                schedule = new Schedule_1093();
-                break;
-            case 1101:
-                schedule = new Schedule_1101();
-                break;
-            case 1102:
-                schedule = new Schedule_1102();
-                break;
-            case 1111:
-                schedule = new Schedule_1111();
-                break;
-            case 1112:
-                schedule = new Schedule_1112();
-                break;
-            case 1121:
-                schedule = new Schedule_1121();
-                break;
-            case 1131:
-                schedule = new Schedule_1131();
-                break;
-            case 1132:
-                schedule = new Schedule_1132();
-                break;
-            case 1141:
-                schedule = new Schedule_1141();
-                break;
-            case 1151:
-                schedule = new Schedule_1151();
-                break;
-            case 1152:
-                schedule = new Schedule_1152();
-                break;
-            case 1161:
-                schedule = new Schedule_1161();
-                break;
-            case 1162:
-                schedule = new Schedule_1162();
-                break;
-            default:
-                schedule = new Schedule_1011();
-                break;
         }
-        schedule.Init();
-        return schedule;
-    }
+
+    }*/
 
     public static int getLessonByTime(int hour, int minute) {
         int time = hour * 60 + minute;
@@ -171,30 +69,31 @@ public class Utils {
     @Contract(pure = true)
     public static String getTimeByLesson(int lesson) {
         switch (lesson) {
-            case 0:
-                return "8:00 - 9:35";
             case 1:
-                return "9:45 - 11:20";
+                return "8:00 - 9:35";
             case 2:
-                return "11:30 - 13:05";
+                return "9:45 - 11:20";
             case 3:
-                return "13:25 - 15:00";
+                return "11:30 - 13:05";
             case 4:
-                return "15:10 - 16:45";
+                return "13:25 - 15:00";
             case 5:
-                return "16:55 - 18:30";
+                return "15:10 - 16:45";
             case 6:
-                return "18:40 - 20:00";
+                return "16:55 - 18:30";
             case 7:
+                return "18:40 - 20:00";
+            case 8:
                 return "20:10 - 21:30";
             default:
                 return "";
         }
     }
 
-    @Nullable
-    public static LessonStruct getLessonBySchedule(int scheduleDayOfWeek, int scheduleLessonNum, boolean schedulenumerator, Schedule schedule) {
-        if (schedulenumerator) {
+    /*@Nullable
+    public static LessonStruct getLessonBySchedule(int scheduleDayOfWeek, int scheduleLessonNum,
+                                                   boolean scheduleNumerator, Schedule schedule) {
+        if (scheduleNumerator) {
             switch (scheduleDayOfWeek) {
                 case 0:
                     return StrToLessonStruct(schedule.Monday_1[scheduleLessonNum]);
@@ -229,9 +128,103 @@ public class Utils {
                     return null;
             }
         }
+    }*/
+
+    public static int getDaysFrom2022(int year, int month, int day) {
+        int deltaYear = year - 2022;
+        int days = 0;
+        for (int i = 0; i < deltaYear; i++) {
+            if ((2023 + i) % 4 == 0) {
+                for (int j = 1; j < 13; j++) {
+                    days += daysInMonthsLeap[j - 1];
+                }
+            } else {
+                for (int j = 1; j < 13; j++) {
+                    days += daysInMonths[j - 1];
+                }
+            }
+        }
+
+        if (year % 4 == 0) {
+            for (int j = 1; j < month; j++) {
+                days += daysInMonthsLeap[j - 1];
+            }
+        } else {
+            for (int j = 1; j < month; j++) {
+                days += daysInMonths[j - 1];
+            }
+        }
+
+        return days + day - 1;
     }
 
-    public static LessonStruct StrToLessonStruct (String lesson) {
+    public static int getDayOfWeek(int year, int month, int day) {
+        return (getDaysFrom2022(year, month, day) + 5) % 7 + 1;
+    }
+
+    public static boolean isNumerator(int year, int month, int day) {
+        if (month < 9) {
+            return ((getDaysFrom2022(year, month, day) + 5) / 7) % 2 ==
+                    ((getDaysFrom2022(year - 1, 9, 1) + 5) / 7) % 2;
+        } else {
+            return ((getDaysFrom2022(year, month, day) + 5) / 7) % 2 ==
+                    ((getDaysFrom2022(year, 9, 1) + 5) / 7) % 2;
+        }
+    }
+
+    public static String dayOfWeekToStr(int dayOfWeek) {
+        switch (dayOfWeek) {
+            case 1:
+                return "Понедельник";
+            case 2:
+                return "Вторник";
+            case 3:
+                return "Среда";
+            case 4:
+                return "Четверг";
+            case 5:
+                return "Пятница";
+            case 6:
+                return "Суббота";
+            case 7:
+                return "Воскресенье";
+            default:
+                return "";
+        }
+    }
+
+    public static String monthToStr(int month) {
+        switch (month) {
+            case 1:
+                return "январь";
+            case 2:
+                return "февраль";
+            case 3:
+                return "март";
+            case 4:
+                return "апрель";
+            case 5:
+                return "май";
+            case 6:
+                return "июнь";
+            case 7:
+                return "июль";
+            case 8:
+                return "август";
+            case 9:
+                return "сентябрь";
+            case 10:
+                return "октябрь";
+            case 11:
+                return "ноябрь";
+            case 12:
+                return "декабрь";
+            default:
+                return "";
+        }
+    }
+
+    /*public static LessonStruct StrToLessonStruct (String lesson) {
         if (lesson == null) return null;
 
         LessonStruct lessonStruct = new LessonStruct();
@@ -270,5 +263,5 @@ public class Utils {
                 break;
         }
         return lessonStruct;
-    }
+    }*/
 }

@@ -13,6 +13,7 @@ public class LessonView extends LinearLayout {
 
     public LessonView(Context context) {
         super(context);
+        init(0, "", "", "");
     }
 
     public LessonView(Context context, AttributeSet attrs) {
@@ -23,32 +24,31 @@ public class LessonView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public LessonView(Context context, int lessonNum, String lessonTime) {
+    public LessonView(Context context, int lessonNum) {
         super(context);
-        init(lessonNum, "", lessonTime, "", "");
+        init(lessonNum, "", "", "");
     }
 
     public LessonView(Context context, int lessonNum, String lessonName,
-                      String lessonTime, String lessonCabinet, String lessonTeacher) {
+                      String lessonCabinet, String lessonTeacher) {
         super(context);
-        init(lessonNum, lessonName, lessonTime, lessonCabinet, lessonTeacher);
+        init(lessonNum, lessonName, lessonCabinet, lessonTeacher);
     }
 
     public LessonView(Context context, AttributeSet attrs, int lessonNum, String lessonName,
-                      String lessonTime, String lessonCabinet, String lessonTeacher) {
+                      String lessonCabinet, String lessonTeacher) {
         super(context, attrs);
-        init(lessonNum, lessonName, lessonTime, lessonCabinet, lessonTeacher);
+        init(lessonNum, lessonName, lessonCabinet, lessonTeacher);
     }
 
     public LessonView(Context context, AttributeSet attrs, int defStyle, int lessonNum,
-                      String lessonName, String lessonTime,
-                      String lessonCabinet, String lessonTeacher) {
+                      String lessonName, String lessonCabinet, String lessonTeacher) {
         super(context, attrs, defStyle);
-        init(lessonNum, lessonName, lessonTime, lessonCabinet, lessonTeacher);
+        init(lessonNum, lessonName, lessonCabinet, lessonTeacher);
     }
 
     private void init(int lessonNum, String lessonName,
-                        String lessonTime, String lessonCabinet, String lessonTeacher) {
+                      String lessonCabinet, String lessonTeacher) {
         LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -71,7 +71,7 @@ public class LessonView extends LinearLayout {
 
         TextView lessonNumTV = new TextView(getContext());
         lessonNumTV.setLayoutParams(paramsWrapWrap);
-        lessonNumTV.setText(String.format("%s", lessonNum + 1));
+        lessonNumTV.setText(String.format("%s", lessonNum));
         lessonNumTV.setTextSize(12.0f);
         lessonNumTV.setGravity(Gravity.START);
         lessonNumTV.setBackgroundResource(R.drawable.behind_lesson_num);
@@ -81,7 +81,7 @@ public class LessonView extends LinearLayout {
         TextView timeTV = new TextView(getContext());
         timeTV.setLayoutParams(paramsMatchWrap);
         timeTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_END);
-        timeTV.setText(lessonTime);
+        timeTV.setText(Utils.getTimeByLesson(lessonNum));
         timeTV.setGravity(Gravity.END);
         timeTV.setPadding(0, 0, 25, 0);
         firstStroke.addView(timeTV);
