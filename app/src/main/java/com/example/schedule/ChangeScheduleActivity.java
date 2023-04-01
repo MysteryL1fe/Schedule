@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,12 +14,11 @@ import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.Calendar;
 import java.util.Set;
 
-public class ScheduleActivity extends AppCompatActivity {
-    private Schedule schedule = null;
+public class ChangeScheduleActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
+    private Schedule schedule;
     private LinearLayout lessonsContainer;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
@@ -28,7 +26,7 @@ public class ScheduleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_schedule);
+        setContentView(R.layout.activity_change_schedule);
 
         Intent intent = getIntent();
         flowLvl = intent.getIntExtra("flowLvl", 0);
@@ -59,9 +57,6 @@ public class ScheduleActivity extends AppCompatActivity {
         MaterialToolbar topAppBar = findViewById(R.id.topAppBar);
         lessonsContainer = findViewById(R.id.lessonsContainer);
 
-        LoadLessons loadLessons = new LoadLessons();
-        loadLessons.execute();
-
         topAppBar.setTitle(String.format("Группа %s.%s.%s", course, group, subgroup));
         drawerLayout = findViewById(R.id.drawerLayout);
         topAppBar.setNavigationOnClickListener(new DrawerLayoutListener());
@@ -69,60 +64,6 @@ public class ScheduleActivity extends AppCompatActivity {
         navView = findViewById(R.id.navView);
         navView.setNavigationItemSelectedListener(new NavViewListener());
         navView.setCheckedItem(0);
-    }
-
-    private class LoadLessons extends AsyncTask<Void, Void, Void> {
-        private final LessonsView[] lessonsViews = new LessonsView[21];
-        /*LinearLayout.LayoutParams lastLessonParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        LinearLayout.LayoutParams lessonParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );*/
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            Calendar calendar = Calendar.getInstance();
-            int day, month, year, dayOfWeek;
-            boolean isNumerator;
-
-            day = calendar.get(Calendar.DAY_OF_MONTH);
-            month = calendar.get(Calendar.MONTH);
-            year = calendar.get(Calendar.YEAR);
-            dayOfWeek = Utils.getDayOfWeek(year, month, day);
-            isNumerator = Utils.isNumerator(year, month, day);
-
-            /*lastLessonParams.bottomMargin = 50;
-
-            lessonParams.setMargins(15,0, 15, 0);*/
-
-            for (int i = 0; i < 21; i++) {
-                LessonsView lessonsView = new LessonsView(lessonsContainer.getContext(),
-                        schedule, day, month, year, dayOfWeek, isNumerator);
-                lessonsViews[i] = lessonsView;
-
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
-                day = calendar.get(Calendar.DAY_OF_MONTH);
-                month = calendar.get(Calendar.MONTH);
-                year = calendar.get(Calendar.YEAR);
-                if (++dayOfWeek == 8) {
-                    dayOfWeek = 1;
-                    isNumerator = !isNumerator;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            for (int i = 0; i < 21; i++) {
-                lessonsContainer.addView(lessonsViews[i]);
-            }
-        }
     }
 
     private class DrawerLayoutListener implements View.OnClickListener {
@@ -136,14 +77,8 @@ public class ScheduleActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case 1:
-                    Intent intent = new Intent(ScheduleActivity.this,
-                            ChangeScheduleActivity.class);
-                    intent.putExtra("flowLvl", flowLvl);
-                    intent.putExtra("course", course);
-                    intent.putExtra("group", group);
-                    intent.putExtra("subgroup", subgroup);
-                    startActivity(intent);
+                case 0:
+                    finish();
                 case 2:
                 default:
                     drawerLayout.close();

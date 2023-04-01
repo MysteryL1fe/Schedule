@@ -5,7 +5,6 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/item1"
-            android:checked="true"
             android:icon="@drawable/red_circle"
             android:title="Расписание" />
         <item
