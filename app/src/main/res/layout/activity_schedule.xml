@@ -33,21 +33,11 @@
 
             </com.google.android.material.appbar.AppBarLayout>
 
-            <ScrollView
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragment_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                tools:ignore="SpeakableTextPresentCheck">
-
-                <LinearLayout
-                    android:id="@+id/lessonsContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-            </ScrollView>
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

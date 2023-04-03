@@ -1,3 +1,4 @@
+/*
 package com.example.schedule;
 
 import androidx.annotation.NonNull;
@@ -63,7 +64,7 @@ public class ChangeScheduleActivity extends AppCompatActivity {
 
         navView = findViewById(R.id.navView);
         navView.setNavigationItemSelectedListener(new NavViewListener());
-        navView.setCheckedItem(0);
+        navView.setCheckedItem(R.id.changeSchedule);
     }
 
     private class DrawerLayoutListener implements View.OnClickListener {
@@ -77,13 +78,13 @@ public class ChangeScheduleActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case 0:
+                case R.id.schedule:
                     finish();
-                case 2:
+                case R.id.settings:
                 default:
                     drawerLayout.close();
                     return false;
             }
         }
     }
-}
+}*/
