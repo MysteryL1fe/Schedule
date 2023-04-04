@@ -33,18 +33,6 @@ public class LessonsView extends LinearLayout {
         init(schedule, day, month, year, dayOfWeek, isNumerator);
     }
 
-    public LessonsView(Context context, AttributeSet attrs, Schedule schedule,
-                       int day, int month, int year, int dayOfWeek, boolean isNumerator) {
-        super(context, attrs);
-        init(schedule, day, month, year, dayOfWeek, isNumerator);
-    }
-
-    public LessonsView(Context context, AttributeSet attrs, int defStyle, Schedule schedule,
-                       int day, int month, int year, int dayOfWeek, boolean isNumerator) {
-        super(context, attrs, defStyle);
-        init(schedule, day, month, year, dayOfWeek, isNumerator);
-    }
-
     public void init(Schedule schedule, int day, int month, int year, int dayOfWeek,
                      boolean isNumerator) {
         this.schedule = schedule;

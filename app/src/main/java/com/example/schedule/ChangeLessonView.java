@@ -1,42 +1,45 @@
 package com.example.schedule;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
 
-/**
- * TODO: document your custom view class.
- */
-public class LessonView extends LinearLayout {
+public class ChangeLessonView extends LinearLayout {
+    private int lessonNum;
 
-    public LessonView(Context context) {
+    public ChangeLessonView(Context context) {
         super(context);
-        init(0, "", "", "");
     }
 
-    public LessonView(Context context, AttributeSet attrs) {
+    public ChangeLessonView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public LessonView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public ChangeLessonView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
     }
 
-    public LessonView(Context context, int lessonNum) {
+    public ChangeLessonView(Context context, int lessonNum) {
         super(context);
         init(lessonNum, "", "", "");
     }
 
-    public LessonView(Context context, int lessonNum, String lessonName,
-                      String lessonCabinet, String lessonTeacher) {
+    public ChangeLessonView(Context context, int lessonNum, String lessonName,
+                            String lessonCabinet, String lessonTeacher) {
         super(context);
         init(lessonNum, lessonName, lessonCabinet, lessonTeacher);
     }
 
-    private void init(int lessonNum, String lessonName,
-                      String lessonCabinet, String lessonTeacher) {
+    public void init(int lessonNum, String lessonName, String lessonCabinet,
+                     String lessonTeacher) {
+        this.lessonNum = lessonNum;
+
         LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -98,17 +101,50 @@ public class LessonView extends LinearLayout {
                 this.addView(cabinetTV);
             }
         }
+
+        LinearLayout changeStroke = new LinearLayout(getContext());
+        changeStroke.setLayoutParams(paramsMatchWrap);
+        changeStroke.setOrientation(HORIZONTAL);
+        changeStroke.setPadding(0, 10, 0, 10);
+        this.addView(changeStroke);
+
+        Button deleteLessonBtn = new Button(getContext());
+        deleteLessonBtn.setText("Удалить");
+        deleteLessonBtn.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        deleteLessonBtn.setOnClickListener(new DeleteLessonBtnListener());
+        changeStroke.addView(deleteLessonBtn);
+
+        Button changeLessonBtn = new Button(getContext());
+        changeLessonBtn.setText("Изменить");
+        changeLessonBtn.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        changeLessonBtn.setOnClickListener(new ChangeLessonBtnListener());
+        changeStroke.addView(changeLessonBtn);
+
+
     }
 
-    public void createTimerBeforeLesson(int secondsToLesson) {
-        TimerView timerView = new TimerView(getContext());
-        timerView.parentView = this;
-        timerView.init(secondsToLesson);
+    private class DeleteLessonBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+
+        }
     }
 
-    public void createTimerToEndLesson(int secondsToEnd) {
-        TimerView timerView = new TimerView(getContext());
-        timerView.parentView = this;
-        timerView.init(secondsToEnd);
+    private class ChangeLessonBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            ChangeLessonsView changeLessonsView = (ChangeLessonsView) getParent();
+            Context context = getContext();
+            ScheduleActivity scheduleActivity = (ScheduleActivity) context;
+            Intent intent = new Intent(context, ChangeLessonActivity.class);
+            intent.putExtra("flowLvl", scheduleActivity.getFlowLvl());
+            intent.putExtra("course", scheduleActivity.getCourse());
+            intent.putExtra("group", scheduleActivity.getGroup());
+            intent.putExtra("subgroup", scheduleActivity.getSubgroup());
+            intent.putExtra("dayOfWeek", changeLessonsView.getDayOfWeek());
+            intent.putExtra("lessonNum", lessonNum);
+            intent.putExtra("isNumerator", changeLessonsView.isNumerator());
+            context.startActivity(intent);
+        }
     }
 }

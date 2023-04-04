@@ -90,46 +90,6 @@ if (!lastTimeDonationShowed.equals(curDay)) {
         }
     }
 
-    /*@Nullable
-    public static LessonStruct getLessonBySchedule(int scheduleDayOfWeek, int scheduleLessonNum,
-                                                   boolean scheduleNumerator, Schedule schedule) {
-        if (scheduleNumerator) {
-            switch (scheduleDayOfWeek) {
-                case 0:
-                    return StrToLessonStruct(schedule.Monday_1[scheduleLessonNum]);
-                case 1:
-                    return StrToLessonStruct(schedule.Tuesday_1[scheduleLessonNum]);
-                case 2:
-                    return StrToLessonStruct(schedule.Wednesday_1[scheduleLessonNum]);
-                case 3:
-                    return StrToLessonStruct(schedule.Thursday_1[scheduleLessonNum]);
-                case 4:
-                    return StrToLessonStruct(schedule.Friday_1[scheduleLessonNum]);
-                case 5:
-                    return StrToLessonStruct(schedule.Saturday_1[scheduleLessonNum]);
-                default:
-                    return null;
-            }
-        } else {
-            switch (scheduleDayOfWeek) {
-                case 0:
-                    return StrToLessonStruct(schedule.Monday_0[scheduleLessonNum]);
-                case 1:
-                    return StrToLessonStruct(schedule.Tuesday_0[scheduleLessonNum]);
-                case 2:
-                    return StrToLessonStruct(schedule.Wednesday_0[scheduleLessonNum]);
-                case 3:
-                    return StrToLessonStruct(schedule.Thursday_0[scheduleLessonNum]);
-                case 4:
-                    return StrToLessonStruct(schedule.Friday_0[scheduleLessonNum]);
-                case 5:
-                    return StrToLessonStruct(schedule.Saturday_0[scheduleLessonNum]);
-                default:
-                    return null;
-            }
-        }
-    }*/
-
     public static int getDaysFrom2022(int year, int month, int day) {
         int deltaYear = year - 2022;
         int days = 0;
@@ -223,45 +183,4 @@ if (!lastTimeDonationShowed.equals(curDay)) {
                 return "";
         }
     }
-
-    /*public static LessonStruct StrToLessonStruct (String lesson) {
-        if (lesson == null) return null;
-
-        LessonStruct lessonStruct = new LessonStruct();
-        switch (lesson) {
-            case "Физическая культура и спорт":
-                lessonStruct.name = "Физкультура";
-                lessonStruct.teacher = "-";
-                lessonStruct.cabinet = "-";
-                break;
-            case "Военная подготовка":
-                lessonStruct.name = "Военная подготовка";
-                lessonStruct.teacher = "-";
-                lessonStruct.cabinet = "-";
-                break;
-            case "УЦ":
-                lessonStruct.name = "УЦ";
-                lessonStruct.teacher = "-";
-                lessonStruct.cabinet = "-";
-                break;
-            default:
-                String[] lesson_split = lesson.split(" ");
-                if (lesson_split.length > 4) {
-                    String lessonCabinet = lesson_split[lesson_split.length - 1];
-                    String lessonTeacher = lesson_split[lesson_split.length - 3] + " " + lesson_split[lesson_split.length - 2];
-                    StringBuilder lessonName = new StringBuilder();
-                    for (int i = 0; i < lesson_split.length - 4; i++) {
-                        if (i != 0) lessonName.append(" ");
-                        lessonName.append(lesson_split[i]);
-                    }
-                    lessonStruct.name = lessonName.toString();
-                    lessonStruct.teacher = lessonTeacher;
-                    lessonStruct.cabinet = lessonCabinet;
-                } else {
-                    return null;
-                }
-                break;
-        }
-        return lessonStruct;
-    }*/
 }

@@ -94,6 +94,7 @@ public class ScheduleFragment extends Fragment {
 
         LoadLessons loadLessons = new LoadLessons();
         loadLessons.execute();
+
         return view;
     }
 
@@ -107,7 +108,7 @@ public class ScheduleFragment extends Fragment {
             boolean isNumerator;
 
             day = calendar.get(Calendar.DAY_OF_MONTH);
-            month = calendar.get(Calendar.MONTH);
+            month = calendar.get(Calendar.MONTH) + 1;
             year = calendar.get(Calendar.YEAR);
             dayOfWeek = Utils.getDayOfWeek(year, month, day);
             isNumerator = Utils.isNumerator(year, month, day);
@@ -119,7 +120,7 @@ public class ScheduleFragment extends Fragment {
 
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
                 day = calendar.get(Calendar.DAY_OF_MONTH);
-                month = calendar.get(Calendar.MONTH);
+                month = calendar.get(Calendar.MONTH) + 1;
                 year = calendar.get(Calendar.YEAR);
                 if (++dayOfWeek == 8) {
                     dayOfWeek = 1;

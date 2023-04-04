@@ -25,9 +25,9 @@ public class MainActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
     private Button courseBtn, groupBtn, subgroupBtn, contBtn, flowLvlBtn;
     private SharedPreferences saves;
-    SharedPreferences.Editor editor;
+    private SharedPreferences.Editor editor;
     private Set<Schedule> storage;
-    ActivityResultLauncher<Intent> newFlowActivity;
+    private ActivityResultLauncher<Intent> newFlowActivity;
     private String[] flowLvlStr = new String[] {"Бакалавриат/Специалитет", "Магистратура",
             "Аспирантура"};
 

@@ -1,5 +1,9 @@
 package com.example.schedule;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -24,6 +28,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navView;
     private FragmentManager fragmentManager;
+    private ActivityResultLauncher<Intent> changeLessonActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +55,22 @@ public class ScheduleActivity extends AppCompatActivity {
         navView.setCheckedItem(R.id.nav_schedule);
     }
 
+    public int getFlowLvl() {
+        return flowLvl;
+    }
+
+    public int getCourse() {
+        return course;
+    }
+
+    public int getGroup() {
+        return group;
+    }
+
+    public int getSubgroup() {
+        return subgroup;
+    }
+
     private class DrawerLayoutListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -60,13 +81,26 @@ public class ScheduleActivity extends AppCompatActivity {
     private class NavViewListener implements NavigationView.OnNavigationItemSelectedListener {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            if (item.isChecked()) {
+                drawerLayout.close();
+                return false;
+            }
             navView.setCheckedItem(item);
             switch (item.getItemId()) {
                 case R.id.nav_schedule:
+                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
+                            ScheduleFragment.newInstance(flowLvl, course, group, subgroup))
+                            .commit();
+                    drawerLayout.close();
                     return true;
                 case R.id.nav_change_schedule:
+                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
+                            ChangeScheduleFragment.newInstance(flowLvl, course, group, subgroup))
+                            .commit();
+                    drawerLayout.close();
                     return true;
                 case R.id.nav_settings:
+                    drawerLayout.close();
                     return true;
                 default:
                     drawerLayout.close();

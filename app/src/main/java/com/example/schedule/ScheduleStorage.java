@@ -3,6 +3,7 @@ package com.example.schedule;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.example.schedule.exceptions.ScheduleException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -14,6 +15,8 @@ public class ScheduleStorage {
     private static Set<Schedule> storage = new HashSet<>();
     private static final Gson gson = new Gson();
     private static final Type type = new TypeToken<Set<Schedule>>(){}.getType();
+    private static Schedule curSchedule;
+    private static int curFlowLvl, curCourse, curGroup, curSubgroup;
 
     public static void saveStorage(SharedPreferences pref) {
         String strObject = gson.toJson(storage, type);
@@ -52,5 +55,39 @@ public class ScheduleStorage {
         String strObject = gson.toJson(storage, type);
         editor.putString("Storage", strObject);
         editor.apply();
+    }
+
+    public static Schedule getSchedule(int flowLvl, int course, int group, int subgroup) {
+        if (curSchedule != null && flowLvl == curFlowLvl && course == curCourse
+                && group == curGroup && subgroup == curSubgroup) return curSchedule;
+        curFlowLvl = flowLvl;
+        curCourse = course;
+        curGroup = group;
+        curSubgroup = subgroup;
+        for (Schedule schedule : storage) {
+            if (schedule.getFlowLvl() == flowLvl && schedule.getCourse() == course
+                    && schedule.getGroup() == group && schedule.getSubgroup() == subgroup) {
+                curSchedule = schedule;
+                return curSchedule;
+            }
+        }
+        curSchedule = null;
+        return null;
+    }
+
+    public static void changeLesson(int flowLvl, int course, int group, int subgroup, int dayOfWeek,
+                                    int lessonNum, boolean isNumerator, String newLessonName,
+                                    String newTeacher, String newCabinet, SharedPreferences saves)
+            throws ScheduleException {
+        Schedule schedule = getSchedule(flowLvl, course, group, subgroup);
+        if (schedule != null) {
+            LessonStruct lesson = schedule.getLesson(dayOfWeek, lessonNum, isNumerator);
+            if (lesson == null) lesson = new LessonStruct();
+            lesson.name = newLessonName;
+            lesson.teacher = newTeacher;
+            lesson.cabinet = newCabinet;
+            schedule.setLesson(dayOfWeek, lessonNum, isNumerator, lesson);
+            saveStorage(saves);
+        }
     }
 }

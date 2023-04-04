@@ -31,6 +31,14 @@ public class Schedule {
                 : denumerator[dayOfWeek - 1][lessonNum - 1];
     }
 
+    public void setLesson(int dayOfWeek, int lessonNum, boolean isNumerator,
+                          LessonStruct newLesson) throws ScheduleException {
+        if (dayOfWeek < 1 || dayOfWeek > 7) throw new ScheduleException("Неверный день недели");
+        if (lessonNum < 1 || lessonNum > 8) throw new ScheduleException("Неверный номер пары");
+        if (isNumerator) numerator[dayOfWeek - 1][lessonNum - 1] = newLesson;
+        else denumerator[dayOfWeek - 1][lessonNum - 1] = newLesson;
+    }
+
     public int getFlowLvl() {
         return flowLvl;
     }
