@@ -29,12 +29,19 @@ public class ChangeLessonActivity extends AppCompatActivity {
         dayOfWeek = intent.getIntExtra("dayOfWeek", 0);
         lessonNum = intent.getIntExtra("lessonNum", 0);
         isNumerator = intent.getBooleanExtra("isNumerator", true);
+        String lessonName = intent.getStringExtra("lessonName");
+        String teacher = intent.getStringExtra("teacher");
+        String cabinet = intent.getStringExtra("cabinet");
 
         lessonNameEditText = findViewById(R.id.lesson_name_edit_text);
         teacherEditText = findViewById(R.id.teacher_edit_text);
         cabinetEditText = findViewById(R.id.cabinet_edit_text);
         cancelBtn = findViewById(R.id.cancel_btn);
         nextBtn = findViewById(R.id.next_btn);
+
+        lessonNameEditText.setText(lessonName);
+        teacherEditText.setText(teacher);
+        cabinetEditText.setText(cabinet);
 
         cancelBtn.setOnClickListener(new CancelBtnListener());
         nextBtn.setOnClickListener(new NextBtnListener());
@@ -55,7 +62,6 @@ public class ChangeLessonActivity extends AppCompatActivity {
                         isNumerator, lessonNameEditText.getText().toString(),
                         teacherEditText.getText().toString(), cabinetEditText.getText().toString(),
                         getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
-                getParent();
                 finish();
             } catch (ScheduleException e) {
                 finish();

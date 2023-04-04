@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 
 public class ChangeLessonView extends LinearLayout {
     private int lessonNum;
+    private String lessonName, teacher, cabinet;
+    TextView lessonTV, cabinetTV;
 
     public ChangeLessonView(Context context) {
         super(context);
@@ -39,6 +41,9 @@ public class ChangeLessonView extends LinearLayout {
     public void init(int lessonNum, String lessonName, String lessonCabinet,
                      String lessonTeacher) {
         this.lessonNum = lessonNum;
+        this.lessonName = lessonName;
+        this.teacher = lessonTeacher;
+        this.cabinet = lessonCabinet;
 
         LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -78,7 +83,7 @@ public class ChangeLessonView extends LinearLayout {
         firstStroke.addView(timeTV);
 
         if (!lessonName.isEmpty()) {
-            TextView lessonTV = new TextView(getContext());
+            lessonTV = new TextView(getContext());
             lessonTV.setLayoutParams(paramsMatchWrap);
             lessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
             lessonTV.setTextSize(14.0f);
@@ -87,7 +92,7 @@ public class ChangeLessonView extends LinearLayout {
             this.addView(lessonTV);
 
             if (!lessonCabinet.isEmpty() || !lessonTeacher.isEmpty()) {
-                TextView cabinetTV = new TextView(getContext());
+                cabinetTV = new TextView(getContext());
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
                 cabinetTV.setTextSize(12.0f);
@@ -119,14 +124,26 @@ public class ChangeLessonView extends LinearLayout {
         changeLessonBtn.setTextAlignment(TEXT_ALIGNMENT_CENTER);
         changeLessonBtn.setOnClickListener(new ChangeLessonBtnListener());
         changeStroke.addView(changeLessonBtn);
-
-
     }
 
     private class DeleteLessonBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-
+            ChangeLessonsView changeLessonsView = (ChangeLessonsView) getParent();
+            ScheduleActivity scheduleActivity = (ScheduleActivity) getContext();
+            try {
+                ScheduleStorage.changeLesson(scheduleActivity.getFlowLvl(),
+                        scheduleActivity.getCourse(), scheduleActivity.getGroup(),
+                        scheduleActivity.getSubgroup(), changeLessonsView.getDayOfWeek(),
+                        lessonNum, changeLessonsView.isNumerator(), "", "",
+                        "", scheduleActivity.getSharedPreferences("ScheduleSaves",
+                                Context.MODE_PRIVATE));
+                lessonName = "";
+                teacher = "";
+                cabinet = "";
+                removeView(lessonTV);
+                removeView(cabinetTV);
+            } catch (Exception ignored) {}
         }
     }
 
@@ -144,6 +161,9 @@ public class ChangeLessonView extends LinearLayout {
             intent.putExtra("dayOfWeek", changeLessonsView.getDayOfWeek());
             intent.putExtra("lessonNum", lessonNum);
             intent.putExtra("isNumerator", changeLessonsView.isNumerator());
+            intent.putExtra("lessonName", lessonName);
+            intent.putExtra("teacher", teacher);
+            intent.putExtra("cabinet", cabinet);
             context.startActivity(intent);
         }
     }

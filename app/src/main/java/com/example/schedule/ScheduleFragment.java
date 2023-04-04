@@ -67,16 +67,7 @@ public class ScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Set<Schedule> storage = ScheduleStorage.getStorage();
-        for (Schedule schedule : storage) {
-            if (schedule.getFlowLvl() == mFlowLvl
-                    && schedule.getCourse() == mCourse
-                    && schedule.getGroup() == mGroup
-                    && schedule.getSubgroup() == mSubgroup) {
-                mSchedule = schedule;
-                break;
-            }
-        }
+        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup);
 
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 

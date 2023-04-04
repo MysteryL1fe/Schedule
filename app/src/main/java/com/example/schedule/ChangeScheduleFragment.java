@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,17 +67,7 @@ public class ChangeScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Set<Schedule> storage = ScheduleStorage.getStorage();
-        for (Schedule schedule : storage) {
-            if (schedule.getFlowLvl() == mFlowLvl
-                    && schedule.getCourse() == mCourse
-                    && schedule.getGroup() == mGroup
-                    && schedule.getSubgroup() == mSubgroup) {
-                mSchedule = schedule;
-                break;
-            }
-        }
-
+        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup);
         View view = inflater.inflate(R.layout.fragment_change_schedule, container, false);
 
         if (mSchedule == null) {
@@ -95,6 +86,31 @@ public class ChangeScheduleFragment extends Fragment {
         loadLessons.execute();
 
         return view;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mLessonsContainer.removeAllViews();
+
+        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup);
+
+        if (mSchedule == null) {
+            try {
+                mSchedule = new Schedule(mFlowLvl, mCourse, mGroup, mSubgroup);
+                ScheduleStorage.addSchedule(mSchedule, this.getActivity()
+                        .getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
+            } catch (ScheduleException ignored) {}
+        }
+
+        LoadLessons loadLessons = new LoadLessons();
+        loadLessons.execute();
     }
 
     private class LoadLessons extends AsyncTask<Void, Void, Void> {
