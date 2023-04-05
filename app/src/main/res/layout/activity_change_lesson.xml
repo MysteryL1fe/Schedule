@@ -16,7 +16,8 @@
             android:id="@+id/lesson_name_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Название пары" />
+            android:hint="Название пары"
+            android:inputType="textCapSentences" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -28,7 +29,8 @@
             android:id="@+id/teacher_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Преподаватель" />
+            android:hint="Преподаватель"
+            android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

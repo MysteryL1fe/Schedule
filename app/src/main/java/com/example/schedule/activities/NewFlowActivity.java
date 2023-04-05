@@ -2,8 +2,6 @@ package com.example.schedule.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,15 +10,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.schedule.R;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class NewFlowActivity extends AppCompatActivity {
     private Button cancelBtn, nextBtn;
-    private EditText newFlowTextNum;
-    private TextView errorTv, newFlowTV;
-    private int flowLvl = 0;
-    private String[] flowLvlStr = new String[] {"Бакалавриат/Специалитет", "Магистратура",
-            "Аспирантура"};
+    private EditText newFlowTextEdit;
+    private TextView errorTv;
     private String flow;
 
     @Override
@@ -30,22 +24,20 @@ public class NewFlowActivity extends AppCompatActivity {
 
         Intent thisIntent = getIntent();
         flow = thisIntent.getStringExtra("flow");
-
-        newFlowTV = findViewById(R.id.newFlowTV);
-        newFlowTextNum = findViewById(R.id.newFlowTextNum);
+        newFlowTextEdit = findViewById(R.id.new_flow_text_edit);
         errorTv = findViewById(R.id.errorTV);
         cancelBtn = findViewById(R.id.cancelBtn);
         nextBtn = findViewById(R.id.nextBtn);
 
         switch (flow) {
             case "course":
-                newFlowTV.setText("Введите новый курс");
+                newFlowTextEdit.setHint("Новый курс");
                 break;
             case "group":
-                newFlowTV.setText("Введите новую группу");
+                newFlowTextEdit.setHint("Новая группа");
                 break;
             case "subgroup":
-                newFlowTV.setText("Введите новую подгруппу");
+                newFlowTextEdit.setHint("Новая подгруппа");
                 break;
         }
 
@@ -65,7 +57,7 @@ public class NewFlowActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             try {
-                int result = Integer.parseInt(newFlowTextNum.getText().toString());
+                int result = Integer.parseInt(newFlowTextEdit.getText().toString());
                 Intent data = new Intent();
                 data.putExtra("flow", flow);
                 data.putExtra("result", result);
@@ -83,6 +75,7 @@ public class NewFlowActivity extends AppCompatActivity {
                         errorTv.setText("Подгруппа должна быть числом");
                         break;
                 }
+                errorTv.setVisibility(View.VISIBLE);
             } catch (Exception e) {
                 setResult(RESULT_CANCELED);
                 finish();

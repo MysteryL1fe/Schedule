@@ -14,6 +14,7 @@ import android.view.View;
 import com.example.schedule.fragments.ChangeScheduleFragment;
 import com.example.schedule.R;
 import com.example.schedule.fragments.ScheduleFragment;
+import com.example.schedule.fragments.SettingsFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
@@ -86,24 +87,23 @@ public class ScheduleActivity extends AppCompatActivity {
                 return false;
             }
             navView.setCheckedItem(item);
+            drawerLayout.close();
             switch (item.getItemId()) {
                 case R.id.nav_schedule:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
                             ScheduleFragment.newInstance(flowLvl, course, group, subgroup))
                             .commit();
-                    drawerLayout.close();
                     return true;
                 case R.id.nav_change_schedule:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
                             ChangeScheduleFragment.newInstance(flowLvl, course, group, subgroup))
                             .commit();
-                    drawerLayout.close();
                     return true;
                 case R.id.nav_settings:
-                    drawerLayout.close();
+                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
+                            SettingsFragment.newInstance()).commit();
                     return true;
                 default:
-                    drawerLayout.close();
                     return false;
             }
         }

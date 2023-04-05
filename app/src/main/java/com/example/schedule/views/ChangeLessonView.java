@@ -3,7 +3,9 @@ package com.example.schedule.views;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -55,17 +57,17 @@ public class ChangeLessonView extends LinearLayout {
         this.teacher = lessonTeacher;
         this.cabinet = lessonCabinet;
 
-        LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+        LayoutParams paramsMatchWrap = new LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
         );
         LayoutParams paramsWrapWrap = new LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT
         );
-        LinearLayout.LayoutParams paramsLessonData = new LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+        LayoutParams paramsLessonData = new LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT,
                 1.0f
         );
 
@@ -144,6 +146,9 @@ public class ChangeLessonView extends LinearLayout {
         changeLessonBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),
                 R.drawable.ic_rename));
         changeLessonBtn.setOnClickListener(new ChangeLessonBtnListener());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.w("HUI", getContext().getTheme().toString());
+        }
         changeColumn.addView(changeLessonBtn);
 
         ImageButton deleteLessonBtn = new ImageButton(getContext());

@@ -1,5 +1,7 @@
 <resources>
-
+    <style name="Widget.Schedule.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundColor">?attr/colorSecondary</item>
+    </style>
     <style name="Widget.Theme.Schedule.MyView" parent="">
         <item name="android:background">@color/gray_400</item>
     </style>
