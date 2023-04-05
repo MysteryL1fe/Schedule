@@ -1,4 +1,4 @@
-package com.example.schedule;
+package com.example.schedule.views;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -6,6 +6,9 @@ import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.schedule.LessonStruct;
+import com.example.schedule.Schedule;
+import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.divider.MaterialDivider;
 

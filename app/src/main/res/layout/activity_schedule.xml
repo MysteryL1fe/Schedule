@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:openDrawer="start"
-    tools:context=".ScheduleActivity">
+    tools:context=".activities.ScheduleActivity">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="@android:color/transparent"
-                    app:navigationIcon="@drawable/ic_launcher_foreground"
+                    app:navigationIcon="@drawable/ic_menu"
                     app:title="Расписание"
                     android:elevation="0dp"/>
 

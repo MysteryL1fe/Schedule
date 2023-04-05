@@ -1,10 +1,13 @@
-package com.example.schedule;
+package com.example.schedule.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.schedule.R;
+import com.example.schedule.Utils;
 
 /**
  * TODO: document your custom view class.

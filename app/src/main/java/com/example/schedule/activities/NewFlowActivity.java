@@ -1,4 +1,4 @@
-package com.example.schedule;
+package com.example.schedule.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.schedule.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class NewFlowActivity extends AppCompatActivity {

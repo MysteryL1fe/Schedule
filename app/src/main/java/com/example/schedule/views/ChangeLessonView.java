@@ -1,19 +1,29 @@
-package com.example.schedule;
+package com.example.schedule.views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
+import com.example.schedule.activities.ChangeLessonActivity;
+import com.example.schedule.R;
+import com.example.schedule.activities.ScheduleActivity;
+import com.example.schedule.ScheduleStorage;
+import com.example.schedule.Utils;
 
 public class ChangeLessonView extends LinearLayout {
     private int lessonNum;
     private String lessonName, teacher, cabinet;
-    TextView lessonTV, cabinetTV;
+    private TextView lessonTV, cabinetTV;
+    private LinearLayout lessonData;
 
     public ChangeLessonView(Context context) {
         super(context);
@@ -53,6 +63,11 @@ public class ChangeLessonView extends LinearLayout {
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT
         );
+        LinearLayout.LayoutParams paramsLessonData = new LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1.0f
+        );
 
         this.setLayoutParams(paramsMatchWrap);
         this.setGravity(Gravity.START);
@@ -82,6 +97,17 @@ public class ChangeLessonView extends LinearLayout {
         timeTV.setPadding(0, 0, 25, 0);
         firstStroke.addView(timeTV);
 
+        LinearLayout secondStroke = new LinearLayout(getContext());
+        secondStroke.setLayoutParams(paramsMatchWrap);
+        secondStroke.setOrientation(HORIZONTAL);
+        secondStroke.setPadding(0, 10, 0, 10);
+        this.addView(secondStroke);
+
+        lessonData = new LinearLayout(getContext());
+        lessonData.setLayoutParams(paramsLessonData);
+        lessonData.setOrientation(VERTICAL);
+        secondStroke.addView(lessonData);
+
         if (!lessonName.isEmpty()) {
             lessonTV = new TextView(getContext());
             lessonTV.setLayoutParams(paramsMatchWrap);
@@ -89,7 +115,7 @@ public class ChangeLessonView extends LinearLayout {
             lessonTV.setTextSize(14.0f);
             lessonTV.setText(lessonName);
             lessonTV.setPadding(50, 0, 0, 0);
-            this.addView(lessonTV);
+            lessonData.addView(lessonTV);
 
             if (!lessonCabinet.isEmpty() || !lessonTeacher.isEmpty()) {
                 cabinetTV = new TextView(getContext());
@@ -103,27 +129,29 @@ public class ChangeLessonView extends LinearLayout {
                 else
                     cabinetTV.setText(String.format("%s, %s", lessonCabinet, lessonTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
-                this.addView(cabinetTV);
+                lessonData.addView(cabinetTV);
             }
         }
 
-        LinearLayout changeStroke = new LinearLayout(getContext());
-        changeStroke.setLayoutParams(paramsMatchWrap);
-        changeStroke.setOrientation(HORIZONTAL);
-        changeStroke.setPadding(0, 10, 0, 10);
-        this.addView(changeStroke);
+        LinearLayout changeColumn = new LinearLayout(getContext());
+        changeColumn.setLayoutParams(paramsWrapWrap);
+        changeColumn.setOrientation(VERTICAL);
+        changeColumn.setPadding(25, 0, 0, 0);
+        secondStroke.addView(changeColumn);
 
-        Button deleteLessonBtn = new Button(getContext());
-        deleteLessonBtn.setText("Удалить");
-        deleteLessonBtn.setTextAlignment(TEXT_ALIGNMENT_CENTER);
-        deleteLessonBtn.setOnClickListener(new DeleteLessonBtnListener());
-        changeStroke.addView(deleteLessonBtn);
-
-        Button changeLessonBtn = new Button(getContext());
-        changeLessonBtn.setText("Изменить");
-        changeLessonBtn.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        ImageButton changeLessonBtn = new ImageButton(getContext());
+        changeLessonBtn.setLayoutParams(paramsWrapWrap);
+        changeLessonBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                R.drawable.ic_rename));
         changeLessonBtn.setOnClickListener(new ChangeLessonBtnListener());
-        changeStroke.addView(changeLessonBtn);
+        changeColumn.addView(changeLessonBtn);
+
+        ImageButton deleteLessonBtn = new ImageButton(getContext());
+        deleteLessonBtn.setLayoutParams(paramsWrapWrap);
+        deleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                R.drawable.ic_thrash));
+        deleteLessonBtn.setOnClickListener(new DeleteLessonBtnListener());
+        changeColumn.addView(deleteLessonBtn);
     }
 
     private class DeleteLessonBtnListener implements View.OnClickListener {
@@ -141,8 +169,8 @@ public class ChangeLessonView extends LinearLayout {
                 lessonName = "";
                 teacher = "";
                 cabinet = "";
-                removeView(lessonTV);
-                removeView(cabinetTV);
+                lessonData.removeView(lessonTV);
+                lessonData.removeView(cabinetTV);
             } catch (Exception ignored) {}
         }
     }

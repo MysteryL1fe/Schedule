@@ -1,4 +1,4 @@
-package com.example.schedule;
+package com.example.schedule.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.schedule.R;
+import com.example.schedule.ScheduleStorage;
 import com.example.schedule.exceptions.ScheduleException;
 
 public class ChangeLessonActivity extends AppCompatActivity {

@@ -1,13 +1,14 @@
-package com.example.schedule;
+package com.example.schedule.views;
 
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.schedule.R;
 
 /**
  * TODO: document your custom view class.

@@ -1,4 +1,4 @@
-package com.example.schedule;
+package com.example.schedule.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -7,16 +7,19 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.example.schedule.R;
+import com.example.schedule.Schedule;
+import com.example.schedule.ScheduleStorage;
+import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
+import com.example.schedule.views.LessonsView;
 
 import java.util.Calendar;
-import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.

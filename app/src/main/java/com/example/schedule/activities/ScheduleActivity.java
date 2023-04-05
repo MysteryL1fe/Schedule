@@ -1,27 +1,21 @@
-package com.example.schedule;
+package com.example.schedule.activities;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 
-import com.example.schedule.exceptions.ScheduleException;
+import com.example.schedule.fragments.ChangeScheduleFragment;
+import com.example.schedule.R;
+import com.example.schedule.fragments.ScheduleFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
-
-import java.util.Calendar;
-import java.util.Set;
 
 public class ScheduleActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
@@ -52,6 +46,12 @@ public class ScheduleActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.fragment_view,
                 ScheduleFragment.newInstance(flowLvl, course, group, subgroup)).commit();
+        navView.setCheckedItem(R.id.nav_schedule);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         navView.setCheckedItem(R.id.nav_schedule);
     }
 
