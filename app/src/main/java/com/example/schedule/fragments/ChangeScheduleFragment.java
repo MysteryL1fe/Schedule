@@ -68,23 +68,8 @@ public class ChangeScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup);
         View view = inflater.inflate(R.layout.fragment_change_schedule, container, false);
-
-        if (mSchedule == null) {
-            try {
-                mSchedule = new Schedule(mFlowLvl, mCourse, mGroup, mSubgroup);
-                ScheduleStorage.addSchedule(mSchedule, this.getActivity()
-                        .getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
-            } catch (ScheduleException e) {
-                return view;
-            }
-        }
-
         mLessonsContainer = view.findViewById(R.id.lessons_container);
-
-        LoadLessons loadLessons = new LoadLessons();
-        loadLessons.execute();
 
         return view;
     }
@@ -97,8 +82,6 @@ public class ChangeScheduleFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        mLessonsContainer.removeAllViews();
 
         mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup);
 
@@ -124,7 +107,7 @@ public class ChangeScheduleFragment extends Fragment {
 
             for (int i = 0; i < 12; i++) {
                 ChangeLessonsView changeLessonsView = new ChangeLessonsView(
-                        mLessonsContainer.getContext(), mSchedule, dayOfWeek, isNumerator);
+                        mLessonsContainer.getContext(), mSchedule, dayOfWeek);
                 changeLessonsViews[i] = changeLessonsView;
                 if (++dayOfWeek == 7) {
                     dayOfWeek = 1;
@@ -137,7 +120,8 @@ public class ChangeScheduleFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            for (int i = 0; i < 12; i++) {
+            mLessonsContainer.removeAllViews();
+            for (int i = 0; i < 6; i++) {
                 mLessonsContainer.addView(changeLessonsViews[i]);
             }
         }

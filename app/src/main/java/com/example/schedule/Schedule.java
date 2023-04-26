@@ -2,9 +2,12 @@ package com.example.schedule;
 
 import com.example.schedule.exceptions.ScheduleException;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class Schedule {
     private final LessonStruct[][] numerator = new LessonStruct[7][8];
-    private final LessonStruct[][] denumerator = new LessonStruct[7][8];
+    private final LessonStruct[][] denominator = new LessonStruct[7][8];
     private final int flowLvl, course, group, subgroup;
 
     public Schedule() throws ScheduleException {
@@ -28,7 +31,7 @@ public class Schedule {
         if (dayOfWeek < 1 || dayOfWeek > 7) throw new ScheduleException("Неверный день недели");
         if (lessonNum < 1 || lessonNum > 8) throw new ScheduleException("Неверный номер пары");
         return isNumerator ? numerator[dayOfWeek - 1][lessonNum - 1]
-                : denumerator[dayOfWeek - 1][lessonNum - 1];
+                : denominator[dayOfWeek - 1][lessonNum - 1];
     }
 
     public void setLesson(int dayOfWeek, int lessonNum, boolean isNumerator,
@@ -36,7 +39,7 @@ public class Schedule {
         if (dayOfWeek < 1 || dayOfWeek > 7) throw new ScheduleException("Неверный день недели");
         if (lessonNum < 1 || lessonNum > 8) throw new ScheduleException("Неверный номер пары");
         if (isNumerator) numerator[dayOfWeek - 1][lessonNum - 1] = newLesson;
-        else denumerator[dayOfWeek - 1][lessonNum - 1] = newLesson;
+        else denominator[dayOfWeek - 1][lessonNum - 1] = newLesson;
     }
 
     public int getFlowLvl() {
@@ -53,5 +56,23 @@ public class Schedule {
 
     public int getSubgroup() {
         return subgroup;
+    }
+
+    public String toExport() {
+        StringBuilder sb = new StringBuilder();
+        for (LessonStruct[] lessonStructs : numerator) {
+            for (LessonStruct lessonStruct : lessonStructs) {
+                if (lessonStruct == null) sb.append("null&");
+                else sb.append(String.format("%s&", lessonStruct.toExport()));
+            }
+        }
+        sb.append(";");
+        for (LessonStruct[] lessonStructs : denominator) {
+            for (LessonStruct lessonStruct : lessonStructs) {
+                if (lessonStruct == null) sb.append("_&");
+                else sb.append(String.format("%s&", lessonStruct.toExport()));
+            }
+        }
+        return sb.toString();
     }
 }

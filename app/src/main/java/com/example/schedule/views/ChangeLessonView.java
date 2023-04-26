@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -15,17 +16,21 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.example.schedule.LessonStruct;
+import com.example.schedule.Schedule;
 import com.example.schedule.activities.ChangeLessonActivity;
 import com.example.schedule.R;
 import com.example.schedule.activities.ScheduleActivity;
 import com.example.schedule.ScheduleStorage;
 import com.example.schedule.Utils;
+import com.example.schedule.exceptions.ScheduleException;
+import com.google.android.material.divider.MaterialDivider;
 
 public class ChangeLessonView extends LinearLayout {
-    private int lessonNum;
-    private String lessonName, teacher, cabinet;
-    private TextView lessonTV, cabinetTV;
-    private LinearLayout lessonData;
+    private int dayOfWeek, lessonNum;
+    private LessonStruct numerator, denominator;
+    private ScheduleActivity scheduleActivity;
+    private Context context;
 
     public ChangeLessonView(Context context) {
         super(context);
@@ -39,23 +44,29 @@ public class ChangeLessonView extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public ChangeLessonView(Context context, int lessonNum) {
+    public ChangeLessonView(Context context, int dayOfWeek, int lessonNum) {
         super(context);
-        init(lessonNum, "", "", "");
+        init(dayOfWeek, lessonNum);
     }
 
-    public ChangeLessonView(Context context, int lessonNum, String lessonName,
-                            String lessonCabinet, String lessonTeacher) {
-        super(context);
-        init(lessonNum, lessonName, lessonCabinet, lessonTeacher);
-    }
-
-    public void init(int lessonNum, String lessonName, String lessonCabinet,
-                     String lessonTeacher) {
+    public void init(int dayOfWeek, int lessonNum) {
+        context = getContext();
+        scheduleActivity = (ScheduleActivity) context;
+        this.dayOfWeek = dayOfWeek;
         this.lessonNum = lessonNum;
-        this.lessonName = lessonName;
-        this.teacher = lessonTeacher;
-        this.cabinet = lessonCabinet;
+        try {
+            Schedule schedule = ScheduleStorage.getSchedule(
+                    scheduleActivity.getFlowLvl(),
+                    scheduleActivity.getCourse(),
+                    scheduleActivity.getGroup(),
+                    scheduleActivity.getSubgroup()
+            );
+            this.numerator = schedule.getLesson(dayOfWeek, lessonNum, true);
+            this.denominator = schedule.getLesson(dayOfWeek, lessonNum, false);
+        } catch (Exception e) {
+            this.numerator = null;
+            this.denominator = null;
+        }
 
         LayoutParams paramsMatchWrap = new LayoutParams(
                 LayoutParams.MATCH_PARENT,
@@ -76,13 +87,13 @@ public class ChangeLessonView extends LinearLayout {
         this.setOrientation(VERTICAL);
         this.setBackgroundColor(getResources().getColor(R.color.gray_600));
 
-        LinearLayout firstStroke = new LinearLayout(getContext());
+        LinearLayout firstStroke = new LinearLayout(context);
         firstStroke.setLayoutParams(paramsMatchWrap);
         firstStroke.setOrientation(HORIZONTAL);
         firstStroke.setPadding(0, 10, 0, 10);
         this.addView(firstStroke);
 
-        TextView lessonNumTV = new TextView(getContext());
+        TextView lessonNumTV = new TextView(context);
         lessonNumTV.setLayoutParams(paramsWrapWrap);
         lessonNumTV.setText(String.format("%s", lessonNum));
         lessonNumTV.setTextSize(12.0f);
@@ -91,7 +102,7 @@ public class ChangeLessonView extends LinearLayout {
         lessonNumTV.setPadding(75, 5, 15, 5);
         firstStroke.addView(lessonNumTV);
 
-        TextView timeTV = new TextView(getContext());
+        TextView timeTV = new TextView(context);
         timeTV.setLayoutParams(paramsMatchWrap);
         timeTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_END);
         timeTV.setText(Utils.getTimeByLesson(lessonNum));
@@ -99,104 +110,442 @@ public class ChangeLessonView extends LinearLayout {
         timeTV.setPadding(0, 0, 25, 0);
         firstStroke.addView(timeTV);
 
-        LinearLayout secondStroke = new LinearLayout(getContext());
-        secondStroke.setLayoutParams(paramsMatchWrap);
-        secondStroke.setOrientation(HORIZONTAL);
-        secondStroke.setPadding(0, 10, 0, 10);
-        this.addView(secondStroke);
+        if (numerator != null && numerator.name != null && !numerator.name.isEmpty()
+                && denominator != null && denominator.name != null && !denominator.name.isEmpty()
+                && numerator.equals(denominator)) {
+            LinearLayout secondStroke = new LinearLayout(context);
+            secondStroke.setLayoutParams(paramsMatchWrap);
+            secondStroke.setOrientation(HORIZONTAL);
+            secondStroke.setPadding(0, 10, 0, 10);
+            this.addView(secondStroke);
 
-        lessonData = new LinearLayout(getContext());
-        lessonData.setLayoutParams(paramsLessonData);
-        lessonData.setOrientation(VERTICAL);
-        secondStroke.addView(lessonData);
+            LinearLayout lessonData = new LinearLayout(context);
+            lessonData.setLayoutParams(paramsLessonData);
+            lessonData.setOrientation(VERTICAL);
+            secondStroke.addView(lessonData);
 
-        if (!lessonName.isEmpty()) {
-            lessonTV = new TextView(getContext());
+            TextView lessonTV = new TextView(context);
             lessonTV.setLayoutParams(paramsMatchWrap);
             lessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
             lessonTV.setTextSize(14.0f);
-            lessonTV.setText(lessonName);
+            lessonTV.setText(numerator.name);
             lessonTV.setPadding(50, 0, 0, 0);
             lessonData.addView(lessonTV);
 
-            if (!lessonCabinet.isEmpty() || !lessonTeacher.isEmpty()) {
-                cabinetTV = new TextView(getContext());
+            if (!numerator.cabinet.isEmpty() || !numerator.teacher.isEmpty()) {
+                TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
                 cabinetTV.setTextSize(12.0f);
-                if (lessonTeacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", lessonCabinet));
-                else if (lessonCabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", lessonTeacher));
+                if (numerator.teacher.isEmpty())
+                    cabinetTV.setText(String.format("%s", numerator.cabinet));
+                else if (numerator.cabinet.isEmpty())
+                    cabinetTV.setText(String.format("%s", numerator.teacher));
                 else
-                    cabinetTV.setText(String.format("%s, %s", lessonCabinet, lessonTeacher));
+                    cabinetTV.setText(
+                            String.format("%s, %s", numerator.cabinet, numerator.teacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
                 lessonData.addView(cabinetTV);
             }
+
+            LinearLayout changeColumn = new LinearLayout(context);
+            changeColumn.setLayoutParams(paramsWrapWrap);
+            changeColumn.setOrientation(VERTICAL);
+            changeColumn.setPadding(25, 0, 0, 0);
+            secondStroke.addView(changeColumn);
+
+            ImageButton changeLessonBtn = new ImageButton(context);
+            changeLessonBtn.setLayoutParams(paramsWrapWrap);
+            changeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            changeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(true,true));
+            changeColumn.addView(changeLessonBtn);
+
+            ImageButton deleteLessonBtn = new ImageButton(context);
+            deleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            deleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_thrash));
+            deleteLessonBtn.setOnClickListener(
+                    new DeleteLessonBtnListener(true, true));
+            changeColumn.addView(deleteLessonBtn);
         }
+        else if (numerator != null && numerator.name != null && !numerator.name.isEmpty()
+                && denominator != null && denominator.name != null && !denominator.name.isEmpty()) {
+            LinearLayout secondStroke = new LinearLayout(context);
+            secondStroke.setLayoutParams(paramsMatchWrap);
+            secondStroke.setOrientation(HORIZONTAL);
+            secondStroke.setPadding(0, 10, 0, 10);
+            this.addView(secondStroke);
 
-        LinearLayout changeColumn = new LinearLayout(getContext());
-        changeColumn.setLayoutParams(paramsWrapWrap);
-        changeColumn.setOrientation(VERTICAL);
-        changeColumn.setPadding(25, 0, 0, 0);
-        secondStroke.addView(changeColumn);
+            LinearLayout numeratorLessonData = new LinearLayout(context);
+            numeratorLessonData.setLayoutParams(paramsLessonData);
+            numeratorLessonData.setOrientation(VERTICAL);
+            secondStroke.addView(numeratorLessonData);
 
-        ImageButton changeLessonBtn = new ImageButton(getContext());
-        changeLessonBtn.setLayoutParams(paramsWrapWrap);
-        changeLessonBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),
-                R.drawable.ic_rename));
-        changeLessonBtn.setOnClickListener(new ChangeLessonBtnListener());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.w("HUI", getContext().getTheme().toString());
+            TextView numeratorLessonTV = new TextView(context);
+            numeratorLessonTV.setLayoutParams(paramsMatchWrap);
+            numeratorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+            numeratorLessonTV.setTextSize(14.0f);
+            numeratorLessonTV.setText(numerator.name);
+            numeratorLessonTV.setPadding(50, 0, 0, 0);
+            numeratorLessonData.addView(numeratorLessonTV);
+
+            if (!numerator.cabinet.isEmpty() || !numerator.teacher.isEmpty()) {
+                TextView cabinetTV = new TextView(context);
+                cabinetTV.setLayoutParams(paramsMatchWrap);
+                cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+                cabinetTV.setTextSize(12.0f);
+                if (numerator.teacher.isEmpty())
+                    cabinetTV.setText(String.format("%s", numerator.cabinet));
+                else if (numerator.cabinet.isEmpty())
+                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                else
+                    cabinetTV.setText(
+                            String.format("%s, %s", numerator.cabinet, numerator.teacher));
+                cabinetTV.setPadding(50, 0, 0, 25);
+                numeratorLessonData.addView(cabinetTV);
+            }
+
+            LinearLayout numeratorChangeRow = new LinearLayout(context);
+            numeratorChangeRow.setLayoutParams(paramsWrapWrap);
+            numeratorChangeRow.setOrientation(HORIZONTAL);
+            numeratorChangeRow.setPadding(25, 0, 0, 0);
+            secondStroke.addView(numeratorChangeRow);
+
+            ImageButton numeratorChangeLessonBtn = new ImageButton(context);
+            numeratorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            numeratorChangeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(true, false));
+            numeratorChangeRow.addView(numeratorChangeLessonBtn);
+
+            ImageButton numeratorDeleteLessonBtn = new ImageButton(context);
+            numeratorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_thrash));
+            numeratorDeleteLessonBtn.setOnClickListener(
+                    new DeleteLessonBtnListener(true, false));
+            numeratorChangeRow.addView(numeratorDeleteLessonBtn);
+
+            MaterialDivider divider = new MaterialDivider(context);
+            this.addView(divider);
+
+            LinearLayout thirdStroke = new LinearLayout(context);
+            thirdStroke.setLayoutParams(paramsMatchWrap);
+            thirdStroke.setOrientation(HORIZONTAL);
+            thirdStroke.setPadding(0, 10, 0, 10);
+            this.addView(thirdStroke);
+
+            LinearLayout denominatorLessonData = new LinearLayout(context);
+            denominatorLessonData.setLayoutParams(paramsLessonData);
+            denominatorLessonData.setOrientation(VERTICAL);
+            thirdStroke.addView(denominatorLessonData);
+
+            TextView denominatorLessonTV = new TextView(context);
+            denominatorLessonTV.setLayoutParams(paramsMatchWrap);
+            denominatorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+            denominatorLessonTV.setTextSize(14.0f);
+            denominatorLessonTV.setText(denominator.name);
+            denominatorLessonTV.setPadding(50, 0, 0, 0);
+            denominatorLessonData.addView(denominatorLessonTV);
+
+            if (!denominator.cabinet.isEmpty() || !denominator.teacher.isEmpty()) {
+                TextView cabinetTV = new TextView(context);
+                cabinetTV.setLayoutParams(paramsMatchWrap);
+                cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+                cabinetTV.setTextSize(12.0f);
+                if (denominator.teacher.isEmpty())
+                    cabinetTV.setText(String.format("%s", denominator.cabinet));
+                else if (denominator.cabinet.isEmpty())
+                    cabinetTV.setText(String.format("%s", denominator.teacher));
+                else
+                    cabinetTV.setText(
+                            String.format("%s, %s", denominator.cabinet, denominator.teacher));
+                cabinetTV.setPadding(50, 0, 0, 25);
+                denominatorLessonData.addView(cabinetTV);
+            }
+
+            LinearLayout denominatorChangeRow = new LinearLayout(context);
+            denominatorChangeRow.setLayoutParams(paramsWrapWrap);
+            denominatorChangeRow.setOrientation(HORIZONTAL);
+            denominatorChangeRow.setPadding(25, 0, 0, 0);
+            thirdStroke.addView(denominatorChangeRow);
+
+            ImageButton denominatorChangeLessonBtn = new ImageButton(context);
+            denominatorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            denominatorChangeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(false, true));
+            denominatorChangeRow.addView(denominatorChangeLessonBtn);
+
+            ImageButton denominatorDeleteLessonBtn = new ImageButton(context);
+            denominatorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_thrash));
+            denominatorDeleteLessonBtn.setOnClickListener(
+                    new DeleteLessonBtnListener(false, true));
+            denominatorChangeRow.addView(denominatorDeleteLessonBtn);
         }
-        changeColumn.addView(changeLessonBtn);
+        else if (numerator != null && numerator.name != null && !numerator.name.isEmpty()) {
+            LinearLayout secondStroke = new LinearLayout(context);
+            secondStroke.setLayoutParams(paramsMatchWrap);
+            secondStroke.setOrientation(HORIZONTAL);
+            secondStroke.setPadding(0, 10, 0, 10);
+            this.addView(secondStroke);
 
-        ImageButton deleteLessonBtn = new ImageButton(getContext());
-        deleteLessonBtn.setLayoutParams(paramsWrapWrap);
-        deleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),
-                R.drawable.ic_thrash));
-        deleteLessonBtn.setOnClickListener(new DeleteLessonBtnListener());
-        changeColumn.addView(deleteLessonBtn);
+            LinearLayout numeratorLessonData = new LinearLayout(context);
+            numeratorLessonData.setLayoutParams(paramsLessonData);
+            numeratorLessonData.setOrientation(VERTICAL);
+            secondStroke.addView(numeratorLessonData);
+
+            TextView numeratorLessonTV = new TextView(context);
+            numeratorLessonTV.setLayoutParams(paramsMatchWrap);
+            numeratorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+            numeratorLessonTV.setTextSize(14.0f);
+            numeratorLessonTV.setText(numerator.name);
+            numeratorLessonTV.setPadding(50, 0, 0, 0);
+            numeratorLessonData.addView(numeratorLessonTV);
+
+            if (!numerator.cabinet.isEmpty() || !numerator.teacher.isEmpty()) {
+                TextView cabinetTV = new TextView(context);
+                cabinetTV.setLayoutParams(paramsMatchWrap);
+                cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+                cabinetTV.setTextSize(12.0f);
+                if (numerator.teacher.isEmpty())
+                    cabinetTV.setText(String.format("%s", numerator.cabinet));
+                else if (numerator.cabinet.isEmpty())
+                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                else
+                    cabinetTV.setText(
+                            String.format("%s, %s", numerator.cabinet, numerator.teacher));
+                cabinetTV.setPadding(50, 0, 0, 25);
+                numeratorLessonData.addView(cabinetTV);
+            }
+
+            LinearLayout numeratorChangeRow = new LinearLayout(context);
+            numeratorChangeRow.setLayoutParams(paramsWrapWrap);
+            numeratorChangeRow.setOrientation(HORIZONTAL);
+            numeratorChangeRow.setPadding(25, 0, 0, 0);
+            secondStroke.addView(numeratorChangeRow);
+
+            ImageButton numeratorChangeLessonBtn = new ImageButton(context);
+            numeratorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            numeratorChangeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(true, false));
+            numeratorChangeRow.addView(numeratorChangeLessonBtn);
+
+            ImageButton numeratorDeleteLessonBtn = new ImageButton(context);
+            numeratorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_thrash));
+            numeratorDeleteLessonBtn.setOnClickListener(
+                    new DeleteLessonBtnListener(true, false));
+            numeratorChangeRow.addView(numeratorDeleteLessonBtn);
+
+            MaterialDivider divider = new MaterialDivider(context);
+            this.addView(divider);
+
+            LinearLayout thirdStroke = new LinearLayout(context);
+            thirdStroke.setLayoutParams(paramsMatchWrap);
+            thirdStroke.setOrientation(HORIZONTAL);
+            thirdStroke.setPadding(0, 10, 0, 10);
+            this.addView(thirdStroke);
+
+            LinearLayout denominatorLessonData = new LinearLayout(context);
+            denominatorLessonData.setLayoutParams(paramsLessonData);
+            denominatorLessonData.setOrientation(VERTICAL);
+            thirdStroke.addView(denominatorLessonData);
+
+            LinearLayout denominatorChangeRow = new LinearLayout(context);
+            denominatorChangeRow.setLayoutParams(paramsWrapWrap);
+            denominatorChangeRow.setOrientation(HORIZONTAL);
+            denominatorChangeRow.setPadding(25, 0, 0, 0);
+            thirdStroke.addView(denominatorChangeRow);
+
+            ImageButton denominatorChangeLessonBtn = new ImageButton(context);
+            denominatorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            denominatorChangeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(false, true));
+            denominatorChangeRow.addView(denominatorChangeLessonBtn);
+        }
+        else if (denominator != null && denominator.name != null && !denominator.name.isEmpty()) {
+            LinearLayout secondStroke = new LinearLayout(context);
+            secondStroke.setLayoutParams(paramsMatchWrap);
+            secondStroke.setOrientation(HORIZONTAL);
+            secondStroke.setPadding(0, 10, 0, 10);
+            this.addView(secondStroke);
+
+            LinearLayout numeratorLessonData = new LinearLayout(context);
+            numeratorLessonData.setLayoutParams(paramsLessonData);
+            numeratorLessonData.setOrientation(VERTICAL);
+            secondStroke.addView(numeratorLessonData);
+
+            LinearLayout numeratorChangeRow = new LinearLayout(context);
+            numeratorChangeRow.setLayoutParams(paramsWrapWrap);
+            numeratorChangeRow.setOrientation(HORIZONTAL);
+            numeratorChangeRow.setPadding(25, 0, 0, 0);
+            secondStroke.addView(numeratorChangeRow);
+
+            ImageButton numeratorChangeLessonBtn = new ImageButton(context);
+            numeratorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            numeratorChangeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(true, false));
+            numeratorChangeRow.addView(numeratorChangeLessonBtn);
+
+            MaterialDivider divider = new MaterialDivider(context);
+            this.addView(divider);
+
+            LinearLayout thirdStroke = new LinearLayout(context);
+            thirdStroke.setLayoutParams(paramsMatchWrap);
+            thirdStroke.setOrientation(HORIZONTAL);
+            thirdStroke.setPadding(0, 10, 0, 10);
+            this.addView(thirdStroke);
+
+            LinearLayout denominatorLessonData = new LinearLayout(context);
+            denominatorLessonData.setLayoutParams(paramsLessonData);
+            denominatorLessonData.setOrientation(VERTICAL);
+            thirdStroke.addView(denominatorLessonData);
+
+            TextView denominatorLessonTV = new TextView(context);
+            denominatorLessonTV.setLayoutParams(paramsMatchWrap);
+            denominatorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+            denominatorLessonTV.setTextSize(14.0f);
+            denominatorLessonTV.setText(denominator.name);
+            denominatorLessonTV.setPadding(50, 0, 0, 0);
+            denominatorLessonData.addView(denominatorLessonTV);
+
+            if (!denominator.cabinet.isEmpty() || !denominator.teacher.isEmpty()) {
+                TextView cabinetTV = new TextView(context);
+                cabinetTV.setLayoutParams(paramsMatchWrap);
+                cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+                cabinetTV.setTextSize(12.0f);
+                if (denominator.teacher.isEmpty())
+                    cabinetTV.setText(String.format("%s", denominator.cabinet));
+                else if (denominator.cabinet.isEmpty())
+                    cabinetTV.setText(String.format("%s", denominator.teacher));
+                else
+                    cabinetTV.setText(
+                            String.format("%s, %s", denominator.cabinet, denominator.teacher));
+                cabinetTV.setPadding(50, 0, 0, 25);
+                denominatorLessonData.addView(cabinetTV);
+            }
+
+            LinearLayout denominatorChangeRow = new LinearLayout(context);
+            denominatorChangeRow.setLayoutParams(paramsWrapWrap);
+            denominatorChangeRow.setOrientation(HORIZONTAL);
+            denominatorChangeRow.setPadding(25, 0, 0, 0);
+            thirdStroke.addView(denominatorChangeRow);
+
+            ImageButton denominatorChangeLessonBtn = new ImageButton(context);
+            denominatorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            denominatorChangeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(false, true));
+            denominatorChangeRow.addView(denominatorChangeLessonBtn);
+
+            ImageButton denominatorDeleteLessonBtn = new ImageButton(context);
+            denominatorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_thrash));
+            denominatorDeleteLessonBtn.setOnClickListener(
+                    new DeleteLessonBtnListener(false, true));
+            denominatorChangeRow.addView(denominatorDeleteLessonBtn);
+        }
+        else {
+            LinearLayout secondStroke = new LinearLayout(context);
+            secondStroke.setLayoutParams(paramsMatchWrap);
+            secondStroke.setOrientation(HORIZONTAL);
+            secondStroke.setPadding(0, 10, 0, 10);
+            this.addView(secondStroke);
+
+            LinearLayout lessonData = new LinearLayout(context);
+            lessonData.setLayoutParams(paramsLessonData);
+            lessonData.setOrientation(VERTICAL);
+            secondStroke.addView(lessonData);
+
+            LinearLayout changeRow = new LinearLayout(context);
+            changeRow.setLayoutParams(paramsWrapWrap);
+            changeRow.setOrientation(VERTICAL);
+            changeRow.setPadding(25, 0, 0, 0);
+            secondStroke.addView(changeRow);
+
+            ImageButton changeLessonBtn = new ImageButton(context);
+            changeLessonBtn.setLayoutParams(paramsWrapWrap);
+            changeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
+                    R.drawable.ic_rename));
+            changeLessonBtn.setOnClickListener(
+                    new ChangeLessonBtnListener(true, true));
+            changeRow.addView(changeLessonBtn);
+        }
     }
 
     private class DeleteLessonBtnListener implements View.OnClickListener {
+        private boolean isNumerator, isDenominator;
+
+        public DeleteLessonBtnListener(boolean isNumerator, boolean isDenominator) {
+            this.isNumerator = isNumerator;
+            this.isDenominator = isDenominator;
+        }
+
         @Override
         public void onClick(View v) {
-            ChangeLessonsView changeLessonsView = (ChangeLessonsView) getParent();
-            ScheduleActivity scheduleActivity = (ScheduleActivity) getContext();
             try {
-                ScheduleStorage.changeLesson(scheduleActivity.getFlowLvl(),
+                if (isNumerator) ScheduleStorage.changeLesson(scheduleActivity.getFlowLvl(),
                         scheduleActivity.getCourse(), scheduleActivity.getGroup(),
-                        scheduleActivity.getSubgroup(), changeLessonsView.getDayOfWeek(),
-                        lessonNum, changeLessonsView.isNumerator(), "", "",
-                        "", scheduleActivity.getSharedPreferences("ScheduleSaves",
+                        scheduleActivity.getSubgroup(), dayOfWeek,
+                        lessonNum, true, "", "", "",
+                        scheduleActivity.getSharedPreferences("ScheduleSaves",
                                 Context.MODE_PRIVATE));
-                lessonName = "";
-                teacher = "";
-                cabinet = "";
-                lessonData.removeView(lessonTV);
-                lessonData.removeView(cabinetTV);
+                if (isDenominator) ScheduleStorage.changeLesson(scheduleActivity.getFlowLvl(),
+                        scheduleActivity.getCourse(), scheduleActivity.getGroup(),
+                        scheduleActivity.getSubgroup(), dayOfWeek,
+                        lessonNum, false, "", "", "",
+                        scheduleActivity.getSharedPreferences("ScheduleSaves",
+                                Context.MODE_PRIVATE));
+                ChangeLessonView.this.removeAllViews();
+                init(dayOfWeek, lessonNum);
             } catch (Exception ignored) {}
         }
     }
 
     private class ChangeLessonBtnListener implements View.OnClickListener {
+        private boolean isNumerator, isDenominator;
+
+        public ChangeLessonBtnListener(boolean isNumerator, boolean isDenominator) {
+            this.isNumerator = isNumerator;
+            this.isDenominator = isDenominator;
+        }
+
         @Override
         public void onClick(View v) {
-            ChangeLessonsView changeLessonsView = (ChangeLessonsView) getParent();
-            Context context = getContext();
-            ScheduleActivity scheduleActivity = (ScheduleActivity) context;
             Intent intent = new Intent(context, ChangeLessonActivity.class);
             intent.putExtra("flowLvl", scheduleActivity.getFlowLvl());
             intent.putExtra("course", scheduleActivity.getCourse());
             intent.putExtra("group", scheduleActivity.getGroup());
             intent.putExtra("subgroup", scheduleActivity.getSubgroup());
-            intent.putExtra("dayOfWeek", changeLessonsView.getDayOfWeek());
+            intent.putExtra("dayOfWeek", dayOfWeek);
             intent.putExtra("lessonNum", lessonNum);
-            intent.putExtra("isNumerator", changeLessonsView.isNumerator());
-            intent.putExtra("lessonName", lessonName);
-            intent.putExtra("teacher", teacher);
-            intent.putExtra("cabinet", cabinet);
+            intent.putExtra("isNumerator", isNumerator);
+            intent.putExtra("isDenominator", isDenominator);
+            intent.putExtra("lessonName", isNumerator && numerator != null ?
+                    numerator.name : isDenominator && denominator != null ?
+                    denominator.name : "");
+            intent.putExtra("teacher", isNumerator && numerator != null ?
+                    numerator.teacher : isDenominator && denominator != null ?
+                    denominator.teacher : "");
+            intent.putExtra("cabinet", isNumerator && numerator != null ?
+                    numerator.cabinet : isDenominator && denominator != null ?
+                    denominator.cabinet : "");
             context.startActivity(intent);
         }
     }

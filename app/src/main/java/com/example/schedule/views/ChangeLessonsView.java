@@ -16,7 +16,6 @@ public class ChangeLessonsView extends LinearLayout {
     private final ChangeLessonView[] changeLessonViews = new ChangeLessonView[8];
     private Schedule schedule;
     private int dayOfWeek;
-    private boolean isNumerator;
 
     public ChangeLessonsView(Context context) {
         super(context);
@@ -30,13 +29,11 @@ public class ChangeLessonsView extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public ChangeLessonsView(Context context, Schedule schedule, int dayOfWeek,
-                             boolean isNumerator) {
+    public ChangeLessonsView(Context context, Schedule schedule, int dayOfWeek) {
         super(context);
 
         this.schedule = schedule;
         this.dayOfWeek = dayOfWeek;
-        this.isNumerator = isNumerator;
 
         LoadLessons loadLessons = new LoadLessons();
         loadLessons.execute();
@@ -44,10 +41,6 @@ public class ChangeLessonsView extends LinearLayout {
 
     public int getDayOfWeek() {
         return dayOfWeek;
-    }
-
-    public boolean isNumerator() {
-        return isNumerator;
     }
 
     private class LoadLessons extends AsyncTask<Void, Void, Void> {
@@ -59,18 +52,9 @@ public class ChangeLessonsView extends LinearLayout {
             );
 
             for (int i = 1; i < 9; i++) {
-                LessonStruct lesson = null;
-                try {
-                    lesson = schedule.getLesson(dayOfWeek, i, isNumerator);
-                } catch (ScheduleException ignored) {}
-
                 ChangeLessonView changeLessonView;
-                if (lesson != null) {
-                    changeLessonView = new ChangeLessonView(ChangeLessonsView.this.getContext(), i,
-                            lesson.name, lesson.cabinet, lesson.teacher);
-                } else {
-                    changeLessonView = new ChangeLessonView(ChangeLessonsView.this.getContext(), i);
-                }
+                changeLessonView = new ChangeLessonView(
+                        ChangeLessonsView.this.getContext(), dayOfWeek, i);
                 changeLessonView.setLayoutParams(params);
                 changeLessonViews[i - 1] = changeLessonView;
             }
@@ -94,8 +78,7 @@ public class ChangeLessonsView extends LinearLayout {
             ChangeLessonsView.this.removeAllViews();
 
             TextView textView = new TextView(ChangeLessonsView.this.getContext());
-            textView.setText(String.format("%s, %s", Utils.dayOfWeekToStr(dayOfWeek),
-                    isNumerator ? "Числитель" : "Знаменатель"));
+            textView.setText(String.format("%s", Utils.dayOfWeekToStr(dayOfWeek)));
             ChangeLessonsView.this.addView(textView);
 
             for (int i = 0; i < 8; i++) {

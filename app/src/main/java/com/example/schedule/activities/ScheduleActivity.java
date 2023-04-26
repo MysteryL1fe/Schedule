@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
@@ -13,10 +14,13 @@ import android.view.View;
 
 import com.example.schedule.fragments.ChangeScheduleFragment;
 import com.example.schedule.R;
+import com.example.schedule.fragments.HomeworkFragment;
 import com.example.schedule.fragments.ScheduleFragment;
 import com.example.schedule.fragments.SettingsFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
+
+import java.util.List;
 
 public class ScheduleActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
@@ -47,12 +51,6 @@ public class ScheduleActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.fragment_view,
                 ScheduleFragment.newInstance(flowLvl, course, group, subgroup)).commit();
-        navView.setCheckedItem(R.id.nav_schedule);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         navView.setCheckedItem(R.id.nav_schedule);
     }
 
@@ -98,6 +96,10 @@ public class ScheduleActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
                             ChangeScheduleFragment.newInstance(flowLvl, course, group, subgroup))
                             .commit();
+                    return true;
+                case R.id.nav_homework:
+                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
+                            HomeworkFragment.newInstance());
                     return true;
                 case R.id.nav_settings:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,

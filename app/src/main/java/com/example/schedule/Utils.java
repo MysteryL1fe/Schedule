@@ -1,8 +1,12 @@
 package com.example.schedule;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.Contract;
+
+import java.util.Random;
 
 public class Utils {
     private static int[] daysInMonths = new int[] {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -182,5 +186,14 @@ if (!lastTimeDonationShowed.equals(curDay)) {
             default:
                 return "";
         }
+    }
+
+    public static String generateStr() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 12; i++) {
+            sb.append((char) ('a' + Math.abs(random.nextInt()) % 26));
+        }
+        return sb.toString();
     }
 }
