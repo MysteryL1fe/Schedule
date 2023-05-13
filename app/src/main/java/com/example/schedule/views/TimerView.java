@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import com.example.schedule.R;
 
 /**
@@ -29,6 +31,16 @@ public class TimerView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
+    public TimerView(Context context, int timerSeconds) {
+        super(context);
+        init(timerSeconds);
+    }
+
+    public TimerView(Context context, AttributeSet attrs, int defStyle, int timerSeconds) {
+        super(context, attrs, defStyle);
+        init(timerSeconds);
+    }
+
     public void init(int timerSeconds) {
         LayoutParams params = new LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -37,12 +49,14 @@ public class TimerView extends LinearLayout {
         this.setOrientation(HORIZONTAL);
 
         ImageView imageView = new ImageView(getContext());
-        imageView.setImageDrawable(getResources().getDrawable(R.drawable.red_circle));
+        imageView.setImageDrawable(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.red_circle, getContext().getTheme()));
         imageView.setLayoutParams(params);
         this.addView(imageView);
 
         timerTV = new TextView(getContext());
         CountDownTimer timer = new Timer(timerSeconds * 1000L, 1000);
+        timer.start();
     }
 
     private class Timer extends CountDownTimer {
@@ -61,7 +75,7 @@ public class TimerView extends LinearLayout {
         @Override
         public void onTick(long millisUntilFinished) {
             long remainedSecs = millisUntilFinished / 1000;
-            timerTV.setText(String.format("%s:%s", remainedSecs / 60, remainedSecs % 60));
+            timerTV.setText(String.format("%2s:%2s", remainedSecs / 60, remainedSecs % 60).replace(' ', '0'));
         }
 
         @Override

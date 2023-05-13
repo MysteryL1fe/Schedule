@@ -1,8 +1,11 @@
 package com.example.schedule;
 
+import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -14,6 +17,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,17 +38,18 @@ public class ScheduleStorage {
         editor.apply();
     }
 
-    public static Set<Schedule> getStorage() {
+    public static Set<Schedule> getStorage(SharedPreferences saves) {
+        updateStorage(saves);
         if (storage == null) return new HashSet<>();
         return Set.copyOf(storage);
     }
 
-    public static void updateStorage(SharedPreferences pref) {
-        String json = pref.getString("Storage", "");
+    public static void updateStorage(SharedPreferences saves) {
+        String json = saves.getString("Storage", "");
         storage = gson.fromJson(json, type);
     }
 
-    public static void addSchedule(Schedule schedule, SharedPreferences pref) {
+    public static void addSchedule(Schedule schedule, SharedPreferences saves) {
         if (storage != null) {
             for (Schedule sched : storage) {
                 if (schedule.getCourse() == sched.getCourse()
@@ -54,7 +60,7 @@ public class ScheduleStorage {
             storage = new HashSet<>();
         }
         storage.add(schedule);
-        saveStorage(pref);
+        saveStorage(saves);
     }
 
     public static void clearStorage(SharedPreferences saves) {
@@ -65,13 +71,15 @@ public class ScheduleStorage {
         editor.apply();
     }
 
-    public static Schedule getSchedule(int flowLvl, int course, int group, int subgroup) {
+    public static Schedule getSchedule(int flowLvl, int course, int group, int subgroup,
+                                       SharedPreferences saves) {
         if (curSchedule != null && flowLvl == curFlowLvl && course == curCourse
                 && group == curGroup && subgroup == curSubgroup) return curSchedule;
         curFlowLvl = flowLvl;
         curCourse = course;
         curGroup = group;
         curSubgroup = subgroup;
+        updateStorage(saves);
         for (Schedule schedule : storage) {
             if (schedule.getFlowLvl() == flowLvl && schedule.getCourse() == course
                     && schedule.getGroup() == group && schedule.getSubgroup() == subgroup) {
@@ -87,7 +95,7 @@ public class ScheduleStorage {
                                     int lessonNum, boolean isNumerator, String newLessonName,
                                     String newTeacher, String newCabinet, SharedPreferences saves)
             throws ScheduleException {
-        Schedule schedule = getSchedule(flowLvl, course, group, subgroup);
+        Schedule schedule = getSchedule(flowLvl, course, group, subgroup, saves);
         if (schedule != null) {
             LessonStruct lesson = schedule.getLesson(dayOfWeek, lessonNum, isNumerator);
             if (lesson == null) lesson = new LessonStruct();
@@ -99,11 +107,11 @@ public class ScheduleStorage {
         }
     }
 
-    public static boolean exportSchedule() {
+    public static boolean exportSchedule(SharedPreferences saves) {
         File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (!dir.exists()) dir.mkdir();
         try {
-            Schedule schedule = getSchedule(curFlowLvl, curCourse, curGroup, curSubgroup);
+            Schedule schedule = getSchedule(curFlowLvl, curCourse, curGroup, curSubgroup, saves);
             if (schedule == null) throw new ScheduleException("Расписание не найдено");
             String fileName = Utils.generateStr();
             File file = new File(dir, String.format("%s.sch", fileName));
@@ -117,16 +125,36 @@ public class ScheduleStorage {
         }
     }
 
-    public static void importSchedule(String path, SharedPreferences saves) {
-        if (path == null || !path.endsWith(".sch")) return;
+    public static void importScheduleBefore29(String path, SharedPreferences saves) {
         File file = new File(path);
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
-            String str = br.readLine();
+            importSchedule(br.readLine(), saves);
             br.close();
-            String[] weeks = str.split(";");
+        } catch (Exception e) {
+            Log.e("Schedule", e.toString());
+        }
+    }
+
+    public static void importScheduleAfter28(Uri uri, ContentResolver resolver,
+                                             SharedPreferences saves) {
+        try (InputStream stream = resolver.openInputStream(uri)) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+            importSchedule(br.readLine(), saves);
+            br.close();
+        } catch (Exception e) {
+            Log.e("Schedule", e.toString());
+        }
+    }
+
+    private static void importSchedule(String schedule, SharedPreferences saves) {
+        try {
+            String[] weeks = schedule.split(";");
+            if (weeks.length != 2) throw new RuntimeException();
             String[] numerator = weeks[0].split("&");
+            if (numerator.length != 7 * 8) throw new RuntimeException();
             String[] denominator = weeks[1].split("&");
+            if (denominator.length != 7 * 8) throw new RuntimeException();
             for (int i = 0; i < 6; i++) {
                 for (int j = 0; j < 8; j++) {
                     String s = numerator[i * 8 + j];
@@ -135,6 +163,7 @@ public class ScheduleStorage {
                             "", "", saves);
                     else {
                         String[] lesson = s.split("\\*");
+                        if (lesson.length != 3) throw new RuntimeException();
                         changeLesson(curFlowLvl, curCourse, curGroup, curSubgroup,
                                 i + 1, j + 1, true,
                                 lesson[0].equals("_") ? "" : lesson[0],
@@ -159,6 +188,8 @@ public class ScheduleStorage {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Log.e("Schedule", e.toString());
+        }
     }
 }

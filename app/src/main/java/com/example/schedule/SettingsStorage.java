@@ -5,6 +5,7 @@ import android.content.SharedPreferences.Editor;
 
 public class SettingsStorage {
     private static float VERSION = 1.00005f;
+    public static String SCHEDULE_SAVES = "ScheduleSaves";
 
     public static float getCurVersion(SharedPreferences saves) {
         return saves.getFloat("version", 0);

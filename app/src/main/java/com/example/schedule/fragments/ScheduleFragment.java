@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import com.example.schedule.R;
 import com.example.schedule.Schedule;
 import com.example.schedule.ScheduleStorage;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
 import com.example.schedule.views.LessonsView;
@@ -70,7 +71,8 @@ public class ScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup);
+        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup,
+                getActivity().getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
 
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 
@@ -78,7 +80,7 @@ public class ScheduleFragment extends Fragment {
             try {
                 mSchedule = new Schedule(mFlowLvl, mCourse, mGroup, mSubgroup);
                 ScheduleStorage.addSchedule(mSchedule, this.getActivity()
-                        .getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
+                        .getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
             } catch (ScheduleException e) {
                 return view;
             }

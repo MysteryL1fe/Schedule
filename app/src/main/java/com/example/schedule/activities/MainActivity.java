@@ -5,13 +5,16 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PermissionInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        saves = getSharedPreferences("ScheduleSaves", MODE_PRIVATE);
+        saves = getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE);
         editor = saves.edit();
         if (SettingsStorage.isLastVersion(saves)) {
             int[] curFlow = SettingsStorage.getCurFlow(saves);
@@ -58,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
             SettingsStorage.changeToLastVersion(saves);
         }
 
-        ScheduleStorage.updateStorage(saves);
-        storage = ScheduleStorage.getStorage();
+        storage = ScheduleStorage.getStorage(saves);
 
         courseBtn = findViewById(R.id.courseBtn);
         groupBtn = findViewById(R.id.groupBtn);

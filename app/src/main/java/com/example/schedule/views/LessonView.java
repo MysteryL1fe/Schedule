@@ -102,16 +102,4 @@ public class LessonView extends LinearLayout {
             }
         }
     }
-
-    public void createTimerBeforeLesson(int secondsToLesson) {
-        TimerView timerView = new TimerView(getContext());
-        timerView.parentView = this;
-        timerView.init(secondsToLesson);
-    }
-
-    public void createTimerToEndLesson(int secondsToEnd) {
-        TimerView timerView = new TimerView(getContext());
-        timerView.parentView = this;
-        timerView.init(secondsToEnd);
-    }
 }

@@ -3,10 +3,12 @@ package com.example.schedule.activities;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -27,7 +29,6 @@ public class ScheduleActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navView;
     private FragmentManager fragmentManager;
-    private ActivityResultLauncher<Intent> changeLessonActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.example.schedule.R;
 import com.example.schedule.ScheduleStorage;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.exceptions.ScheduleException;
 
 public class ChangeLessonActivity extends AppCompatActivity {
@@ -74,20 +75,20 @@ public class ChangeLessonActivity extends AppCompatActivity {
                         flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
                         true, lessonNameEditText.getText().toString(),
                         teacherEditText.getText().toString(), cabinetEditText.getText().toString(),
-                        getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
+                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
                 else if (isNumerator) ScheduleStorage.changeLesson(
                         flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
                         true, "", "", "",
-                        getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
+                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
                 if (isDenominatorCheckBox.isChecked()) ScheduleStorage.changeLesson(
                         flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
                         false, lessonNameEditText.getText().toString(),
                         teacherEditText.getText().toString(), cabinetEditText.getText().toString(),
-                        getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
+                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
                 else if (isDenominator) ScheduleStorage.changeLesson(
                         flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
                         false, "", "", "",
-                        getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
+                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
                 finish();
             } catch (ScheduleException e) {
                 finish();

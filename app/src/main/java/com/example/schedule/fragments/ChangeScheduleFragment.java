@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import com.example.schedule.R;
 import com.example.schedule.Schedule;
 import com.example.schedule.ScheduleStorage;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.exceptions.ScheduleException;
 import com.example.schedule.views.ChangeLessonsView;
 
@@ -83,13 +84,14 @@ public class ChangeScheduleFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup);
+        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup,
+                getActivity().getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
 
         if (mSchedule == null) {
             try {
                 mSchedule = new Schedule(mFlowLvl, mCourse, mGroup, mSubgroup);
                 ScheduleStorage.addSchedule(mSchedule, this.getActivity()
-                        .getSharedPreferences("ScheduleSaves", MODE_PRIVATE));
+                        .getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
             } catch (ScheduleException ignored) {}
         }
 

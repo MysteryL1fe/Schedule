@@ -17,7 +17,8 @@ public class Utils {
             "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"};
 
     /*public static void checkDonations(@NonNull Context context) {
-        SharedPreferences saves = context.getSharedPreferences("ScheduleSaves", MODE_PRIVATE);
+        SharedPreferences saves = context.getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
+            MODE_PRIVATE);
         String lastTimeDonationShowed = saves.getString("lastTimeDonationShowed", "");
         Calendar calendar = Calendar.getInstance();
         String curDay = String.format("%s.%s.%s", calendar.get(Calendar.DAY_OF_MONTH),

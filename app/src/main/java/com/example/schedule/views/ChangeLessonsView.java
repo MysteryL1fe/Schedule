@@ -1,16 +1,21 @@
 package com.example.schedule.views;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.util.Xml;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.schedule.LessonStruct;
+import com.example.schedule.R;
 import com.example.schedule.Schedule;
 import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.divider.MaterialDivider;
+
+import org.xmlpull.v1.XmlPullParser;
 
 public class ChangeLessonsView extends LinearLayout {
     private final ChangeLessonView[] changeLessonViews = new ChangeLessonView[8];
@@ -53,8 +58,7 @@ public class ChangeLessonsView extends LinearLayout {
 
             for (int i = 1; i < 9; i++) {
                 ChangeLessonView changeLessonView;
-                changeLessonView = new ChangeLessonView(
-                        ChangeLessonsView.this.getContext(), dayOfWeek, i);
+                changeLessonView = new ChangeLessonView(getContext(), dayOfWeek, i);
                 changeLessonView.setLayoutParams(params);
                 changeLessonViews[i - 1] = changeLessonView;
             }
@@ -76,6 +80,9 @@ public class ChangeLessonsView extends LinearLayout {
             ChangeLessonsView.this.setPadding(5, 15, 5, 15);
             ChangeLessonsView.this.setLayoutParams(thisParams);
             ChangeLessonsView.this.removeAllViews();
+
+            TimerView timerView = new TimerView(getContext(), 1000);
+            ChangeLessonsView.this.addView(timerView);
 
             TextView textView = new TextView(ChangeLessonsView.this.getContext());
             textView.setText(String.format("%s", Utils.dayOfWeekToStr(dayOfWeek)));

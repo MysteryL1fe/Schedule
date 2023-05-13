@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.schedule.LessonStruct;
 import com.example.schedule.Schedule;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ChangeLessonActivity;
 import com.example.schedule.R;
 import com.example.schedule.activities.ScheduleActivity;
@@ -59,7 +60,10 @@ public class ChangeLessonView extends LinearLayout {
                     scheduleActivity.getFlowLvl(),
                     scheduleActivity.getCourse(),
                     scheduleActivity.getGroup(),
-                    scheduleActivity.getSubgroup()
+                    scheduleActivity.getSubgroup(),
+                    scheduleActivity.
+                            getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
+                                    Context.MODE_PRIVATE)
             );
             this.numerator = schedule.getLesson(dayOfWeek, lessonNum, true);
             this.denominator = schedule.getLesson(dayOfWeek, lessonNum, false);
@@ -148,11 +152,11 @@ public class ChangeLessonView extends LinearLayout {
                 lessonData.addView(cabinetTV);
             }
 
-            LinearLayout changeColumn = new LinearLayout(context);
-            changeColumn.setLayoutParams(paramsWrapWrap);
-            changeColumn.setOrientation(VERTICAL);
-            changeColumn.setPadding(25, 0, 0, 0);
-            secondStroke.addView(changeColumn);
+            LinearLayout changeRow = new LinearLayout(context);
+            changeRow.setLayoutParams(paramsWrapWrap);
+            changeRow.setOrientation(HORIZONTAL);
+            changeRow.setPadding(25, 0, 0, 0);
+            secondStroke.addView(changeRow);
 
             ImageButton changeLessonBtn = new ImageButton(context);
             changeLessonBtn.setLayoutParams(paramsWrapWrap);
@@ -160,7 +164,7 @@ public class ChangeLessonView extends LinearLayout {
                     R.drawable.ic_rename));
             changeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(true,true));
-            changeColumn.addView(changeLessonBtn);
+            changeRow.addView(changeLessonBtn);
 
             ImageButton deleteLessonBtn = new ImageButton(context);
             deleteLessonBtn.setLayoutParams(paramsWrapWrap);
@@ -168,7 +172,7 @@ public class ChangeLessonView extends LinearLayout {
                     R.drawable.ic_thrash));
             deleteLessonBtn.setOnClickListener(
                     new DeleteLessonBtnListener(true, true));
-            changeColumn.addView(deleteLessonBtn);
+            changeRow.addView(deleteLessonBtn);
         }
         else if (numerator != null && numerator.name != null && !numerator.name.isEmpty()
                 && denominator != null && denominator.name != null && !denominator.name.isEmpty()) {
@@ -504,13 +508,13 @@ public class ChangeLessonView extends LinearLayout {
                         scheduleActivity.getCourse(), scheduleActivity.getGroup(),
                         scheduleActivity.getSubgroup(), dayOfWeek,
                         lessonNum, true, "", "", "",
-                        scheduleActivity.getSharedPreferences("ScheduleSaves",
+                        scheduleActivity.getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
                                 Context.MODE_PRIVATE));
                 if (isDenominator) ScheduleStorage.changeLesson(scheduleActivity.getFlowLvl(),
                         scheduleActivity.getCourse(), scheduleActivity.getGroup(),
                         scheduleActivity.getSubgroup(), dayOfWeek,
                         lessonNum, false, "", "", "",
-                        scheduleActivity.getSharedPreferences("ScheduleSaves",
+                        scheduleActivity.getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
                                 Context.MODE_PRIVATE));
                 ChangeLessonView.this.removeAllViews();
                 init(dayOfWeek, lessonNum);
