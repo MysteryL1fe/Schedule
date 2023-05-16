@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
@@ -47,6 +48,26 @@ public class MainActivity extends AppCompatActivity {
 
         saves = getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE);
         editor = saves.edit();
+
+        int theme = SettingsStorage.getTheme(saves);
+        switch (theme) {
+            case 0:
+                AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                );
+                break;
+            case 1:
+                AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_NO
+                );
+                break;
+            case 2:
+                AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_YES
+                );
+                break;
+        }
+
         if (SettingsStorage.isLastVersion(saves)) {
             int[] curFlow = SettingsStorage.getCurFlow(saves);
             flowLvl = curFlow[0];

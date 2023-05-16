@@ -38,4 +38,14 @@ public class SettingsStorage {
         ScheduleStorage.clearStorage(saves);
         editor.apply();
     }
+
+    public static int getTheme(SharedPreferences saves) {
+        return saves.getInt("theme", 0);
+    }
+
+    public static void setTheme(int theme, SharedPreferences saves) {
+        Editor editor = saves.edit();
+        editor.putInt("theme", theme);
+        editor.apply();
+    }
 }

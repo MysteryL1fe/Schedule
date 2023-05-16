@@ -98,10 +98,10 @@ public class ScheduleActivity extends AppCompatActivity {
                             ChangeScheduleFragment.newInstance(flowLvl, course, group, subgroup))
                             .commit();
                     return true;
-                case R.id.nav_homework:
+                /*case R.id.nav_homework:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
                             HomeworkFragment.newInstance());
-                    return true;
+                    return true;*/
                 case R.id.nav_settings:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
                             SettingsFragment.newInstance()).commit();

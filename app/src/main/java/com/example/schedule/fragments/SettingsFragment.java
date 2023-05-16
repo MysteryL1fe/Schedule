@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -16,6 +17,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -32,6 +34,7 @@ import com.example.schedule.R;
 import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,7 +45,6 @@ public class SettingsFragment extends Fragment {
     private ActivityResultLauncher<Intent> fileChooserActivity;
     private ActivityResultLauncher<String> requestReadPermissionLauncher;
     private ActivityResultLauncher<String> requestWritePermissionLauncher;
-    private ActivityResultLauncher<String> requestManageStoragePermissionLauncher;
 
     public SettingsFragment() {}
 
@@ -123,7 +125,40 @@ public class SettingsFragment extends Fragment {
     private class ChooseThemeBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            String[] items = new String[] {"Системная", "Светлая", "Тёмная"};
+            new MaterialAlertDialogBuilder(getContext(), R.style.Theme_Schedule_Dialog)
+                    .setTitle("Выберите тему")
+                    .setItems(items, new DialogInterfaceListener())
+                    .show();
+        }
 
+        private class DialogInterfaceListener implements DialogInterface.OnClickListener {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences saves = getContext().getSharedPreferences(
+                        SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
+                );
+                if (SettingsStorage.getTheme(saves) != which) {
+                    SettingsStorage.setTheme(which, saves);
+                    switch (which) {
+                        case 0:
+                            AppCompatDelegate.setDefaultNightMode(
+                                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                            );
+                            break;
+                        case 1:
+                            AppCompatDelegate.setDefaultNightMode(
+                                    AppCompatDelegate.MODE_NIGHT_NO
+                            );
+                            break;
+                        case 2:
+                            AppCompatDelegate.setDefaultNightMode(
+                                    AppCompatDelegate.MODE_NIGHT_YES
+                            );
+                            break;
+                    }
+                }
+            }
         }
     }
 
@@ -137,14 +172,11 @@ public class SettingsFragment extends Fragment {
     private class ImportBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                    && Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
                     && ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 requestReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-                /*if (Build.VERSION.SDK_INT >= 30)
-                    requestManageStoragePermissionLauncher.launch(Manifest.permission.MANAGE_EXTERNAL_STORAGE);*/
                 return;
             }
             importSchedule();
@@ -154,8 +186,7 @@ public class SettingsFragment extends Fragment {
     private class ExportBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                    && Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
                     && ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
