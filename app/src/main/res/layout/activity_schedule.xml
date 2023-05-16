@@ -6,6 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/background"
     tools:openDrawer="start"
     tools:context=".activities.ScheduleActivity">
 
@@ -16,9 +17,9 @@
 
             <com.google.android.material.appbar.AppBarLayout
                 android:id="@+id/appBarLayout"
-                style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
                 android:fitsSystemWindows="true">
 
                 <com.google.android.material.appbar.MaterialToolbar
@@ -29,7 +30,7 @@
                     android:background="@android:color/transparent"
                     app:navigationIcon="@drawable/ic_menu"
                     app:title="Расписание"
-                    android:elevation="0dp"/>
+                    android:elevation="0dp" />
 
             </com.google.android.material.appbar.AppBarLayout>
 
@@ -37,7 +38,8 @@
                 android:id="@+id/fragment_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:name="com.example.schedule.fragments.ScheduleFragment" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -46,6 +48,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:menu="@menu/navigation_drawer"
+        android:background="?attr/colorPrimary"
+        app:itemTextColor="?attr/colorOnPrimary"
         android:layout_gravity="start" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

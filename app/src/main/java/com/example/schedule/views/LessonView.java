@@ -2,6 +2,7 @@ package com.example.schedule.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -9,9 +10,6 @@ import android.widget.TextView;
 import com.example.schedule.R;
 import com.example.schedule.Utils;
 
-/**
- * TODO: document your custom view class.
- */
 public class LessonView extends LinearLayout {
 
     public LessonView(Context context) {
@@ -52,7 +50,8 @@ public class LessonView extends LinearLayout {
         this.setLayoutParams(paramsMatchWrap);
         this.setGravity(Gravity.START);
         this.setOrientation(VERTICAL);
-        this.setBackgroundColor(getResources().getColor(R.color.gray_600));
+        this.setBackground(getResources().getDrawable(R.drawable.lesson_background,
+                getContext().getTheme()));
 
         LinearLayout firstStroke = new LinearLayout(getContext());
         firstStroke.setLayoutParams(paramsMatchWrap);

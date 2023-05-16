@@ -3,10 +3,12 @@ package com.example.schedule.views;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.view.ContextThemeWrapper;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.schedule.LessonStruct;
+import com.example.schedule.R;
 import com.example.schedule.Schedule;
 import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
@@ -55,7 +57,6 @@ public class LessonsView extends LinearLayout {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-
             for (int i = 1; i < 9; i++) {
                 LessonStruct lesson = null;
                 try {
@@ -63,8 +64,9 @@ public class LessonsView extends LinearLayout {
                 } catch (ScheduleException ignored) {}
                 LessonView lessonView;
                 if (lesson != null) {
-                    lessonView = new LessonView(LessonsView.this.getContext(), i, lesson.name,
-                            lesson.cabinet, lesson.teacher);
+                    lessonView = new LessonView(getContext(), i, lesson.name,
+                            lesson.cabinet, lesson.teacher
+                    );
                 } else {
                     lessonView = new LessonView(LessonsView.this.getContext(), i);
                 }

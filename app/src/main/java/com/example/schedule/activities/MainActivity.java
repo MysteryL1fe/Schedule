@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PermissionInfo;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
@@ -27,6 +28,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;

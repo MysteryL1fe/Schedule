@@ -89,7 +89,9 @@ public class ChangeLessonView extends LinearLayout {
         this.setLayoutParams(paramsMatchWrap);
         this.setGravity(Gravity.START);
         this.setOrientation(VERTICAL);
-        this.setBackgroundColor(getResources().getColor(R.color.gray_600));
+        this.setBackground(
+                getResources().getDrawable(R.drawable.lesson_background, context.getTheme())
+        );
 
         LinearLayout firstStroke = new LinearLayout(context);
         firstStroke.setLayoutParams(paramsMatchWrap);
