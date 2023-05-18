@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 public class SettingsStorage {
-    private static float VERSION = 1.00005f;
+    private static float VERSION = 1.00007f;
     public static String SCHEDULE_SAVES = "ScheduleSaves";
 
     public static float getCurVersion(SharedPreferences saves) {
@@ -35,7 +35,6 @@ public class SettingsStorage {
         editor.putInt("course", course);
         editor.putInt("group", group);
         editor.putInt("subgroup", subgroup);
-        ScheduleStorage.clearStorage(saves);
         editor.apply();
     }
 

@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.Contract;
 
+import java.util.Calendar;
 import java.util.Random;
 
 public class Utils {
@@ -33,7 +34,7 @@ if (!lastTimeDonationShowed.equals(curDay)) {
 
     }*/
 
-    public static int getLessonByTime(int hour, int minute) {
+    /*public static int getLessonByTime(int hour, int minute) {
         int time = hour * 60 + minute;
         if (time < 480) {
             return -1;
@@ -68,7 +69,7 @@ if (!lastTimeDonationShowed.equals(curDay)) {
         } else if (time <= 1290) {
             return 7;
         } else return -9;
-    }
+    }*/
 
     @NonNull
     @Contract(pure = true)
@@ -92,6 +93,46 @@ if (!lastTimeDonationShowed.equals(curDay)) {
                 return "20:10 - 21:30";
             default:
                 return "";
+        }
+    }
+
+    private static int getEndLessonTime(int lesson) {
+        if (lesson > 7 || lesson < -9) return 0;
+        switch (lesson) {
+            case 0:
+                return 575 * 60;
+            case 1:
+                return 680 * 60;
+            case 2:
+                return 785 * 60;
+            case 3:
+                return 900 * 60;
+            case 4:
+                return 1005 * 60;
+            case 5:
+                return 1110 * 60;
+            case 6:
+                return 1200 * 60;
+            case 7:
+                return 1290 * 60;
+            case -1:
+                return 480 * 60;
+            case -2:
+                return 585 * 60;
+            case -3:
+                return 690 * 60;
+            case -4:
+                return 805 * 60;
+            case -5:
+                return 910 * 60;
+            case -6:
+                return 1015 * 60;
+            case -7:
+                return 1120 * 60;
+            case -8:
+                return 1210 * 60;
+            default:
+                return 1440 * 60;
         }
     }
 
@@ -196,5 +237,56 @@ if (!lastTimeDonationShowed.equals(curDay)) {
             sb.append((char) ('a' + Math.abs(random.nextInt()) % 26));
         }
         return sb.toString();
+    }
+
+    public static int getLesson() {
+        Calendar calendar = Calendar.getInstance();
+        int time = calendar.get(Calendar.HOUR_OF_DAY) * 3600 + calendar.get(Calendar.MINUTE) * 60
+                + calendar.get(Calendar.SECOND);
+        if (time < 28800) {
+            return -1;
+        } else if (time <= 34500) {
+            return 0;
+        } else if (time <= 35100) {
+            return -2;
+        } else if (time <= 40800) {
+            return 1;
+        } else if (time <= 41400) {
+            return -3;
+        } else if (time <= 47100) {
+            return 2;
+        } else if (time <= 48300) {
+            return -4;
+        } else if (time <= 54000) {
+            return 3;
+        } else if (time <= 54600) {
+            return -5;
+        } else if (time <= 60300) {
+            return 4;
+        } else if (time <= 60900) {
+            return -6;
+        } else if (time <= 66600) {
+            return 5;
+        } else if (time <= 67200) {
+            return -7;
+        } else if (time <= 72000) {
+            return 6;
+        } else if (time <= 72600) {
+            return -8;
+        } else if (time <= 77400) {
+            return 7;
+        } else return -9;
+    }
+
+    public static int getTimeToNextLesson() {
+        int lesson = getLesson();
+        Calendar calendar = Calendar.getInstance();
+        if (lesson > -9) return getEndLessonTime(lesson) -
+                calendar.get(Calendar.HOUR_OF_DAY) * 3600 -
+                calendar.get(Calendar.MINUTE) * 60 - calendar.get(Calendar.SECOND) + 1;
+        else return getEndLessonTime(lesson)
+                - calendar.get(Calendar.HOUR_OF_DAY) * 3600
+                - calendar.get(Calendar.MINUTE) * 60 - calendar.get(Calendar.SECOND)
+                + getEndLessonTime(-1) + 1;
     }
 }

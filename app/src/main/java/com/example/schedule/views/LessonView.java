@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -11,6 +12,8 @@ import com.example.schedule.R;
 import com.example.schedule.Utils;
 
 public class LessonView extends LinearLayout {
+    private LinearLayout firstStroke;
+    private TimerView timerView;
 
     public LessonView(Context context) {
         super(context);
@@ -40,7 +43,8 @@ public class LessonView extends LinearLayout {
                       String lessonCabinet, String lessonTeacher) {
         LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1.0f
         );
         LayoutParams paramsWrapWrap = new LayoutParams(
                 LayoutParams.WRAP_CONTENT,
@@ -53,7 +57,7 @@ public class LessonView extends LinearLayout {
         this.setBackground(getResources().getDrawable(R.drawable.lesson_background,
                 getContext().getTheme()));
 
-        LinearLayout firstStroke = new LinearLayout(getContext());
+        firstStroke = new LinearLayout(getContext());
         firstStroke.setLayoutParams(paramsMatchWrap);
         firstStroke.setOrientation(HORIZONTAL);
         firstStroke.setPadding(0, 10, 0, 10);
@@ -100,5 +104,27 @@ public class LessonView extends LinearLayout {
                 this.addView(cabinetTV);
             }
         }
+    }
+
+    public void addTimer(LessonsView lessonsView) {
+        LayoutParams params = new LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT,
+                1.0f
+        );
+
+        timerView = new TimerView(
+                getContext(), Utils.getTimeToNextLesson(), lessonsView, firstStroke
+        );
+        timerView.setLayoutParams(params);
+        timerView.setGravity(Gravity.END);
+        firstStroke.addView(timerView, 1);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (!hasWindowFocus && timerView != null)
+            firstStroke.removeView(timerView);
     }
 }

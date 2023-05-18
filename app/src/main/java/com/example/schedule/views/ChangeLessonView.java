@@ -85,6 +85,8 @@ public class ChangeLessonView extends LinearLayout {
                 LayoutParams.WRAP_CONTENT,
                 1.0f
         );
+        LayoutParams paramsChangeButtons = paramsWrapWrap;
+        paramsChangeButtons.rightMargin = 10;
 
         this.setLayoutParams(paramsMatchWrap);
         this.setGravity(Gravity.START);
@@ -161,17 +163,25 @@ public class ChangeLessonView extends LinearLayout {
             secondStroke.addView(changeRow);
 
             ImageButton changeLessonBtn = new ImageButton(context);
-            changeLessonBtn.setLayoutParams(paramsWrapWrap);
+            changeLessonBtn.setLayoutParams(paramsChangeButtons);
             changeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            changeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            changeLessonBtn.setPadding(10, 10, 10, 10);
             changeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(true,true));
             changeRow.addView(changeLessonBtn);
 
             ImageButton deleteLessonBtn = new ImageButton(context);
-            deleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            deleteLessonBtn.setLayoutParams(paramsChangeButtons);
             deleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_thrash));
+            deleteLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            deleteLessonBtn.setPadding(10, 10, 10, 10);
             deleteLessonBtn.setOnClickListener(
                     new DeleteLessonBtnListener(true, true));
             changeRow.addView(deleteLessonBtn);
@@ -220,17 +230,25 @@ public class ChangeLessonView extends LinearLayout {
             secondStroke.addView(numeratorChangeRow);
 
             ImageButton numeratorChangeLessonBtn = new ImageButton(context);
-            numeratorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorChangeLessonBtn.setLayoutParams(paramsChangeButtons);
             numeratorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            numeratorChangeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            numeratorChangeLessonBtn.setPadding(10, 10, 10, 10);
             numeratorChangeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(true, false));
             numeratorChangeRow.addView(numeratorChangeLessonBtn);
 
             ImageButton numeratorDeleteLessonBtn = new ImageButton(context);
-            numeratorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorDeleteLessonBtn.setLayoutParams(paramsChangeButtons);
             numeratorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_thrash));
+            numeratorDeleteLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            numeratorDeleteLessonBtn.setPadding(10, 10, 10, 10);
             numeratorDeleteLessonBtn.setOnClickListener(
                     new DeleteLessonBtnListener(true, false));
             numeratorChangeRow.addView(numeratorDeleteLessonBtn);
@@ -280,17 +298,25 @@ public class ChangeLessonView extends LinearLayout {
             thirdStroke.addView(denominatorChangeRow);
 
             ImageButton denominatorChangeLessonBtn = new ImageButton(context);
-            denominatorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorChangeLessonBtn.setLayoutParams(paramsChangeButtons);
             denominatorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            denominatorChangeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            denominatorChangeLessonBtn.setPadding(10, 10, 10, 10);
             denominatorChangeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(false, true));
             denominatorChangeRow.addView(denominatorChangeLessonBtn);
 
             ImageButton denominatorDeleteLessonBtn = new ImageButton(context);
-            denominatorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorDeleteLessonBtn.setLayoutParams(paramsChangeButtons);
             denominatorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_thrash));
+            denominatorDeleteLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            denominatorDeleteLessonBtn.setPadding(10, 10, 10, 10);
             denominatorDeleteLessonBtn.setOnClickListener(
                     new DeleteLessonBtnListener(false, true));
             denominatorChangeRow.addView(denominatorDeleteLessonBtn);
@@ -338,17 +364,25 @@ public class ChangeLessonView extends LinearLayout {
             secondStroke.addView(numeratorChangeRow);
 
             ImageButton numeratorChangeLessonBtn = new ImageButton(context);
-            numeratorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorChangeLessonBtn.setLayoutParams(paramsChangeButtons);
             numeratorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            numeratorChangeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            numeratorChangeLessonBtn.setPadding(10, 10, 10, 10);
             numeratorChangeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(true, false));
             numeratorChangeRow.addView(numeratorChangeLessonBtn);
 
             ImageButton numeratorDeleteLessonBtn = new ImageButton(context);
-            numeratorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorDeleteLessonBtn.setLayoutParams(paramsChangeButtons);
             numeratorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_thrash));
+            numeratorDeleteLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            numeratorDeleteLessonBtn.setPadding(10, 10, 10, 10);
             numeratorDeleteLessonBtn.setOnClickListener(
                     new DeleteLessonBtnListener(true, false));
             numeratorChangeRow.addView(numeratorDeleteLessonBtn);
@@ -374,9 +408,13 @@ public class ChangeLessonView extends LinearLayout {
             thirdStroke.addView(denominatorChangeRow);
 
             ImageButton denominatorChangeLessonBtn = new ImageButton(context);
-            denominatorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorChangeLessonBtn.setLayoutParams(paramsChangeButtons);
             denominatorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            denominatorChangeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            denominatorChangeLessonBtn.setPadding(10, 10, 10, 10);
             denominatorChangeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(false, true));
             denominatorChangeRow.addView(denominatorChangeLessonBtn);
@@ -400,9 +438,13 @@ public class ChangeLessonView extends LinearLayout {
             secondStroke.addView(numeratorChangeRow);
 
             ImageButton numeratorChangeLessonBtn = new ImageButton(context);
-            numeratorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            numeratorChangeLessonBtn.setLayoutParams(paramsChangeButtons);
             numeratorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            numeratorChangeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            numeratorChangeLessonBtn.setPadding(10, 10, 10, 10);
             numeratorChangeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(true, false));
             numeratorChangeRow.addView(numeratorChangeLessonBtn);
@@ -452,17 +494,25 @@ public class ChangeLessonView extends LinearLayout {
             thirdStroke.addView(denominatorChangeRow);
 
             ImageButton denominatorChangeLessonBtn = new ImageButton(context);
-            denominatorChangeLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorChangeLessonBtn.setLayoutParams(paramsChangeButtons);
             denominatorChangeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            denominatorChangeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            denominatorChangeLessonBtn.setPadding(10, 10, 10, 10);
             denominatorChangeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(false, true));
             denominatorChangeRow.addView(denominatorChangeLessonBtn);
 
             ImageButton denominatorDeleteLessonBtn = new ImageButton(context);
-            denominatorDeleteLessonBtn.setLayoutParams(paramsWrapWrap);
+            denominatorDeleteLessonBtn.setLayoutParams(paramsChangeButtons);
             denominatorDeleteLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_thrash));
+            denominatorDeleteLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            denominatorDeleteLessonBtn.setPadding(10, 10, 10, 10);
             denominatorDeleteLessonBtn.setOnClickListener(
                     new DeleteLessonBtnListener(false, true));
             denominatorChangeRow.addView(denominatorDeleteLessonBtn);
@@ -486,9 +536,13 @@ public class ChangeLessonView extends LinearLayout {
             secondStroke.addView(changeRow);
 
             ImageButton changeLessonBtn = new ImageButton(context);
-            changeLessonBtn.setLayoutParams(paramsWrapWrap);
+            changeLessonBtn.setLayoutParams(paramsChangeButtons);
             changeLessonBtn.setImageDrawable(ContextCompat.getDrawable(context,
                     R.drawable.ic_rename));
+            changeLessonBtn.setBackground(
+                    getResources().getDrawable(R.drawable.secondary_color, context.getTheme())
+            );
+            changeLessonBtn.setPadding(10, 10, 10, 10);
             changeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(true, true));
             changeRow.addView(changeLessonBtn);

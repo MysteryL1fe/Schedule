@@ -3,21 +3,20 @@ package com.example.schedule.views;
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.core.content.res.ResourcesCompat;
-
 import com.example.schedule.R;
 
-/**
- * TODO: document your custom view class.
- */
 public class TimerView extends LinearLayout {
-    TextView timerTV;
-    LinearLayout parentView;
+    private LessonsView parentView;
+    private ImageView imageView;
+    private TextView timerTV;
+    private CountDownTimer timer;
+    private ViewGroup parent;
 
     public TimerView(Context context) {
         super(context);
@@ -31,13 +30,10 @@ public class TimerView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public TimerView(Context context, int timerSeconds) {
+    public TimerView(Context context, int timerSeconds, LessonsView lessonsView, ViewGroup parent) {
         super(context);
-        init(timerSeconds);
-    }
-
-    public TimerView(Context context, AttributeSet attrs, int defStyle, int timerSeconds) {
-        super(context, attrs, defStyle);
+        parentView = lessonsView;
+        this.parent = parent;
         init(timerSeconds);
     }
 
@@ -46,17 +42,46 @@ public class TimerView extends LinearLayout {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        this.setOrientation(HORIZONTAL);
+        LayoutParams imageParams = new LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        imageParams.width = 32;
+        imageParams.height = 32;
+        imageParams.gravity = Gravity.CENTER;
+        imageParams.rightMargin = 25;
 
-        ImageView imageView = new ImageView(getContext());
-        imageView.setImageDrawable(ResourcesCompat.getDrawable(
-                getResources(), R.drawable.red_circle, getContext().getTheme()));
-        imageView.setLayoutParams(params);
+        this.setOrientation(HORIZONTAL);
+        this.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        imageView = new ImageView(getContext());
+        imageView.setImageDrawable(
+                getResources().getDrawable(R.drawable.red_circle, getContext().getTheme())
+        );
+        imageView.setLayoutParams(imageParams);
         this.addView(imageView);
 
         timerTV = new TextView(getContext());
-        CountDownTimer timer = new Timer(timerSeconds * 1000L, 1000);
+        timerTV.setText(Integer.toString(timerSeconds));
+        timerTV.setLayoutParams(params);
+        this.addView(timerTV);
+
+        timer = new Timer(timerSeconds * 1000L, 1000);
         timer.start();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (!hasWindowFocus) {
+            timer.cancel();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        timer.cancel();
     }
 
     private class Timer extends CountDownTimer {
@@ -75,14 +100,22 @@ public class TimerView extends LinearLayout {
         @Override
         public void onTick(long millisUntilFinished) {
             long remainedSecs = millisUntilFinished / 1000;
-            timerTV.setText(String.format("%2s:%2s", remainedSecs / 60, remainedSecs % 60).replace(' ', '0'));
+            if (remainedSecs / 3600 > 0) timerTV.setText(String.format(
+                    "%2s:%2s:%2s", remainedSecs / 3600, remainedSecs / 60 % 60, remainedSecs % 60
+                            ).replace(' ', '0')
+            );
+            else timerTV.setText(String.format(
+                    "%2s:%2s", remainedSecs / 60, remainedSecs % 60
+                    ).replace(' ', '0')
+            );
+            imageView.setVisibility(imageView.getVisibility() == VISIBLE ? INVISIBLE : VISIBLE);
         }
 
         @Override
         public void onFinish() {
+            parentView.updateTimer();
+            parent.removeView(TimerView.this);
             cancel();
-            //parentView.updateTimer;
-            parentView.removeView(TimerView.this);
         }
     }
 }

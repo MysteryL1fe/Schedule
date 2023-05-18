@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +56,18 @@ public class ScheduleFragment extends Fragment {
         args.putInt(ARG_SUBGROUP, subgroup);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.w("HUI", "pause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.w("HUI", "stop");
     }
 
     @Override

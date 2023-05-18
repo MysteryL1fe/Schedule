@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             subgroup = 0;
             SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
             SettingsStorage.changeToLastVersion(saves);
+            ScheduleStorage.clearStorage(saves);
         }
 
         storage = ScheduleStorage.getStorage(saves);
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        storage = ScheduleStorage.getStorage(saves);
         updateCourseBtn();
         updateGroupBtn();
         updateSubgroupBtn();

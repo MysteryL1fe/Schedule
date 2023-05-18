@@ -81,16 +81,22 @@ public class ChangeLessonsView extends LinearLayout {
             ChangeLessonsView.this.setLayoutParams(thisParams);
             ChangeLessonsView.this.removeAllViews();
 
-            TimerView timerView = new TimerView(getContext(), 1000);
-            ChangeLessonsView.this.addView(timerView);
-
             TextView textView = new TextView(ChangeLessonsView.this.getContext());
             textView.setText(String.format("%s", Utils.dayOfWeekToStr(dayOfWeek)));
             ChangeLessonsView.this.addView(textView);
 
+            MaterialDivider firstDivider = new MaterialDivider(getContext());
+            firstDivider.setBackground(getResources().getDrawable(
+                    R.drawable.divider_color, getContext().getTheme()
+            ));
+            ChangeLessonsView.this.addView(firstDivider);
+
             for (int i = 0; i < 8; i++) {
                 ChangeLessonsView.this.addView(changeLessonViews[i]);
                 MaterialDivider divider = new MaterialDivider(ChangeLessonsView.this.getContext());
+                divider.setBackground(getResources().getDrawable(
+                        R.drawable.divider_color, getContext().getTheme()
+                ));
                 ChangeLessonsView.this.addView(divider);
             }
         }

@@ -3,7 +3,7 @@ package com.example.schedule.views;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
-import android.view.ContextThemeWrapper;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -14,11 +14,15 @@ import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.divider.MaterialDivider;
 
+import java.util.Calendar;
+
 public class LessonsView extends LinearLayout {
     private final LessonView[] lessonViews = new LessonView[8];
     private Schedule schedule;
     private int dayOfWeek, day, month, year;
-    private boolean isNumerator;
+    private boolean isNumerator, hasTimerView = false;
+    private LoadLessons loadLessons;
+    private TimerView timerView;
 
     public LessonsView(Context context) {
         super(context);
@@ -46,8 +50,75 @@ public class LessonsView extends LinearLayout {
         this.month = month;
         this.year = year;
         this.isNumerator = isNumerator;
-        LoadLessons loadLessons = new LoadLessons();
+        loadLessons = new LoadLessons();
         loadLessons.execute();
+    }
+
+    public void addTimer() {
+        int lessonNum = Utils.getLesson();
+        if (lessonNum >= 0) {
+            lessonViews[lessonNum].addTimer(this);
+        } else if (lessonNum > -9) {
+            timerView = new TimerView(
+                    getContext(), Utils.getTimeToNextLesson(), this, this
+            );
+            this.addView(timerView, Math.abs(lessonNum + 1) * 2 + 1);
+        } else {
+            timerView = new TimerView(
+                    getContext(), Utils.getTimeToNextLesson(), this, this
+            );
+            this.addView(timerView, 1);
+        }
+        hasTimerView = true;
+    }
+
+    public void updateTimer() {
+        if (timerView != null) removeView(timerView);
+        hasTimerView = false;
+        int lessonNum = Utils.getLesson();
+        if (lessonNum >= 0) {
+            lessonViews[lessonNum].addTimer(this);
+        } else if (lessonNum > -9) {
+            timerView = new TimerView(
+                    getContext(), Utils.getTimeToNextLesson(), this, this
+            );
+            this.addView(timerView, Math.abs(lessonNum) * 2);
+            hasTimerView = true;
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            if (calendar.get(Calendar.DAY_OF_MONTH) + 1 == day) {
+                addTimer();
+                hasTimerView = true;
+            }
+            else {
+                ViewGroup parent = (ViewGroup) getParent();
+                ((LessonsView) parent.getChildAt(1)).addTimer();
+            }
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (timerView != null)
+            removeView(timerView);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        ViewGroup parent;
+        if (hasWindowFocus && !hasTimerView
+                && ((parent = (ViewGroup) LessonsView.this.getParent())
+                .indexOfChild(LessonsView.this) == 0 && Utils.getLesson() > -9
+                || parent.indexOfChild(LessonsView.this) == 1 && Utils.getLesson() == -9))
+            addTimer();
+        else if (!hasWindowFocus) {
+            hasTimerView = false;
+            if (timerView != null) {
+                removeView(timerView);
+            }
+        }
     }
 
     private class LoadLessons extends AsyncTask<Void, Void, Void> {
@@ -97,11 +168,26 @@ public class LessonsView extends LinearLayout {
                     day, Utils.monthToStr(month), year));
             LessonsView.this.addView(textView);
 
+            MaterialDivider firstDivider = new MaterialDivider(getContext());
+            firstDivider.setBackground(getResources().getDrawable(
+                    R.drawable.divider_color, getContext().getTheme()
+            ));
+            LessonsView.this.addView(firstDivider);
+
             for (int i = 0; i < 8; i++) {
                 LessonsView.this.addView(lessonViews[i]);
-                MaterialDivider divider = new MaterialDivider(LessonsView.this.getContext());
+                MaterialDivider divider = new MaterialDivider(getContext());
+                divider.setBackground(getResources().getDrawable(
+                        R.drawable.divider_color, getContext().getTheme()
+                ));
                 LessonsView.this.addView(divider);
             }
+
+            ViewGroup parent;
+            if (((parent = (ViewGroup) LessonsView.this.getParent())
+                    .indexOfChild(LessonsView.this) == 0 && Utils.getLesson() > -9
+                    || parent.indexOfChild(LessonsView.this) == 1 && Utils.getLesson() == -9))
+                addTimer();
         }
     }
 }
