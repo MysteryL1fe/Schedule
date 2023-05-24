@@ -2,7 +2,6 @@ package com.example.schedule.fragments;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,18 +15,17 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.schedule.R;
@@ -45,6 +43,8 @@ public class SettingsFragment extends Fragment {
     private ActivityResultLauncher<Intent> fileChooserActivity;
     private ActivityResultLauncher<String> requestReadPermissionLauncher;
     private ActivityResultLauncher<String> requestWritePermissionLauncher;
+    private TextView fontSizeTV;
+    private Button chooseThemeBtn, chooseFlowBtn, importBtn, exportBtn;
 
     public SettingsFragment() {}
 
@@ -86,17 +86,49 @@ public class SettingsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        Button chooseThemeBtn = view.findViewById(R.id.choose_theme_btn);
-        Button chooseFlowBtn = view.findViewById(R.id.choose_flow_btn);
-        Button importBtn = view.findViewById(R.id.import_btn);
-        Button exportBtn = view.findViewById(R.id.export_btn);
+        fontSizeTV = view.findViewById(R.id.fontSizeTV);
+        chooseThemeBtn = view.findViewById(R.id.chooseThemeBtn);
+        chooseFlowBtn = view.findViewById(R.id.chooseFlowBtn);
+        importBtn = view.findViewById(R.id.importBtn);
+        exportBtn = view.findViewById(R.id.exportBtn);
+        SeekBar seekBar = view.findViewById(R.id.textSizeSeekBar);
 
         chooseThemeBtn.setOnClickListener(new ChooseThemeBtnListener());
         chooseFlowBtn.setOnClickListener(new ChooseFlowBtnListener());
         importBtn.setOnClickListener(new ImportBtnListener());
         exportBtn.setOnClickListener(new ExportBtnListener());
+        seekBar.setOnSeekBarChangeListener(new TextSizeSeekBarListener());
+        seekBar.setProgress(SettingsStorage.TEXT_SIZE);
+
+        updateScreen();
 
         return view;
+    }
+
+    private void updateScreen() {
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                fontSizeTV.setTextSize(12.0f);
+                chooseThemeBtn.setTextSize(10.0f);
+                chooseFlowBtn.setTextSize(10.0f);
+                importBtn.setTextSize(10.0f);
+                exportBtn.setTextSize(10.0f);
+                break;
+            case 1:
+                fontSizeTV.setTextSize(24.0f);
+                chooseThemeBtn.setTextSize(20.0f);
+                chooseFlowBtn.setTextSize(20.0f);
+                importBtn.setTextSize(20.0f);
+                exportBtn.setTextSize(20.0f);
+                break;
+            case 2:
+                fontSizeTV.setTextSize(36.0f);
+                chooseThemeBtn.setTextSize(30.0f);
+                chooseFlowBtn.setTextSize(30.0f);
+                importBtn.setTextSize(30.0f);
+                exportBtn.setTextSize(30.0f);
+                break;
+        }
     }
 
     private void importSchedule() {
@@ -217,6 +249,30 @@ public class SettingsFragment extends Fragment {
                                             Context.MODE_PRIVATE));
                 }
             }
+        }
+    }
+
+    private class TextSizeSeekBarListener implements SeekBar.OnSeekBarChangeListener {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (fromUser) {
+                SettingsStorage.saveTextSize(progress, getContext().getSharedPreferences(
+                        SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
+                ));
+                updateScreen();
+                ScheduleActivity scheduleActivity = (ScheduleActivity) getActivity();
+                scheduleActivity.updateTextSize();
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
         }
     }
 }

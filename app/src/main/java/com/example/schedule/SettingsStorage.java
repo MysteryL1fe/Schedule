@@ -5,7 +5,19 @@ import android.content.SharedPreferences.Editor;
 
 public class SettingsStorage {
     private static float VERSION = 1.00007f;
+    public static int TEXT_SIZE = 1;
     public static String SCHEDULE_SAVES = "ScheduleSaves";
+
+    public static void updateTextSize(SharedPreferences saves) {
+        TEXT_SIZE = saves.getInt("textSize", 1);
+    }
+
+    public static void saveTextSize(int textSize, SharedPreferences saves) {
+        TEXT_SIZE = textSize;
+        Editor editor = saves.edit();
+        editor.putInt("textSize", textSize);
+        editor.apply();
+    }
 
     public static float getCurVersion(SharedPreferences saves) {
         return saves.getFloat("version", 0);

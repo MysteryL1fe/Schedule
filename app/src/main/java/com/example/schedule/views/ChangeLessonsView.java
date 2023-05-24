@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.example.schedule.LessonStruct;
 import com.example.schedule.R;
 import com.example.schedule.Schedule;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.divider.MaterialDivider;
@@ -83,6 +84,17 @@ public class ChangeLessonsView extends LinearLayout {
 
             TextView textView = new TextView(ChangeLessonsView.this.getContext());
             textView.setText(String.format("%s", Utils.dayOfWeekToStr(dayOfWeek)));
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    textView.setTextSize(10.0f);
+                    break;
+                case 2:
+                    textView.setTextSize(30.0f);
+                    break;
+                default:
+                    textView.setTextSize(20.0f);
+                    break;
+            }
             ChangeLessonsView.this.addView(textView);
 
             MaterialDivider firstDivider = new MaterialDivider(getContext());

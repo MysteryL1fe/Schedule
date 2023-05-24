@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.schedule.R;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 
 public class LessonView extends LinearLayout {
@@ -80,11 +81,36 @@ public class LessonView extends LinearLayout {
         timeTV.setPadding(0, 0, 25, 0);
         firstStroke.addView(timeTV);
 
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                lessonNumTV.setTextSize(8.0f);
+                timeTV.setTextSize(8.0f);
+                break;
+            case 2:
+                lessonNumTV.setTextSize(24.0f);
+                timeTV.setTextSize(24.0f);
+                break;
+            default:
+                lessonNumTV.setTextSize(16.0f);
+                timeTV.setTextSize(16.0f);
+                break;
+        }
+
         if (!lessonName.isEmpty()) {
             TextView lessonTV = new TextView(getContext());
             lessonTV.setLayoutParams(paramsMatchWrap);
             lessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            lessonTV.setTextSize(14.0f);
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    lessonTV.setTextSize(8.0f);
+                    break;
+                case 2:
+                    lessonTV.setTextSize(24.0f);
+                    break;
+                default:
+                    lessonTV.setTextSize(16.0f);
+                    break;
+            }
             lessonTV.setText(lessonName);
             lessonTV.setPadding(50, 0, 0, 0);
             this.addView(lessonTV);
@@ -93,7 +119,17 @@ public class LessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(getContext());
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                cabinetTV.setTextSize(12.0f);
+                switch (SettingsStorage.TEXT_SIZE) {
+                    case 0:
+                        cabinetTV.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        cabinetTV.setTextSize(24.0f);
+                        break;
+                    default:
+                        cabinetTV.setTextSize(16.0f);
+                        break;
+                }
                 if (lessonTeacher.isEmpty())
                     cabinetTV.setText(String.format("%s", lessonCabinet));
                 else if (lessonCabinet.isEmpty())

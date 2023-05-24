@@ -59,18 +59,6 @@ public class ScheduleFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        Log.w("HUI", "pause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.w("HUI", "stop");
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {

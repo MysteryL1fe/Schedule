@@ -4,22 +4,20 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PermissionInfo;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 
 import com.example.schedule.R;
 import com.example.schedule.Schedule;
@@ -29,16 +27,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
-    private int flowLvl, course, group, subgroup;
-    private Button courseBtn, groupBtn, subgroupBtn, contBtn, flowLvlBtn;
+    private int flowLvl, course, group, subgroup, fontSize;
+    private Button courseBtn, groupBtn, subgroupBtn, flowLvlBtn, contBtn;
     private SharedPreferences saves;
     private SharedPreferences.Editor editor;
     private Set<Schedule> storage;
     private ActivityResultLauncher<Intent> newFlowActivity;
-    private String[] flowLvlStr = new String[] {"Бакалавриат/Специалитет", "Магистратура",
+    private final String[] flowLvlStr = new String[] {"Бакалавриат/Специалитет", "Магистратура",
             "Аспирантура"};
 
     @Override
@@ -93,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         contBtn = findViewById(R.id.contBtn);
         flowLvlBtn = findViewById(R.id.flowLvlBtn);
 
+        SettingsStorage.updateTextSize(saves);
+        updateScreen();
         updateFlowLvlBtn();
         updateCourseBtn();
         updateGroupBtn();
@@ -115,16 +114,42 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         storage = ScheduleStorage.getStorage(saves);
+        updateScreen();
         updateCourseBtn();
         updateGroupBtn();
         updateSubgroupBtn();
+    }
+
+    private void updateScreen() {
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                courseBtn.setTextSize(10.0f);
+                groupBtn.setTextSize(10.0f);
+                subgroupBtn.setTextSize(10.0f);
+                contBtn.setTextSize(10.0f);
+                flowLvlBtn.setTextSize(10.0f);
+                break;
+            case 1:
+                courseBtn.setTextSize(20.0f);
+                groupBtn.setTextSize(20.0f);
+                subgroupBtn.setTextSize(20.0f);
+                contBtn.setTextSize(20.0f);
+                flowLvlBtn.setTextSize(20.0f);
+                break;
+            case 2:
+                courseBtn.setTextSize(30.0f);
+                groupBtn.setTextSize(30.0f);
+                subgroupBtn.setTextSize(30.0f);
+                contBtn.setTextSize(30.0f);
+                flowLvlBtn.setTextSize(30.0f);
+                break;
+        }
     }
 
     private void updateFlowLvlBtn() {
         flowLvlBtn.setText(flowLvlStr[flowLvl]);
     }
 
-    @SuppressLint("SetTextI18n")
     private void updateCourseBtn() {
         if (course == 0) {
             courseBtn.setText("Выберите курс");
@@ -133,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private void updateGroupBtn() {
         if (group == 0) {
             groupBtn.setText("Выберите группу");
@@ -142,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private void updateSubgroupBtn() {
         if (subgroup == 0) {
             subgroupBtn.setText("Выберите подгруппу");
@@ -165,7 +188,6 @@ public class MainActivity extends AppCompatActivity {
     private class CourseBtnListener implements View.OnClickListener {
         private String[] items;
 
-        @SuppressLint("NonConstantResourceId")
         @Override
         public void onClick(View v) {
             Context context = MainActivity.this;

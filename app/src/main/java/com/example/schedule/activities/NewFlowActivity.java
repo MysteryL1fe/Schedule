@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.schedule.R;
+import com.example.schedule.SettingsStorage;
 
 public class NewFlowActivity extends AppCompatActivity {
     private Button cancelBtn, nextBtn;
@@ -24,10 +25,31 @@ public class NewFlowActivity extends AppCompatActivity {
 
         Intent thisIntent = getIntent();
         flow = thisIntent.getStringExtra("flow");
-        newFlowTextEdit = findViewById(R.id.new_flow_text_edit);
+        newFlowTextEdit = findViewById(R.id.newFlowTextEdit);
         errorTv = findViewById(R.id.errorTV);
         cancelBtn = findViewById(R.id.cancelBtn);
         nextBtn = findViewById(R.id.nextBtn);
+
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                newFlowTextEdit.setTextSize(12.0f);
+                errorTv.setTextSize(12.0f);
+                cancelBtn.setTextSize(10.0f);
+                nextBtn.setTextSize(10.0f);
+                break;
+            case 1:
+                newFlowTextEdit.setTextSize(24.0f);
+                errorTv.setTextSize(24.0f);
+                cancelBtn.setTextSize(20.0f);
+                nextBtn.setTextSize(20.0f);
+                break;
+            case 2:
+                newFlowTextEdit.setTextSize(36.0f);
+                errorTv.setTextSize(36.0f);
+                cancelBtn.setTextSize(30.0f);
+                nextBtn.setTextSize(30.0f);
+                break;
+        }
 
         switch (flow) {
             case "course":

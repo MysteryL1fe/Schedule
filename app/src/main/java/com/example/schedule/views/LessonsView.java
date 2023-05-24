@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.example.schedule.LessonStruct;
 import com.example.schedule.R;
 import com.example.schedule.Schedule;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.divider.MaterialDivider;
@@ -108,10 +109,10 @@ public class LessonsView extends LinearLayout {
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         ViewGroup parent;
-        if (hasWindowFocus && !hasTimerView
-                && ((parent = (ViewGroup) LessonsView.this.getParent())
-                .indexOfChild(LessonsView.this) == 0 && Utils.getLesson() > -9
-                || parent.indexOfChild(LessonsView.this) == 1 && Utils.getLesson() == -9))
+        if (hasWindowFocus && !hasTimerView && this.getChildCount() > 0
+                && ((parent = (ViewGroup) this.getParent())
+                .indexOfChild(this) == 0 && Utils.getLesson() > -9
+                || parent.indexOfChild(this) == 1 && Utils.getLesson() == -9))
             addTimer();
         else if (!hasWindowFocus) {
             hasTimerView = false;
@@ -166,6 +167,16 @@ public class LessonsView extends LinearLayout {
             TextView textView = new TextView(LessonsView.this.getContext());
             textView.setText(String.format("%s, %s %s %s", Utils.dayOfWeekToStr(dayOfWeek),
                     day, Utils.monthToStr(month), year));
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    textView.setTextSize(10.0f);
+                    break;
+                case 2:
+                    textView.setTextSize(30.0f);
+                    break;
+                default:
+                    textView.setTextSize(20.0f);
+            }
             LessonsView.this.addView(textView);
 
             MaterialDivider firstDivider = new MaterialDivider(getContext());

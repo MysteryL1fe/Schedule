@@ -104,7 +104,6 @@ public class ChangeLessonView extends LinearLayout {
         TextView lessonNumTV = new TextView(context);
         lessonNumTV.setLayoutParams(paramsWrapWrap);
         lessonNumTV.setText(String.format("%s", lessonNum));
-        lessonNumTV.setTextSize(12.0f);
         lessonNumTV.setGravity(Gravity.START);
         lessonNumTV.setBackgroundResource(R.drawable.behind_lesson_num);
         lessonNumTV.setPadding(75, 5, 15, 5);
@@ -117,6 +116,21 @@ public class ChangeLessonView extends LinearLayout {
         timeTV.setGravity(Gravity.END);
         timeTV.setPadding(0, 0, 25, 0);
         firstStroke.addView(timeTV);
+
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                lessonNumTV.setTextSize(8.0f);
+                timeTV.setTextSize(8.0f);
+                break;
+            case 2:
+                lessonNumTV.setTextSize(24.0f);
+                timeTV.setTextSize(24.0f);
+                break;
+            default:
+                lessonNumTV.setTextSize(16.0f);
+                timeTV.setTextSize(16.0f);
+                break;
+        }
 
         if (numerator != null && numerator.name != null && !numerator.name.isEmpty()
                 && denominator != null && denominator.name != null && !denominator.name.isEmpty()
@@ -135,7 +149,17 @@ public class ChangeLessonView extends LinearLayout {
             TextView lessonTV = new TextView(context);
             lessonTV.setLayoutParams(paramsMatchWrap);
             lessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            lessonTV.setTextSize(14.0f);
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    lessonTV.setTextSize(8.0f);
+                    break;
+                case 2:
+                    lessonTV.setTextSize(24.0f);
+                    break;
+                default:
+                    lessonTV.setTextSize(16.0f);
+                    break;
+            }
             lessonTV.setText(numerator.name);
             lessonTV.setPadding(50, 0, 0, 0);
             lessonData.addView(lessonTV);
@@ -144,7 +168,17 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                cabinetTV.setTextSize(12.0f);
+                switch (SettingsStorage.TEXT_SIZE) {
+                    case 0:
+                        cabinetTV.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        cabinetTV.setTextSize(24.0f);
+                        break;
+                    default:
+                        cabinetTV.setTextSize(16.0f);
+                        break;
+                }
                 if (numerator.teacher.isEmpty())
                     cabinetTV.setText(String.format("%s", numerator.cabinet));
                 else if (numerator.cabinet.isEmpty())
@@ -202,7 +236,17 @@ public class ChangeLessonView extends LinearLayout {
             TextView numeratorLessonTV = new TextView(context);
             numeratorLessonTV.setLayoutParams(paramsMatchWrap);
             numeratorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            numeratorLessonTV.setTextSize(14.0f);
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    numeratorLessonTV.setTextSize(8.0f);
+                    break;
+                case 2:
+                    numeratorLessonTV.setTextSize(24.0f);
+                    break;
+                default:
+                    numeratorLessonTV.setTextSize(16.0f);
+                    break;
+            }
             numeratorLessonTV.setText(numerator.name);
             numeratorLessonTV.setPadding(50, 0, 0, 0);
             numeratorLessonData.addView(numeratorLessonTV);
@@ -211,7 +255,17 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                cabinetTV.setTextSize(12.0f);
+                switch (SettingsStorage.TEXT_SIZE) {
+                    case 0:
+                        cabinetTV.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        cabinetTV.setTextSize(24.0f);
+                        break;
+                    default:
+                        cabinetTV.setTextSize(16.0f);
+                        break;
+                }
                 if (numerator.teacher.isEmpty())
                     cabinetTV.setText(String.format("%s", numerator.cabinet));
                 else if (numerator.cabinet.isEmpty())
@@ -270,7 +324,17 @@ public class ChangeLessonView extends LinearLayout {
             TextView denominatorLessonTV = new TextView(context);
             denominatorLessonTV.setLayoutParams(paramsMatchWrap);
             denominatorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            denominatorLessonTV.setTextSize(14.0f);
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    denominatorLessonTV.setTextSize(8.0f);
+                    break;
+                case 2:
+                    denominatorLessonTV.setTextSize(24.0f);
+                    break;
+                default:
+                    denominatorLessonTV.setTextSize(16.0f);
+                    break;
+            }
             denominatorLessonTV.setText(denominator.name);
             denominatorLessonTV.setPadding(50, 0, 0, 0);
             denominatorLessonData.addView(denominatorLessonTV);
@@ -279,7 +343,17 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                cabinetTV.setTextSize(12.0f);
+                switch (SettingsStorage.TEXT_SIZE) {
+                    case 0:
+                        cabinetTV.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        cabinetTV.setTextSize(24.0f);
+                        break;
+                    default:
+                        cabinetTV.setTextSize(16.0f);
+                        break;
+                }
                 if (denominator.teacher.isEmpty())
                     cabinetTV.setText(String.format("%s", denominator.cabinet));
                 else if (denominator.cabinet.isEmpty())
@@ -336,7 +410,17 @@ public class ChangeLessonView extends LinearLayout {
             TextView numeratorLessonTV = new TextView(context);
             numeratorLessonTV.setLayoutParams(paramsMatchWrap);
             numeratorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            numeratorLessonTV.setTextSize(14.0f);
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    numeratorLessonTV.setTextSize(8.0f);
+                    break;
+                case 2:
+                    numeratorLessonTV.setTextSize(24.0f);
+                    break;
+                default:
+                    numeratorLessonTV.setTextSize(16.0f);
+                    break;
+            }
             numeratorLessonTV.setText(numerator.name);
             numeratorLessonTV.setPadding(50, 0, 0, 0);
             numeratorLessonData.addView(numeratorLessonTV);
@@ -345,7 +429,17 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                cabinetTV.setTextSize(12.0f);
+                switch (SettingsStorage.TEXT_SIZE) {
+                    case 0:
+                        cabinetTV.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        cabinetTV.setTextSize(24.0f);
+                        break;
+                    default:
+                        cabinetTV.setTextSize(16.0f);
+                        break;
+                }
                 if (numerator.teacher.isEmpty())
                     cabinetTV.setText(String.format("%s", numerator.cabinet));
                 else if (numerator.cabinet.isEmpty())
@@ -466,7 +560,17 @@ public class ChangeLessonView extends LinearLayout {
             TextView denominatorLessonTV = new TextView(context);
             denominatorLessonTV.setLayoutParams(paramsMatchWrap);
             denominatorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            denominatorLessonTV.setTextSize(14.0f);
+            switch (SettingsStorage.TEXT_SIZE) {
+                case 0:
+                    denominatorLessonTV.setTextSize(8.0f);
+                    break;
+                case 2:
+                    denominatorLessonTV.setTextSize(24.0f);
+                    break;
+                default:
+                    denominatorLessonTV.setTextSize(16.0f);
+                    break;
+            }
             denominatorLessonTV.setText(denominator.name);
             denominatorLessonTV.setPadding(50, 0, 0, 0);
             denominatorLessonData.addView(denominatorLessonTV);
@@ -475,7 +579,17 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                cabinetTV.setTextSize(12.0f);
+                switch (SettingsStorage.TEXT_SIZE) {
+                    case 0:
+                        cabinetTV.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        cabinetTV.setTextSize(24.0f);
+                        break;
+                    default:
+                        cabinetTV.setTextSize(16.0f);
+                        break;
+                }
                 if (denominator.teacher.isEmpty())
                     cabinetTV.setText(String.format("%s", denominator.cabinet));
                 else if (denominator.cabinet.isEmpty())

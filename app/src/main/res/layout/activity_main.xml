@@ -47,7 +47,6 @@
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
             android:text="Выберите группу"
-            android:textColor="?attr/colorOnPrimary"
             android:textSize="20sp" />
 
         <Button
@@ -59,7 +58,6 @@
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
             android:text="Выберите подгруппу"
-            android:textColor="?attr/colorOnPrimary"
             android:textSize="20sp" />
 
     </LinearLayout>
@@ -69,11 +67,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
-        android:background="?attr/colorPrimary"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:text="Продолжить"
-        android:textColor="?attr/colorOnPrimary"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

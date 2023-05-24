@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.fragments.ChangeScheduleFragment;
 import com.example.schedule.R;
 import com.example.schedule.fragments.HomeworkFragment;
@@ -29,6 +30,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navView;
     private FragmentManager fragmentManager;
+    private MaterialToolbar topAppBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,7 @@ public class ScheduleActivity extends AppCompatActivity {
         group = intent.getIntExtra("group", 1);
         subgroup = intent.getIntExtra("subgroup", 1);
 
-        MaterialToolbar topAppBar = findViewById(R.id.topAppBar);
+        topAppBar = findViewById(R.id.topAppBar);
         topAppBar.setTitle(String.format("Группа %s.%s.%s", course, group, subgroup));
         drawerLayout = findViewById(R.id.drawerLayout);
         topAppBar.setNavigationOnClickListener(new DrawerLayoutListener());
@@ -49,10 +51,46 @@ public class ScheduleActivity extends AppCompatActivity {
         navView = findViewById(R.id.navView);
         navView.setNavigationItemSelectedListener(new NavViewListener());
 
+        updateTextSize();
+
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.fragment_view,
                 ScheduleFragment.newInstance(flowLvl, course, group, subgroup)).commit();
         navView.setCheckedItem(R.id.nav_schedule);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fragmentManager.beginTransaction().replace(R.id.fragment_view,
+                ScheduleFragment.newInstance(flowLvl, course, group, subgroup)).commit();
+        navView.setCheckedItem(R.id.nav_schedule);
+    }
+
+    public void updateTextSize() {
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                topAppBar.setTitleTextAppearance(this,
+                        com.google.android.material.R.style.
+                                TextAppearance_MaterialComponents_Subtitle1
+                );
+                navView.setItemTextAppearance(R.style.NavigationViewSmall);
+                break;
+            case 1:
+                topAppBar.setTitleTextAppearance(this,
+                        com.google.android.material.R.style.
+                                TextAppearance_MaterialComponents_Headline5
+                );
+                navView.setItemTextAppearance(R.style.NavigationViewMedium);
+                break;
+            case 2:
+                topAppBar.setTitleTextAppearance(this,
+                        com.google.android.material.R.style.
+                                TextAppearance_MaterialComponents_Headline4
+                );
+                navView.setItemTextAppearance(R.style.NavigationViewBig);
+                break;
+        }
     }
 
     public int getFlowLvl() {
@@ -90,18 +128,15 @@ public class ScheduleActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.nav_schedule:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                            ScheduleFragment.newInstance(flowLvl, course, group, subgroup))
+                                    ScheduleFragment.newInstance(flowLvl, course, group, subgroup))
                             .commit();
                     return true;
                 case R.id.nav_change_schedule:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                            ChangeScheduleFragment.newInstance(flowLvl, course, group, subgroup))
-                            .commit();
+                                    ChangeScheduleFragment.newInstance(
+                                            flowLvl, course, group, subgroup
+                                    )).commit();
                     return true;
-                /*case R.id.nav_homework:
-                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                            HomeworkFragment.newInstance());
-                    return true;*/
                 case R.id.nav_settings:
                     fragmentManager.beginTransaction().replace(R.id.fragment_view,
                             SettingsFragment.newInstance()).commit();

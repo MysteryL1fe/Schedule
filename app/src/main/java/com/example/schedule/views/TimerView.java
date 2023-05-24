@@ -1,6 +1,7 @@
 package com.example.schedule.views;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -10,9 +11,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.schedule.R;
+import com.example.schedule.SettingsStorage;
+import com.google.android.material.divider.MaterialDivider;
 
 public class TimerView extends LinearLayout {
-    private LessonsView parentView;
+    private LessonsView lessonsView;
     private ImageView imageView;
     private TextView timerTV;
     private CountDownTimer timer;
@@ -32,7 +35,7 @@ public class TimerView extends LinearLayout {
 
     public TimerView(Context context, int timerSeconds, LessonsView lessonsView, ViewGroup parent) {
         super(context);
-        parentView = lessonsView;
+        this.lessonsView = lessonsView;
         this.parent = parent;
         init(timerSeconds);
     }
@@ -51,20 +54,53 @@ public class TimerView extends LinearLayout {
         imageParams.gravity = Gravity.CENTER;
         imageParams.rightMargin = 25;
 
-        this.setOrientation(HORIZONTAL);
         this.setGravity(Gravity.CENTER_HORIZONTAL);
+        this.setBackground(getResources().getDrawable(
+                R.drawable.lesson_background, getContext().getTheme()
+        ));
 
         imageView = new ImageView(getContext());
         imageView.setImageDrawable(
                 getResources().getDrawable(R.drawable.red_circle, getContext().getTheme())
         );
         imageView.setLayoutParams(imageParams);
-        this.addView(imageView);
 
         timerTV = new TextView(getContext());
         timerTV.setText(Integer.toString(timerSeconds));
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                timerTV.setTextSize(8.0f);
+                break;
+            case 2:
+                timerTV.setTextSize(24.0f);
+                break;
+            default:
+                timerTV.setTextSize(16.0f);
+                break;
+        }
         timerTV.setLayoutParams(params);
-        this.addView(timerTV);
+
+        if (parent.getClass() == LessonsView.class) {
+            this.setOrientation(VERTICAL);
+
+            MaterialDivider divider = new MaterialDivider(getContext());
+            divider.setBackground(getResources().getDrawable(
+                    R.drawable.divider_color, getContext().getTheme()
+            ));
+            this.addView(divider);
+
+            LinearLayout timerLayout = new LinearLayout(getContext());
+            timerLayout.setOrientation(HORIZONTAL);
+            timerLayout.setGravity(Gravity.CENTER);
+            this.addView(timerLayout);
+
+            timerLayout.addView(imageView);
+            timerLayout.addView(timerTV);
+        } else {
+            this.setOrientation(HORIZONTAL);
+            this.addView(imageView);
+            this.addView(timerTV);
+        }
 
         timer = new Timer(timerSeconds * 1000L, 1000);
         timer.start();
@@ -113,7 +149,7 @@ public class TimerView extends LinearLayout {
 
         @Override
         public void onFinish() {
-            parentView.updateTimer();
+            lessonsView.updateTimer();
             parent.removeView(TimerView.this);
             cancel();
         }

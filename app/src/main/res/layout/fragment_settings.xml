@@ -1,78 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="?attr/background"
-    tools:context=".fragments.SettingsFragment" >
+    android:orientation="vertical"
+    tools:context=".fragments.SettingsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/choose_theme_btn"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="25dp"
-            android:padding="25dp"
-            android:text="Выбрать тему"
-            android:textSize="20sp" />
-    </LinearLayout>
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/chooseThemeBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="25dp"
+                android:text="Выбрать тему"
+                android:textSize="20sp" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/import_btn"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="25dp"
-            android:padding="25dp"
-            android:text="Импортировать расписание"
-            android:textSize="20sp" />
-    </LinearLayout>
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/importBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="25dp"
+                android:text="Импортировать расписание"
+                android:textSize="20sp" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/export_btn"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="25dp"
-            android:padding="25dp"
-            android:text="Экспортировать расписание"
-            android:textSize="20sp" />
-    </LinearLayout>
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/exportBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="25dp"
+                android:text="Экспортировать расписание"
+                android:textSize="20sp" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/choose_flow_btn"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="25dp"
-            android:padding="25dp"
-            android:text="Сменить группу"
-            android:textSize="20sp" />
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fontSizeTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Размер шрифта"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="24sp" />
+
+            <SeekBar
+                android:id="@+id/textSizeSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="25dp"
+                android:max="2"
+                android:progress="1"
+                android:progressTint="?attr/colorPrimary"
+                android:thumb="@drawable/seek_bar_thumb" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="25dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/chooseFlowBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="25dp"
+                android:text="Сменить группу"
+                android:textSize="20sp" />
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

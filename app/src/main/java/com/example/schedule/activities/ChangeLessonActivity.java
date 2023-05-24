@@ -47,6 +47,36 @@ public class ChangeLessonActivity extends AppCompatActivity {
         isNumeratorCheckBox = findViewById(R.id.isNumeratorCheckBox);
         isDenominatorCheckBox = findViewById(R.id.isDenominatorCheckBox);
 
+        switch (SettingsStorage.TEXT_SIZE) {
+            case 0:
+                lessonNameEditText.setTextSize(10.0f);
+                teacherEditText.setTextSize(10.0f);
+                cabinetEditText.setTextSize(10.0f);
+                cancelBtn.setTextSize(10.0f);
+                nextBtn.setTextSize(10.0f);
+                isNumeratorCheckBox.setTextSize(10.0f);
+                isDenominatorCheckBox.setTextSize(10.0f);
+                break;
+            case 1:
+                lessonNameEditText.setTextSize(20.0f);
+                teacherEditText.setTextSize(20.0f);
+                cabinetEditText.setTextSize(20.0f);
+                cancelBtn.setTextSize(20.0f);
+                nextBtn.setTextSize(20.0f);
+                isNumeratorCheckBox.setTextSize(20.0f);
+                isDenominatorCheckBox.setTextSize(20.0f);
+                break;
+            case 2:
+                lessonNameEditText.setTextSize(30.0f);
+                teacherEditText.setTextSize(30.0f);
+                cabinetEditText.setTextSize(30.0f);
+                cancelBtn.setTextSize(30.0f);
+                nextBtn.setTextSize(30.0f);
+                isNumeratorCheckBox.setTextSize(30.0f);
+                isDenominatorCheckBox.setTextSize(30.0f);
+                break;
+        }
+
         lessonNameEditText.setText(lessonName);
         teacherEditText.setText(teacher);
         cabinetEditText.setText(cabinet);
