@@ -154,11 +154,11 @@ public class ScheduleStorage {
     }
 
     private static void importSchedule(String schedule, SharedPreferences saves) {
-        /*Schedule importedSchedule = gson.fromJson(schedule, scheduleType);
+        Schedule importedSchedule = gson.fromJson(schedule, scheduleType);
         if (importedSchedule != null && curSchedule != null) {
             changeSchedule(curSchedule, importedSchedule, saves);
-        }*/
-        try {
+        }
+        /*try {
             String[] weeks = schedule.split(";");
             if (weeks.length != 2) throw new RuntimeException();
             String[] numerator = weeks[0].split("&");
@@ -200,6 +200,6 @@ public class ScheduleStorage {
             }
         } catch (Exception e) {
             Log.e("Schedule", e.toString());
-        }
+        }*/
     }
 }

@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 public class SettingsStorage {
-    private static float VERSION = 1.00007f;
+    private static float VERSION = 1.00008f;
     public static int TEXT_SIZE = 1;
     public static String SCHEDULE_SAVES = "ScheduleSaves";
 
