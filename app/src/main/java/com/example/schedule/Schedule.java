@@ -58,24 +58,6 @@ public class Schedule {
         return subgroup;
     }
 
-    public String toExport() {
-        StringBuilder sb = new StringBuilder();
-        for (LessonStruct[] lessonStructs : numerator) {
-            for (LessonStruct lessonStruct : lessonStructs) {
-                if (lessonStruct == null) sb.append("null&");
-                else sb.append(String.format("%s&", lessonStruct.toExport()));
-            }
-        }
-        sb.append(";");
-        for (LessonStruct[] lessonStructs : denominator) {
-            for (LessonStruct lessonStruct : lessonStructs) {
-                if (lessonStruct == null) sb.append("_&");
-                else sb.append(String.format("%s&", lessonStruct.toExport()));
-            }
-        }
-        return sb.toString();
-    }
-
     public LessonStruct[][] getNumerator() {
         return numerator;
     }

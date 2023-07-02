@@ -158,48 +158,5 @@ public class ScheduleStorage {
         if (importedSchedule != null && curSchedule != null) {
             changeSchedule(curSchedule, importedSchedule, saves);
         }
-        /*try {
-            String[] weeks = schedule.split(";");
-            if (weeks.length != 2) throw new RuntimeException();
-            String[] numerator = weeks[0].split("&");
-            if (numerator.length != 7 * 8) throw new RuntimeException();
-            String[] denominator = weeks[1].split("&");
-            if (denominator.length != 7 * 8) throw new RuntimeException();
-            for (int i = 0; i < 6; i++) {
-                for (int j = 0; j < 8; j++) {
-                    String s = numerator[i * 8 + j];
-                    if (s.equals("_")) changeLesson(curFlowLvl, curCourse, curGroup, curSubgroup,
-                            i + 1, j + 1, true, "",
-                            "", "", saves);
-                    else {
-                        String[] lesson = s.split("\\*");
-                        if (lesson.length != 3) throw new RuntimeException();
-                        changeLesson(curFlowLvl, curCourse, curGroup, curSubgroup,
-                                i + 1, j + 1, true,
-                                lesson[0].equals("_") ? "" : lesson[0],
-                                lesson[1].equals("_") ? "" : lesson[1],
-                                lesson[2].equals("_") ? "" : lesson[2], saves);
-                    }
-                }
-            }
-            for (int i = 0; i < 6; i++) {
-                for (int j = 0; j < 8; j++) {
-                    String s = denominator[i * 8 + j];
-                    if (s.equals("_")) changeLesson(curFlowLvl, curCourse, curGroup, curSubgroup,
-                            i + 1, j + 1, false, "",
-                            "", "", saves);
-                    else {
-                        String[] lesson = s.split("\\*");
-                        changeLesson(curFlowLvl, curCourse, curGroup, curSubgroup,
-                                i + 1, j + 1, false,
-                                lesson[0].equals("_") ? "" : lesson[0],
-                                lesson[1].equals("_") ? "" : lesson[1],
-                                lesson[2].equals("_") ? "" : lesson[2], saves);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Log.e("Schedule", e.toString());
-        }*/
     }
 }
