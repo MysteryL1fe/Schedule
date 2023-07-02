@@ -5,9 +5,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.schedule.exceptions.ScheduleException;
 import com.google.gson.Gson;
@@ -20,19 +18,20 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ScheduleStorage {
     private static Set<Schedule> storage = new HashSet<>();
     private static final Gson gson = new Gson();
-    private static final Type type = new TypeToken<Set<Schedule>>(){}.getType();
+    private static final Type scheduleSetType = new TypeToken<Set<Schedule>>(){}.getType();
+    private static final Type scheduleType = new TypeToken<Schedule>(){}.getType();
     private static Schedule curSchedule;
     private static int curFlowLvl, curCourse, curGroup, curSubgroup;
 
     public static void saveStorage(SharedPreferences pref) {
-        String strObject = gson.toJson(storage, type);
+        String strObject = gson.toJson(storage, scheduleSetType);
         Editor editor = pref.edit();
         editor.putString("Storage", strObject);
         editor.apply();
@@ -46,7 +45,7 @@ public class ScheduleStorage {
 
     public static void updateStorage(SharedPreferences saves) {
         String json = saves.getString("Storage", "");
-        storage = gson.fromJson(json, type);
+        storage = gson.fromJson(json, scheduleSetType);
     }
 
     public static void addSchedule(Schedule schedule, SharedPreferences saves) {
@@ -66,7 +65,7 @@ public class ScheduleStorage {
     public static void clearStorage(SharedPreferences saves) {
         storage = new HashSet<>();
         Editor editor = saves.edit();
-        String strObject = gson.toJson(storage, type);
+        String strObject = gson.toJson(storage, scheduleSetType);
         editor.putString("Storage", strObject);
         editor.apply();
     }
@@ -107,6 +106,13 @@ public class ScheduleStorage {
         }
     }
 
+    public static void changeSchedule(Schedule oldSchedule, Schedule newSchedule,
+                                      SharedPreferences saves) {
+        oldSchedule.setNumerator(newSchedule.getNumerator());
+        oldSchedule.setDenominator(newSchedule.getDenominator());
+        saveStorage(saves);
+    }
+
     public static boolean exportSchedule(SharedPreferences saves) {
         File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (!dir.exists()) dir.mkdir();
@@ -116,7 +122,7 @@ public class ScheduleStorage {
             String fileName = Utils.generateStr();
             File file = new File(dir, String.format("%s.sch", fileName));
             FileOutputStream outputStream = new FileOutputStream(file, false);
-            outputStream.write(schedule.toExport().getBytes());
+            outputStream.write(gson.toJson(schedule, scheduleType).getBytes());
             outputStream.flush();
             outputStream.close();
             return true;
@@ -148,6 +154,10 @@ public class ScheduleStorage {
     }
 
     private static void importSchedule(String schedule, SharedPreferences saves) {
+        /*Schedule importedSchedule = gson.fromJson(schedule, scheduleType);
+        if (importedSchedule != null && curSchedule != null) {
+            changeSchedule(curSchedule, importedSchedule, saves);
+        }*/
         try {
             String[] weeks = schedule.split(";");
             if (weeks.length != 2) throw new RuntimeException();

@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Schedule {
-    private final LessonStruct[][] numerator = new LessonStruct[7][8];
-    private final LessonStruct[][] denominator = new LessonStruct[7][8];
+    private LessonStruct[][] numerator = new LessonStruct[7][8];
+    private LessonStruct[][] denominator = new LessonStruct[7][8];
     private final int flowLvl, course, group, subgroup;
 
     public Schedule() throws ScheduleException {
@@ -74,5 +74,21 @@ public class Schedule {
             }
         }
         return sb.toString();
+    }
+
+    public LessonStruct[][] getNumerator() {
+        return numerator;
+    }
+
+    public void setNumerator(LessonStruct[][] numerator) {
+        this.numerator = numerator;
+    }
+
+    public LessonStruct[][] getDenominator() {
+        return denominator;
+    }
+
+    public void setDenominator(LessonStruct[][] denominator) {
+        this.denominator = denominator;
     }
 }
