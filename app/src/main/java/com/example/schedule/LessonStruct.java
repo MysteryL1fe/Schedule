@@ -7,11 +7,6 @@ public class LessonStruct {
     public String teacher;
     public String cabinet;
 
-    public String toExport() {
-        return String.format("%s*%s*%s", name.isEmpty() ? "_" : name,
-                teacher.isEmpty() ? "_" : teacher, cabinet.isEmpty() ? "_" : cabinet);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
