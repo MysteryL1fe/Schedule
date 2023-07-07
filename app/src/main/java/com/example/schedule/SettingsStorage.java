@@ -3,10 +3,19 @@ package com.example.schedule;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.Calendar;
+
 public class SettingsStorage {
     private static float VERSION = 1.00008f;
     public static int TEXT_SIZE = 1;
     public static String SCHEDULE_SAVES = "ScheduleSaves";
+    private static Calendar countdownBeginning;
+    private static final Gson gson = new Gson();
+    private static final Type calendarType = new TypeToken<Calendar>(){}.getType();
 
     public static void updateTextSize(SharedPreferences saves) {
         TEXT_SIZE = saves.getInt("textSize", 1);
@@ -57,6 +66,35 @@ public class SettingsStorage {
     public static void setTheme(int theme, SharedPreferences saves) {
         Editor editor = saves.edit();
         editor.putInt("theme", theme);
+        editor.apply();
+    }
+
+    public static Calendar getCountdownBeginning(SharedPreferences saves) {
+        if (countdownBeginning == null) {
+            countdownBeginning = gson.fromJson(
+                    saves.getString("countdownBeginning", ""), calendarType
+            );
+            if (countdownBeginning == null) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.clear();
+                countdownBeginning = calendar;
+                Editor editor = saves.edit();
+                editor.putString(
+                        "countdownBeginning", gson.toJson(countdownBeginning, calendarType)
+                );
+                editor.apply();
+            }
+        }
+        return countdownBeginning;
+    }
+
+    public static void setCountdownBeginning(Calendar countdownBeginning, SharedPreferences saves) {
+        while (countdownBeginning.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            countdownBeginning.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        SettingsStorage.countdownBeginning = countdownBeginning;
+        Editor editor = saves.edit();
+        editor.putString("countdownBeginning", gson.toJson(countdownBeginning, calendarType));
         editor.apply();
     }
 }

@@ -2,6 +2,7 @@ package com.example.schedule.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -34,6 +36,10 @@ import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link SettingsFragment#newInstance} factory method to
@@ -43,8 +49,8 @@ public class SettingsFragment extends Fragment {
     private ActivityResultLauncher<Intent> fileChooserActivity;
     private ActivityResultLauncher<String> requestReadPermissionLauncher;
     private ActivityResultLauncher<String> requestWritePermissionLauncher;
-    private TextView fontSizeTV;
-    private Button chooseThemeBtn, chooseFlowBtn, importBtn, exportBtn;
+    private TextView fontSizeTV, countdownBeginningTV;
+    private Button chooseThemeBtn, chooseFlowBtn, importBtn, exportBtn, countdownBeginningBtn;
 
     public SettingsFragment() {}
 
@@ -87,19 +93,23 @@ public class SettingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         fontSizeTV = view.findViewById(R.id.fontSizeTV);
+        countdownBeginningTV = view.findViewById(R.id.countdownBeginningTV);
         chooseThemeBtn = view.findViewById(R.id.chooseThemeBtn);
         chooseFlowBtn = view.findViewById(R.id.chooseFlowBtn);
         importBtn = view.findViewById(R.id.importBtn);
         exportBtn = view.findViewById(R.id.exportBtn);
+        countdownBeginningBtn = view.findViewById(R.id.countdownBeginningBtn);
         SeekBar seekBar = view.findViewById(R.id.textSizeSeekBar);
 
         chooseThemeBtn.setOnClickListener(new ChooseThemeBtnListener());
         chooseFlowBtn.setOnClickListener(new ChooseFlowBtnListener());
         importBtn.setOnClickListener(new ImportBtnListener());
         exportBtn.setOnClickListener(new ExportBtnListener());
+        countdownBeginningBtn.setOnClickListener(new CountdownBeginningBtnListener());
         seekBar.setOnSeekBarChangeListener(new TextSizeSeekBarListener());
         seekBar.setProgress(SettingsStorage.TEXT_SIZE);
 
+        updateCountdownBeginningBtn();
         updateScreen();
 
         return view;
@@ -109,26 +119,42 @@ public class SettingsFragment extends Fragment {
         switch (SettingsStorage.TEXT_SIZE) {
             case 0:
                 fontSizeTV.setTextSize(12.0f);
+                countdownBeginningTV.setTextSize(12.0f);
                 chooseThemeBtn.setTextSize(10.0f);
                 chooseFlowBtn.setTextSize(10.0f);
                 importBtn.setTextSize(10.0f);
                 exportBtn.setTextSize(10.0f);
+                countdownBeginningBtn.setTextSize(10.0f);
                 break;
             case 1:
                 fontSizeTV.setTextSize(24.0f);
+                countdownBeginningTV.setTextSize(24.0f);
                 chooseThemeBtn.setTextSize(20.0f);
                 chooseFlowBtn.setTextSize(20.0f);
                 importBtn.setTextSize(20.0f);
                 exportBtn.setTextSize(20.0f);
+                countdownBeginningBtn.setTextSize(20.0f);
                 break;
             case 2:
                 fontSizeTV.setTextSize(36.0f);
+                countdownBeginningTV.setTextSize(36.0f);
                 chooseThemeBtn.setTextSize(30.0f);
                 chooseFlowBtn.setTextSize(30.0f);
                 importBtn.setTextSize(30.0f);
                 exportBtn.setTextSize(30.0f);
+                countdownBeginningBtn.setTextSize(30.0f);
                 break;
         }
+    }
+
+    private void updateCountdownBeginningBtn() {
+        Calendar calendar = SettingsStorage.getCountdownBeginning(
+                getActivity().getSharedPreferences(
+                        SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
+                )
+        );
+        SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy");
+        countdownBeginningBtn.setText(format.format(calendar.getTime()));
     }
 
     private void importSchedule() {
@@ -273,6 +299,30 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
 
+        }
+    }
+
+    private class CountdownBeginningBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Calendar calendar = Calendar.getInstance();
+            new DatePickerDialog(
+                    getContext(), new DatePickerDialogListener(), calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+            ).show();
+        }
+    }
+
+    private class DatePickerDialogListener implements DatePickerDialog.OnDateSetListener {
+        @Override
+        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            Calendar calendar = new GregorianCalendar(year, month, dayOfMonth);
+            SettingsStorage.setCountdownBeginning(
+                    calendar, getActivity().getSharedPreferences(
+                            SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
+                    )
+            );
+            updateCountdownBeginningBtn();
         }
     }
 }

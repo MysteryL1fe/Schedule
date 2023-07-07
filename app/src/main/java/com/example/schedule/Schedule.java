@@ -2,9 +2,6 @@ package com.example.schedule;
 
 import com.example.schedule.exceptions.ScheduleException;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 public class Schedule {
     private LessonStruct[][] numerator = new LessonStruct[7][8];
     private LessonStruct[][] denominator = new LessonStruct[7][8];
