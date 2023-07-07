@@ -107,7 +107,7 @@ if (!lastTimeDonationShowed.equals(curDay)) {
     public static boolean isNumerator(int year, int month, int day, SharedPreferences saves) {
         Calendar from = SettingsStorage.getCountdownBeginning(saves);
         Calendar to = new GregorianCalendar(year, month - 1, day);
-        long diff = to.getTime().getTime() - from.getTime().getTime();
+        long diff = Math.abs(to.getTime().getTime() - from.getTime().getTime());
         long daysBetween = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
         return daysBetween / 7 % 2 == 0;
     }
