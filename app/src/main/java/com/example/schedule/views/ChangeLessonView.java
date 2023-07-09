@@ -1,15 +1,11 @@
 package com.example.schedule.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewParent;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,20 +13,16 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.example.schedule.LessonStruct;
-import com.example.schedule.Schedule;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ChangeLessonActivity;
 import com.example.schedule.R;
-import com.example.schedule.activities.ScheduleActivity;
-import com.example.schedule.ScheduleStorage;
 import com.example.schedule.Utils;
-import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.divider.MaterialDivider;
 
 public class ChangeLessonView extends LinearLayout {
-    private int dayOfWeek, lessonNum;
+    private int flowLvl, course, group, subgroup, dayOfWeek, lessonNum;
     private LessonStruct numerator, denominator;
-    private ScheduleActivity scheduleActivity;
     private Context context;
 
     public ChangeLessonView(Context context) {
@@ -45,32 +37,32 @@ public class ChangeLessonView extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public ChangeLessonView(Context context, int dayOfWeek, int lessonNum) {
+    public ChangeLessonView(Context context, int flowLvl, int course, int group, int subgroup,
+                            int dayOfWeek, int lessonNum) {
         super(context);
-        init(dayOfWeek, lessonNum);
+        init(flowLvl, course, group, subgroup, dayOfWeek, lessonNum);
     }
 
-    public void init(int dayOfWeek, int lessonNum) {
-        context = getContext();
-        scheduleActivity = (ScheduleActivity) context;
+    @SuppressLint("UseCompatLoadingForDrawables")
+    public void init(int flowLvl, int course, int group, int subgroup, int dayOfWeek,
+                     int lessonNum) {
+        this.flowLvl = flowLvl;
+        this.course = course;
+        this.group = group;
+        this.subgroup = subgroup;
         this.dayOfWeek = dayOfWeek;
         this.lessonNum = lessonNum;
-        try {
-            Schedule schedule = ScheduleStorage.getSchedule(
-                    scheduleActivity.getFlowLvl(),
-                    scheduleActivity.getCourse(),
-                    scheduleActivity.getGroup(),
-                    scheduleActivity.getSubgroup(),
-                    scheduleActivity.
-                            getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
-                                    Context.MODE_PRIVATE)
-            );
-            this.numerator = schedule.getLesson(dayOfWeek, lessonNum, true);
-            this.denominator = schedule.getLesson(dayOfWeek, lessonNum, false);
-        } catch (Exception e) {
-            this.numerator = null;
-            this.denominator = null;
-        }
+
+        context = getContext();
+
+        ScheduleDBHelper dbHelper = new ScheduleDBHelper(context);
+        numerator = dbHelper.getLesson(
+                flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true
+        );
+        denominator = dbHelper.getLesson(
+                flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false
+        );
+        dbHelper.close();
 
         LayoutParams paramsMatchWrap = new LayoutParams(
                 LayoutParams.MATCH_PARENT,
@@ -85,7 +77,10 @@ public class ChangeLessonView extends LinearLayout {
                 LayoutParams.WRAP_CONTENT,
                 1.0f
         );
-        LayoutParams paramsChangeButtons = paramsWrapWrap;
+        LayoutParams paramsChangeButtons = new LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT
+        );
         paramsChangeButtons.rightMargin = 10;
 
         this.setLayoutParams(paramsMatchWrap);
@@ -117,7 +112,7 @@ public class ChangeLessonView extends LinearLayout {
         timeTV.setPadding(0, 0, 25, 0);
         firstStroke.addView(timeTV);
 
-        switch (SettingsStorage.TEXT_SIZE) {
+        switch (SettingsStorage.textSize) {
             case 0:
                 lessonNumTV.setTextSize(8.0f);
                 timeTV.setTextSize(8.0f);
@@ -149,7 +144,7 @@ public class ChangeLessonView extends LinearLayout {
             TextView lessonTV = new TextView(context);
             lessonTV.setLayoutParams(paramsMatchWrap);
             lessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            switch (SettingsStorage.TEXT_SIZE) {
+            switch (SettingsStorage.textSize) {
                 case 0:
                     lessonTV.setTextSize(8.0f);
                     break;
@@ -168,7 +163,7 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                switch (SettingsStorage.TEXT_SIZE) {
+                switch (SettingsStorage.textSize) {
                     case 0:
                         cabinetTV.setTextSize(8.0f);
                         break;
@@ -236,7 +231,7 @@ public class ChangeLessonView extends LinearLayout {
             TextView numeratorLessonTV = new TextView(context);
             numeratorLessonTV.setLayoutParams(paramsMatchWrap);
             numeratorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            switch (SettingsStorage.TEXT_SIZE) {
+            switch (SettingsStorage.textSize) {
                 case 0:
                     numeratorLessonTV.setTextSize(8.0f);
                     break;
@@ -255,7 +250,7 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                switch (SettingsStorage.TEXT_SIZE) {
+                switch (SettingsStorage.textSize) {
                     case 0:
                         cabinetTV.setTextSize(8.0f);
                         break;
@@ -324,7 +319,7 @@ public class ChangeLessonView extends LinearLayout {
             TextView denominatorLessonTV = new TextView(context);
             denominatorLessonTV.setLayoutParams(paramsMatchWrap);
             denominatorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            switch (SettingsStorage.TEXT_SIZE) {
+            switch (SettingsStorage.textSize) {
                 case 0:
                     denominatorLessonTV.setTextSize(8.0f);
                     break;
@@ -343,7 +338,7 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                switch (SettingsStorage.TEXT_SIZE) {
+                switch (SettingsStorage.textSize) {
                     case 0:
                         cabinetTV.setTextSize(8.0f);
                         break;
@@ -410,7 +405,7 @@ public class ChangeLessonView extends LinearLayout {
             TextView numeratorLessonTV = new TextView(context);
             numeratorLessonTV.setLayoutParams(paramsMatchWrap);
             numeratorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            switch (SettingsStorage.TEXT_SIZE) {
+            switch (SettingsStorage.textSize) {
                 case 0:
                     numeratorLessonTV.setTextSize(8.0f);
                     break;
@@ -429,7 +424,7 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                switch (SettingsStorage.TEXT_SIZE) {
+                switch (SettingsStorage.textSize) {
                     case 0:
                         cabinetTV.setTextSize(8.0f);
                         break;
@@ -560,7 +555,7 @@ public class ChangeLessonView extends LinearLayout {
             TextView denominatorLessonTV = new TextView(context);
             denominatorLessonTV.setLayoutParams(paramsMatchWrap);
             denominatorLessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-            switch (SettingsStorage.TEXT_SIZE) {
+            switch (SettingsStorage.textSize) {
                 case 0:
                     denominatorLessonTV.setTextSize(8.0f);
                     break;
@@ -579,7 +574,7 @@ public class ChangeLessonView extends LinearLayout {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
-                switch (SettingsStorage.TEXT_SIZE) {
+                switch (SettingsStorage.textSize) {
                     case 0:
                         cabinetTV.setTextSize(8.0f);
                         break;
@@ -674,20 +669,16 @@ public class ChangeLessonView extends LinearLayout {
         @Override
         public void onClick(View v) {
             try {
-                if (isNumerator) ScheduleStorage.changeLesson(scheduleActivity.getFlowLvl(),
-                        scheduleActivity.getCourse(), scheduleActivity.getGroup(),
-                        scheduleActivity.getSubgroup(), dayOfWeek,
-                        lessonNum, true, "", "", "",
-                        scheduleActivity.getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
-                                Context.MODE_PRIVATE));
-                if (isDenominator) ScheduleStorage.changeLesson(scheduleActivity.getFlowLvl(),
-                        scheduleActivity.getCourse(), scheduleActivity.getGroup(),
-                        scheduleActivity.getSubgroup(), dayOfWeek,
-                        lessonNum, false, "", "", "",
-                        scheduleActivity.getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
-                                Context.MODE_PRIVATE));
+                ScheduleDBHelper dbHelper = new ScheduleDBHelper(context);
+                if (isNumerator) dbHelper.deleteSchedule(
+                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true
+                );
+                if (isDenominator) dbHelper.deleteSchedule(
+                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false
+                );
+                dbHelper.close();
                 ChangeLessonView.this.removeAllViews();
-                init(dayOfWeek, lessonNum);
+                init(flowLvl, course, group, subgroup, dayOfWeek, lessonNum);
             } catch (Exception ignored) {}
         }
     }
@@ -702,11 +693,14 @@ public class ChangeLessonView extends LinearLayout {
 
         @Override
         public void onClick(View v) {
+            String[] teacher = new ScheduleDBHelper(getContext()).getTeacher(
+                    flowLvl, course, group, subgroup, dayOfWeek, lessonNum, isNumerator
+            );
             Intent intent = new Intent(context, ChangeLessonActivity.class);
-            intent.putExtra("flowLvl", scheduleActivity.getFlowLvl());
-            intent.putExtra("course", scheduleActivity.getCourse());
-            intent.putExtra("group", scheduleActivity.getGroup());
-            intent.putExtra("subgroup", scheduleActivity.getSubgroup());
+            intent.putExtra("flowLvl", flowLvl);
+            intent.putExtra("course", course);
+            intent.putExtra("group", group);
+            intent.putExtra("subgroup", subgroup);
             intent.putExtra("dayOfWeek", dayOfWeek);
             intent.putExtra("lessonNum", lessonNum);
             intent.putExtra("isNumerator", isNumerator);
@@ -714,12 +708,12 @@ public class ChangeLessonView extends LinearLayout {
             intent.putExtra("lessonName", isNumerator && numerator != null ?
                     numerator.name : isDenominator && denominator != null ?
                     denominator.name : "");
-            intent.putExtra("teacher", isNumerator && numerator != null ?
-                    numerator.teacher : isDenominator && denominator != null ?
-                    denominator.teacher : "");
             intent.putExtra("cabinet", isNumerator && numerator != null ?
                     numerator.cabinet : isDenominator && denominator != null ?
                     denominator.cabinet : "");
+            intent.putExtra("surname", teacher == null ? "" : teacher[0]);
+            intent.putExtra("teacherName", teacher == null ? "" : teacher[1]);
+            intent.putExtra("patronymic", teacher == null ? "" : teacher[2]);
             context.startActivity(intent);
         }
     }

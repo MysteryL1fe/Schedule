@@ -25,12 +25,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.schedule.R;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
@@ -46,6 +46,12 @@ import java.util.GregorianCalendar;
  * create an instance of this fragment.
  */
 public class SettingsFragment extends Fragment {
+    private static final String ARG_FLOW_LVL = "flowLvl";
+    private static final String ARG_COURSE = "course";
+    private static final String ARG_GROUP = "group";
+    private static final String ARG_SUBGROUP = "subgroup";
+    private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
+
     private ActivityResultLauncher<Intent> fileChooserActivity;
     private ActivityResultLauncher<String> requestReadPermissionLauncher;
     private ActivityResultLauncher<String> requestWritePermissionLauncher;
@@ -60,14 +66,26 @@ public class SettingsFragment extends Fragment {
      *
      * @return A new instance of fragment SettingsFragment.
      */
-    public static SettingsFragment newInstance() {
+    public static SettingsFragment newInstance(int flowLvl, int course, int group, int subgroup) {
         SettingsFragment fragment = new SettingsFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_FLOW_LVL, flowLvl);
+        args.putInt(ARG_COURSE, course);
+        args.putInt(ARG_GROUP, group);
+        args.putInt(ARG_SUBGROUP, subgroup);
+        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mFlowLvl = getArguments().getInt(ARG_FLOW_LVL);
+            mCourse = getArguments().getInt(ARG_COURSE);
+            mGroup = getArguments().getInt(ARG_GROUP);
+            mSubgroup = getArguments().getInt(ARG_SUBGROUP);
+        }
     }
 
     @Override
@@ -107,7 +125,7 @@ public class SettingsFragment extends Fragment {
         exportBtn.setOnClickListener(new ExportBtnListener());
         countdownBeginningBtn.setOnClickListener(new CountdownBeginningBtnListener());
         seekBar.setOnSeekBarChangeListener(new TextSizeSeekBarListener());
-        seekBar.setProgress(SettingsStorage.TEXT_SIZE);
+        seekBar.setProgress(SettingsStorage.textSize);
 
         updateCountdownBeginningBtn();
         updateScreen();
@@ -116,7 +134,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void updateScreen() {
-        switch (SettingsStorage.TEXT_SIZE) {
+        switch (SettingsStorage.textSize) {
             case 0:
                 fontSizeTV.setTextSize(12.0f);
                 countdownBeginningTV.setTextSize(12.0f);
@@ -158,20 +176,14 @@ public class SettingsFragment extends Fragment {
     }
 
     private void importSchedule() {
-        Intent intent = null;
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            intent = new Intent(
-                    Intent.ACTION_GET_CONTENT//,
-                    //MediaStore.Downloads.EXTERNAL_CONTENT_URI
-            );
-//        }
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         fileChooserActivity.launch(intent);
     }
 
     private void exportSchedule() {
-        if (ScheduleStorage.exportSchedule(getActivity()
-                .getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE))) {
+        if (new ScheduleDBHelper(getContext())
+                .exportSchedule(mFlowLvl, mCourse, mGroup, mSubgroup)) {
             Toast.makeText(getContext(), "Файл успешно добавлен в Загрузки",
                     Toast.LENGTH_LONG).show();
         } else {
@@ -264,15 +276,15 @@ public class SettingsFragment extends Fragment {
                 if (data == null) return;
                 Uri uri = data.getData();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    ScheduleStorage.importScheduleAfter28(uri, getContext().getContentResolver(),
-                            getActivity().getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
-                                    Context.MODE_PRIVATE));
+                    new ScheduleDBHelper(getContext()).importScheduleAfter28(
+                            uri, getContext().getContentResolver(),
+                            mFlowLvl, mCourse, mGroup, mSubgroup
+                    );
                 } else {
-                    ScheduleStorage.importScheduleBefore29(
+                    new ScheduleDBHelper(getContext()).importScheduleBefore29(
                             uri.getPath().replace("/document/raw:/", ""),
-                            getContext()
-                                    .getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
-                                            Context.MODE_PRIVATE));
+                            mFlowLvl, mCourse, mGroup, mSubgroup
+                    );
                 }
             }
         }

@@ -4,40 +4,42 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
 
 import com.example.schedule.R;
-import com.example.schedule.Schedule;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private int flowLvl, course, group, subgroup, fontSize;
+    private int flowLvl, course, group, subgroup;
     private Button courseBtn, groupBtn, subgroupBtn, flowLvlBtn, contBtn;
     private SharedPreferences saves;
     private SharedPreferences.Editor editor;
-    private Set<Schedule> storage;
     private ActivityResultLauncher<Intent> newFlowActivity;
     private final String[] flowLvlStr = new String[] {"Бакалавриат/Специалитет", "Магистратура",
             "Аспирантура"};
+    private ScheduleDBHelper dbHelper;
 
+    @SuppressLint("Range")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
 
         saves = getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE);
         editor = saves.edit();
+
+        dbHelper = new ScheduleDBHelper(this);
+        tmp();
 
         int theme = SettingsStorage.getTheme(saves);
         switch (theme) {
@@ -82,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
             ScheduleStorage.clearStorage(saves);
         }
 
-        storage = ScheduleStorage.getStorage(saves);
-
         courseBtn = findViewById(R.id.courseBtn);
         groupBtn = findViewById(R.id.groupBtn);
         subgroupBtn = findViewById(R.id.subgroupBtn);
@@ -101,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         groupBtn.setOnClickListener(new GroupBtnListener());
         subgroupBtn.setOnClickListener(new SubgroupBtnListener());
         contBtn.setOnClickListener(new ContBtnListener());
-        flowLvlBtn.setOnClickListener(new FlowLvlBtn());
+        flowLvlBtn.setOnClickListener(new FlowLvlBtnListener());
 
         newFlowActivity = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -113,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        storage = ScheduleStorage.getStorage(saves);
         updateScreen();
         updateCourseBtn();
         updateGroupBtn();
@@ -121,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateScreen() {
-        switch (SettingsStorage.TEXT_SIZE) {
+        switch (SettingsStorage.textSize) {
             case 0:
                 courseBtn.setTextSize(10.0f);
                 groupBtn.setTextSize(10.0f);
@@ -181,23 +183,91 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("course", course);
             intent.putExtra("group", group);
             intent.putExtra("subgroup", subgroup);
+            SQLiteDatabase database = dbHelper.getWritableDatabase();
+            String selection = String.format(
+                    "%s = %s AND %s = %s AND %s = %s AND %s = %s",
+                    ScheduleDBHelper.KEY_FLOW_LVL, flowLvl,
+                    ScheduleDBHelper.KEY_COURSE, course,
+                    ScheduleDBHelper.KEY_GROUP, group,
+                    ScheduleDBHelper.KEY_SUBGROUP, subgroup
+            );
+            Cursor cursor = database.query(
+                    ScheduleDBHelper.FLOW_TABLE_NAME, null, selection, null,
+                    null, null, null
+            );
+            if (!cursor.moveToFirst()) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(ScheduleDBHelper.KEY_FLOW_LVL, flowLvl);
+                contentValues.put(ScheduleDBHelper.KEY_COURSE, course);
+                contentValues.put(ScheduleDBHelper.KEY_GROUP, group);
+                contentValues.put(ScheduleDBHelper.KEY_SUBGROUP, subgroup);
+                database.insert(ScheduleDBHelper.FLOW_TABLE_NAME, null, contentValues);
+            }
+            cursor.close();
+            database.close();
+            dbHelper.close();
             startActivity(intent);
+        }
+    }
+
+    private class FlowLvlBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Context context = MainActivity.this;
+            new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
+                    .setTitle("Выберите уровень образования")
+                    .setItems(flowLvlStr, new DialogInterfaceListener())
+                    .show();
+        }
+
+        private class DialogInterfaceListener implements DialogInterface.OnClickListener {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (flowLvl != which) {
+                    flowLvl = which;
+                    course = 0;
+                    group = 0;
+                    subgroup = 0;
+                    updateFlowLvlBtn();
+                    updateCourseBtn();
+                    updateGroupBtn();
+                    updateSubgroupBtn();
+                    SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
+                }
+            }
         }
     }
 
     private class CourseBtnListener implements View.OnClickListener {
         private String[] items;
 
+        @SuppressLint("Range")
         @Override
         public void onClick(View v) {
             Context context = MainActivity.this;
-            Set<String> itemsSet = new HashSet<>();
-            for (Schedule sched : storage) {
-                if (sched.getFlowLvl() == flowLvl)
-                    itemsSet.add(Integer.toString(sched.getCourse()));
+            ArrayList<String> itemsList = new ArrayList<>();
+            SQLiteDatabase database = dbHelper.getReadableDatabase();
+            String[] columns = new String[] {ScheduleDBHelper.KEY_COURSE};
+            String selection = String.format(
+                    "%s = %s AND %s > 0", ScheduleDBHelper.KEY_FLOW_LVL, flowLvl,
+                    ScheduleDBHelper.KEY_COURSE);
+            String groupBy = ScheduleDBHelper.KEY_COURSE;
+            String orderBy = ScheduleDBHelper.KEY_COURSE;
+            Cursor cursor = database.query(
+                    ScheduleDBHelper.FLOW_TABLE_NAME, columns, selection, null,
+                    groupBy, null, orderBy
+            );
+            if (cursor.moveToFirst()) {
+                do {
+                    itemsList.add(Integer.toString(cursor.getInt(
+                            cursor.getColumnIndex(ScheduleDBHelper.KEY_COURSE)
+                    )));
+                } while (cursor.moveToNext());
             }
-            itemsSet.add("...");
-            items = itemsSet.toArray(new String[0]);
+            cursor.close();
+            database.close();
+            itemsList.add("...");
+            items = itemsList.toArray(new String[0]);
             new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
                     .setTitle("Выберите курс")
                     .setItems(items, new DialogInterfaceListener())
@@ -230,17 +300,35 @@ public class MainActivity extends AppCompatActivity {
     private class GroupBtnListener implements View.OnClickListener {
         private String[] items;
 
+        @SuppressLint("Range")
         @Override
         public void onClick(View v) {
             if (course > 0) {
                 Context context = MainActivity.this;
-                Set<String> itemsSet = new HashSet<>();
-                for (Schedule sched : storage) {
-                    if (sched.getFlowLvl() == flowLvl && sched.getCourse() == course)
-                        itemsSet.add(Integer.toString(sched.getGroup()));
+                ArrayList<String> itemsList = new ArrayList<>();
+                SQLiteDatabase database = dbHelper.getReadableDatabase();
+                String[] columns = new String[] {ScheduleDBHelper.KEY_GROUP};
+                String selection = String.format(
+                        "%s = %s AND %s = %s AND %s > 0", ScheduleDBHelper.KEY_FLOW_LVL, flowLvl,
+                        ScheduleDBHelper.KEY_COURSE, course, ScheduleDBHelper.KEY_GROUP
+                );
+                String groupBy = ScheduleDBHelper.KEY_GROUP;
+                String orderBy = ScheduleDBHelper.KEY_GROUP;
+                Cursor cursor = database.query(
+                        ScheduleDBHelper.FLOW_TABLE_NAME, columns, selection, null,
+                        groupBy, null, orderBy
+                );
+                if (cursor.moveToFirst()) {
+                    do {
+                        itemsList.add(Integer.toString(cursor.getInt(
+                                cursor.getColumnIndex(ScheduleDBHelper.KEY_GROUP)
+                        )));
+                    } while (cursor.moveToNext());
                 }
-                itemsSet.add("...");
-                items = itemsSet.toArray(new String[0]);
+                cursor.close();
+                database.close();
+                itemsList.add("...");
+                items = itemsList.toArray(new String[0]);
                 new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
                         .setTitle("Выберите группу")
                         .setItems(items, new DialogInterfaceListener())
@@ -272,18 +360,36 @@ public class MainActivity extends AppCompatActivity {
     private class SubgroupBtnListener implements View.OnClickListener {
         private String[] items;
 
+        @SuppressLint("Range")
         @Override
         public void onClick(View v) {
             if (course > 0 && group > 0) {
                 Context context = MainActivity.this;
-                Set<String> itemsSet = new HashSet<>();
-                for (Schedule sched : storage) {
-                    if (sched.getFlowLvl() == flowLvl && sched.getCourse() == course &&
-                            sched.getGroup() == group)
-                        itemsSet.add(Integer.toString(sched.getSubgroup()));
+                ArrayList<String> itemsList = new ArrayList<>();
+                SQLiteDatabase database = dbHelper.getReadableDatabase();
+                String[] columns = new String[] {ScheduleDBHelper.KEY_SUBGROUP};
+                String selection = String.format(
+                        "%s = %s AND %s = %s AND %s = %s AND %s > 0",ScheduleDBHelper.KEY_FLOW_LVL,
+                        flowLvl, ScheduleDBHelper.KEY_COURSE, course, ScheduleDBHelper.KEY_GROUP,
+                        group, ScheduleDBHelper.KEY_SUBGROUP
+                );
+                String groupBy = ScheduleDBHelper.KEY_SUBGROUP;
+                String orderBy = ScheduleDBHelper.KEY_SUBGROUP;
+                Cursor cursor = database.query(
+                        ScheduleDBHelper.FLOW_TABLE_NAME, columns, selection, null,
+                        groupBy, null, orderBy
+                );
+                if (cursor.moveToFirst()) {
+                    do {
+                        itemsList.add(Integer.toString(cursor.getInt(
+                                cursor.getColumnIndex(ScheduleDBHelper.KEY_SUBGROUP)
+                        )));
+                    } while (cursor.moveToNext());
                 }
-                itemsSet.add("...");
-                items = itemsSet.toArray(new String[0]);
+                cursor.close();
+                database.close();
+                itemsList.add("...");
+                items = itemsList.toArray(new String[0]);
                 new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
                         .setTitle("Выберите подгруппу")
                         .setItems(items, new DialogInterfaceListener())
@@ -315,34 +421,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             startActivitySchedule();
         }
-    }
 
-    private class FlowLvlBtn implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            Context context = MainActivity.this;
-            new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
-                    .setTitle("Выберите уровень образования")
-                    .setItems(flowLvlStr, new DialogInterfaceListener())
-                    .show();
-        }
-
-        private class DialogInterfaceListener implements DialogInterface.OnClickListener {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (flowLvl != which) {
-                    flowLvl = which;
-                    course = 0;
-                    group = 0;
-                    subgroup = 0;
-                    updateFlowLvlBtn();
-                    updateCourseBtn();
-                    updateGroupBtn();
-                    updateSubgroupBtn();
-                    SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
-                }
-            }
-        }
     }
 
     private class NewFlowActivityResultCallback implements ActivityResultCallback<ActivityResult> {
@@ -381,5 +460,77 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (Exception ignored) {}
         }
+    }
+
+    @SuppressLint("Range")
+    private void tmp() {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+        Log.w("Database", "_____________ FLOW TABLE _____________");
+        Cursor cursor = database.query(ScheduleDBHelper.FLOW_TABLE_NAME, null, null, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
+                        ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
+                        ScheduleDBHelper.KEY_FLOW_LVL, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_FLOW_LVL)),
+                        ScheduleDBHelper.KEY_COURSE, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_COURSE)),
+                        ScheduleDBHelper.KEY_GROUP, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_GROUP)),
+                        ScheduleDBHelper.KEY_SUBGROUP, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_SUBGROUP))));
+            } while (cursor.moveToNext());
+        } else {
+            Log.w("Database", "0 rows");
+        }
+        cursor.close();
+
+        Log.w("Database", "_____________ TEACHER TABLE _____________");
+        cursor = database.query(ScheduleDBHelper.TEACHER_TABLE_NAME, null, null, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s",
+                        ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
+                        ScheduleDBHelper.KEY_SURNAME, cursor.getString(cursor.getColumnIndex(ScheduleDBHelper.KEY_SURNAME)),
+                        ScheduleDBHelper.KEY_NAME, cursor.getString(cursor.getColumnIndex(ScheduleDBHelper.KEY_NAME)),
+                        ScheduleDBHelper.KEY_PATRONYMIC, cursor.getString(cursor.getColumnIndex(ScheduleDBHelper.KEY_PATRONYMIC))));
+            } while (cursor.moveToNext());
+        } else {
+            Log.w("Database", "0 rows");
+        }
+        cursor.close();
+
+        Log.w("Database", "_____________ LESSON TABLE _____________");
+        cursor = database.query(ScheduleDBHelper.LESSON_TABLE_NAME, null, null, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s",
+                        ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
+                        ScheduleDBHelper.KEY_NAME, cursor.getString(cursor.getColumnIndex(ScheduleDBHelper.KEY_NAME)),
+                        ScheduleDBHelper.KEY_CABINET, cursor.getString(cursor.getColumnIndex(ScheduleDBHelper.KEY_CABINET)),
+                        ScheduleDBHelper.KEY_TEACHER, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_TEACHER))));
+            } while (cursor.moveToNext());
+        } else {
+            Log.w("Database", "0 rows");
+        }
+        cursor.close();
+
+        Log.w("Database", "_____________ SCHEDULE TABLE _____________");
+        cursor = database.query(ScheduleDBHelper.SCHEDULE_TABLE_NAME, null, null, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
+                        ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
+                        ScheduleDBHelper.KEY_FLOW, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_FLOW)),
+                        ScheduleDBHelper.KEY_DAY_OF_WEEK, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY_OF_WEEK)),
+                        ScheduleDBHelper.KEY_LESSON, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON)),
+                        ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM)),
+                        ScheduleDBHelper.KEY_IS_NUMERATOR, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_IS_NUMERATOR))));
+            } while (cursor.moveToNext());
+        } else {
+            Log.w("Database", "0 rows");
+        }
+        cursor.close();
+        database.close();
     }
 }

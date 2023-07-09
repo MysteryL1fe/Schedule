@@ -10,19 +10,19 @@ import java.lang.reflect.Type;
 import java.util.Calendar;
 
 public class SettingsStorage {
-    private static float VERSION = 1.00008f;
-    public static int TEXT_SIZE = 1;
-    public static String SCHEDULE_SAVES = "ScheduleSaves";
+    private static final float VERSION = 1.00009f;
+    public static final String SCHEDULE_SAVES = "ScheduleSaves";
+    public static int textSize = 1;
     private static Calendar countdownBeginning;
     private static final Gson gson = new Gson();
     private static final Type calendarType = new TypeToken<Calendar>(){}.getType();
 
     public static void updateTextSize(SharedPreferences saves) {
-        TEXT_SIZE = saves.getInt("textSize", 1);
+        textSize = saves.getInt("textSize", 1);
     }
 
     public static void saveTextSize(int textSize, SharedPreferences saves) {
-        TEXT_SIZE = textSize;
+        SettingsStorage.textSize = textSize;
         Editor editor = saves.edit();
         editor.putInt("textSize", textSize);
         editor.apply();

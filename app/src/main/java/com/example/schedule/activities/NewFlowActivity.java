@@ -30,7 +30,7 @@ public class NewFlowActivity extends AppCompatActivity {
         cancelBtn = findViewById(R.id.cancelBtn);
         nextBtn = findViewById(R.id.nextBtn);
 
-        switch (SettingsStorage.TEXT_SIZE) {
+        switch (SettingsStorage.textSize) {
             case 0:
                 newFlowTextEdit.setTextSize(12.0f);
                 errorTv.setTextSize(12.0f);

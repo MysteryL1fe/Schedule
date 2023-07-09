@@ -10,12 +10,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.example.schedule.R;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.exceptions.ScheduleException;
 
 public class ChangeLessonActivity extends AppCompatActivity {
-    private EditText lessonNameEditText, teacherEditText, cabinetEditText;
+    private EditText lessonNameEditText, cabinetEditText;
+    private EditText surnameEditText, teacherNameEditText, patronymicEditText;
     private Button cancelBtn, nextBtn;
     private int flowLvl, course, group, subgroup, dayOfWeek, lessonNum;
     private boolean isNumerator, isDenominator;
@@ -36,21 +38,27 @@ public class ChangeLessonActivity extends AppCompatActivity {
         isNumerator = intent.getBooleanExtra("isNumerator", true);
         isDenominator = intent.getBooleanExtra("isDenominator", true);
         String lessonName = intent.getStringExtra("lessonName");
-        String teacher = intent.getStringExtra("teacher");
+        String surname = intent.getStringExtra("surname");
+        String teacherName = intent.getStringExtra("teacherName");
+        String patronymic = intent.getStringExtra("patronymic");
         String cabinet = intent.getStringExtra("cabinet");
 
-        lessonNameEditText = findViewById(R.id.lesson_name_edit_text);
-        teacherEditText = findViewById(R.id.teacher_edit_text);
-        cabinetEditText = findViewById(R.id.cabinet_edit_text);
-        cancelBtn = findViewById(R.id.cancel_btn);
-        nextBtn = findViewById(R.id.next_btn);
+        lessonNameEditText = findViewById(R.id.lessonNameEditText);
+        surnameEditText = findViewById(R.id.surnameEditText);
+        teacherNameEditText = findViewById(R.id.teacherNameEditText);
+        patronymicEditText = findViewById(R.id.patronymicEditText);
+        cabinetEditText = findViewById(R.id.cabinetEditText);
+        cancelBtn = findViewById(R.id.cancelBtn);
+        nextBtn = findViewById(R.id.nextBtn);
         isNumeratorCheckBox = findViewById(R.id.isNumeratorCheckBox);
         isDenominatorCheckBox = findViewById(R.id.isDenominatorCheckBox);
 
-        switch (SettingsStorage.TEXT_SIZE) {
+        switch (SettingsStorage.textSize) {
             case 0:
                 lessonNameEditText.setTextSize(10.0f);
-                teacherEditText.setTextSize(10.0f);
+                surnameEditText.setTextSize(10.0f);
+                teacherNameEditText.setTextSize(10.0f);
+                patronymicEditText.setTextSize(10.0f);
                 cabinetEditText.setTextSize(10.0f);
                 cancelBtn.setTextSize(10.0f);
                 nextBtn.setTextSize(10.0f);
@@ -59,7 +67,9 @@ public class ChangeLessonActivity extends AppCompatActivity {
                 break;
             case 1:
                 lessonNameEditText.setTextSize(20.0f);
-                teacherEditText.setTextSize(20.0f);
+                surnameEditText.setTextSize(20.0f);
+                teacherNameEditText.setTextSize(20.0f);
+                patronymicEditText.setTextSize(20.0f);
                 cabinetEditText.setTextSize(20.0f);
                 cancelBtn.setTextSize(20.0f);
                 nextBtn.setTextSize(20.0f);
@@ -68,7 +78,9 @@ public class ChangeLessonActivity extends AppCompatActivity {
                 break;
             case 2:
                 lessonNameEditText.setTextSize(30.0f);
-                teacherEditText.setTextSize(30.0f);
+                surnameEditText.setTextSize(30.0f);
+                teacherNameEditText.setTextSize(30.0f);
+                patronymicEditText.setTextSize(30.0f);
                 cabinetEditText.setTextSize(30.0f);
                 cancelBtn.setTextSize(30.0f);
                 nextBtn.setTextSize(30.0f);
@@ -78,7 +90,9 @@ public class ChangeLessonActivity extends AppCompatActivity {
         }
 
         lessonNameEditText.setText(lessonName);
-        teacherEditText.setText(teacher);
+        surnameEditText.setText(surname);
+        teacherNameEditText.setText(teacherName);
+        patronymicEditText.setText(patronymic);
         cabinetEditText.setText(cabinet);
         isNumeratorCheckBox.setChecked(isNumerator);
         isDenominatorCheckBox.setChecked(isDenominator);
@@ -97,32 +111,39 @@ public class ChangeLessonActivity extends AppCompatActivity {
     private class NextBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            try {
-                if (lessonNameEditText.getText().toString().isEmpty() ||
-                        !(isNumeratorCheckBox.isChecked() || isDenominatorCheckBox.isChecked()))
-                    return;
-                if (isNumeratorCheckBox.isChecked()) ScheduleStorage.changeLesson(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
-                        true, lessonNameEditText.getText().toString(),
-                        teacherEditText.getText().toString(), cabinetEditText.getText().toString(),
-                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-                else if (isNumerator) ScheduleStorage.changeLesson(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
-                        true, "", "", "",
-                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-                if (isDenominatorCheckBox.isChecked()) ScheduleStorage.changeLesson(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
-                        false, lessonNameEditText.getText().toString(),
-                        teacherEditText.getText().toString(), cabinetEditText.getText().toString(),
-                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-                else if (isDenominator) ScheduleStorage.changeLesson(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum,
-                        false, "", "", "",
-                        getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-                finish();
-            } catch (ScheduleException e) {
-                finish();
+            if (lessonNameEditText.getText().toString().isEmpty() ||
+                    !(isNumeratorCheckBox.isChecked() || isDenominatorCheckBox.isChecked()))
+                return;
+            ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeLessonActivity.this);
+            if (isNumeratorCheckBox.isChecked()) {
+                dbHelper.addOrUpdateSchedule(
+                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true,
+                        lessonNameEditText.getText().toString(),
+                        cabinetEditText.getText().toString(),
+                        surnameEditText.getText().toString(),
+                        teacherNameEditText.getText().toString(),
+                        patronymicEditText.getText().toString()
+                );
+            } else if (isNumerator) {
+                dbHelper.deleteSchedule(
+                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true
+                );
             }
+            if (isDenominatorCheckBox.isChecked()) {
+                dbHelper.addOrUpdateSchedule(
+                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false,
+                        lessonNameEditText.getText().toString(),
+                        cabinetEditText.getText().toString(),
+                        surnameEditText.getText().toString(),
+                        teacherNameEditText.getText().toString(),
+                        patronymicEditText.getText().toString()
+                );
+            } else if (isDenominator) {
+                dbHelper.deleteSchedule(
+                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false
+                );
+            }
+            finish();
         }
     }
 }

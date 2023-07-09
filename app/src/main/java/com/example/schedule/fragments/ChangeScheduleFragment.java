@@ -32,7 +32,6 @@ public class ChangeScheduleFragment extends Fragment {
     private static final String ARG_SUBGROUP = "subgroup";
 
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
-    private Schedule mSchedule = null;
     private LinearLayout mLessonsContainer;
 
     public ChangeScheduleFragment() {}
@@ -84,17 +83,6 @@ public class ChangeScheduleFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup,
-                getActivity().getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-
-        if (mSchedule == null) {
-            try {
-                mSchedule = new Schedule(mFlowLvl, mCourse, mGroup, mSubgroup);
-                ScheduleStorage.addSchedule(mSchedule, this.getActivity()
-                        .getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-            } catch (ScheduleException ignored) {}
-        }
-
         LoadLessons loadLessons = new LoadLessons();
         loadLessons.execute();
     }
@@ -109,7 +97,9 @@ public class ChangeScheduleFragment extends Fragment {
 
             for (int i = 0; i < 12; i++) {
                 ChangeLessonsView changeLessonsView = new ChangeLessonsView(
-                        mLessonsContainer.getContext(), mSchedule, dayOfWeek);
+                        mLessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
+                        dayOfWeek
+                );
                 changeLessonsViews[i] = changeLessonsView;
                 if (++dayOfWeek == 7) {
                     dayOfWeek = 1;

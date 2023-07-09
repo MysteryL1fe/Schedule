@@ -17,23 +17,6 @@ public class Utils {
     private static final String[] monthsNames = new String[] {"Января", "Февраля", "Марта",
             "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"};
 
-    /*public static void checkDonations(@NonNull Context context) {
-        SharedPreferences saves = context.getSharedPreferences(SettingsStorage.SCHEDULE_SAVES,
-            MODE_PRIVATE);
-        String lastTimeDonationShowed = saves.getString("lastTimeDonationShowed", "");
-        Calendar calendar = Calendar.getInstance();
-        String curDay = String.format("%s.%s.%s", calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR));
-if (!lastTimeDonationShowed.equals(curDay)) {
-            SharedPreferences.Editor editor = saves.edit();
-            editor.putString("lastTimeDonationShowed", curDay);
-            editor.apply();
-            Intent intent = new Intent(context, DonationActivity.class);
-            context.startActivity(intent);
-        }
-
-    }*/
-
     @NonNull
     @Contract(pure = true)
     public static String getTimeByLesson(int lesson) {

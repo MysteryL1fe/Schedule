@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ScheduleStorage {
-    private static Set<Schedule> storage = new HashSet<>();
-    private static final Gson gson = new Gson();
+    /*private static final Gson gson = new Gson();
     private static final Type scheduleSetType = new TypeToken<Set<Schedule>>(){}.getType();
+    private static Set<Schedule> storage = new HashSet<>();
     private static final Type scheduleType = new TypeToken<Schedule>(){}.getType();
     private static Schedule curSchedule;
     private static int curFlowLvl, curCourse, curGroup, curSubgroup;
@@ -59,17 +59,15 @@ public class ScheduleStorage {
         }
         storage.add(schedule);
         saveStorage(saves);
-    }
+    }*/
 
     public static void clearStorage(SharedPreferences saves) {
-        storage = new HashSet<>();
         Editor editor = saves.edit();
-        String strObject = gson.toJson(storage, scheduleSetType);
-        editor.putString("Storage", strObject);
+        editor.remove("Storage");
         editor.apply();
     }
 
-    public static Schedule getSchedule(int flowLvl, int course, int group, int subgroup,
+    /*public static Schedule getSchedule(int flowLvl, int course, int group, int subgroup,
                                        SharedPreferences saves) {
         if (curSchedule != null && flowLvl == curFlowLvl && course == curCourse
                 && group == curGroup && subgroup == curSubgroup) return curSchedule;
@@ -157,5 +155,5 @@ public class ScheduleStorage {
         if (importedSchedule != null && curSchedule != null) {
             changeSchedule(curSchedule, importedSchedule, saves);
         }
-    }
+    }*/
 }

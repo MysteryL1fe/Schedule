@@ -1,14 +1,10 @@
 package com.example.schedule.activities;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -17,13 +13,10 @@ import android.view.View;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.fragments.ChangeScheduleFragment;
 import com.example.schedule.R;
-import com.example.schedule.fragments.HomeworkFragment;
 import com.example.schedule.fragments.ScheduleFragment;
 import com.example.schedule.fragments.SettingsFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
-
-import java.util.List;
 
 public class ScheduleActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
@@ -68,7 +61,7 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     public void updateTextSize() {
-        switch (SettingsStorage.TEXT_SIZE) {
+        switch (SettingsStorage.textSize) {
             case 0:
                 topAppBar.setTitleTextAppearance(this,
                         com.google.android.material.R.style.
@@ -127,19 +120,22 @@ public class ScheduleActivity extends AppCompatActivity {
             drawerLayout.close();
             switch (item.getItemId()) {
                 case R.id.nav_schedule:
-                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                                    ScheduleFragment.newInstance(flowLvl, course, group, subgroup))
-                            .commit();
+                    fragmentManager.beginTransaction().replace(
+                            R.id.fragment_view,
+                            ScheduleFragment.newInstance(flowLvl, course, group, subgroup)
+                    ).commit();
                     return true;
                 case R.id.nav_change_schedule:
-                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                                    ChangeScheduleFragment.newInstance(
-                                            flowLvl, course, group, subgroup
-                                    )).commit();
+                    fragmentManager.beginTransaction().replace(
+                            R.id.fragment_view,
+                            ChangeScheduleFragment.newInstance(flowLvl, course, group, subgroup)
+                    ).commit();
                     return true;
                 case R.id.nav_settings:
-                    fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                            SettingsFragment.newInstance()).commit();
+                    fragmentManager.beginTransaction().replace(
+                            R.id.fragment_view,
+                            SettingsFragment.newInstance(flowLvl, course, group, subgroup)
+                    ).commit();
                     return true;
                 default:
                     return false;

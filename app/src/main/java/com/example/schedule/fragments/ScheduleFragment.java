@@ -7,27 +7,17 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.example.schedule.R;
-import com.example.schedule.Schedule;
-import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
-import com.example.schedule.exceptions.ScheduleException;
 import com.example.schedule.views.LessonsView;
 
 import java.util.Calendar;
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ScheduleFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ScheduleFragment extends Fragment {
 
     private static final String ARG_FLOW_LVL = "flowLvl";
@@ -36,17 +26,9 @@ public class ScheduleFragment extends Fragment {
     private static final String ARG_SUBGROUP = "subgroup";
 
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
-    private Schedule mSchedule = null;
     private LinearLayout mLessonsContainer;
 
     public ScheduleFragment() {}
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment ScheduleFragment.
-     */
     public static ScheduleFragment newInstance(int flowLvl, int course, int group, int subgroup) {
         ScheduleFragment fragment = new ScheduleFragment();
         Bundle args = new Bundle();
@@ -72,20 +54,7 @@ public class ScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mSchedule = ScheduleStorage.getSchedule(mFlowLvl, mCourse, mGroup, mSubgroup,
-                getActivity().getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
-
-        if (mSchedule == null) {
-            try {
-                mSchedule = new Schedule(mFlowLvl, mCourse, mGroup, mSubgroup);
-                ScheduleStorage.addSchedule(mSchedule, this.getActivity()
-                        .getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE));
-            } catch (ScheduleException e) {
-                return view;
-            }
-        }
 
         mLessonsContainer = view.findViewById(R.id.lessons_container);
 
@@ -114,8 +83,8 @@ public class ScheduleFragment extends Fragment {
             );
 
             for (int i = 0; i < 21; i++) {
-                LessonsView lessonsView = new LessonsView(mLessonsContainer.getContext(),
-                        mSchedule, day, month, year, dayOfWeek, isNumerator);
+                LessonsView lessonsView = new LessonsView(mLessonsContainer.getContext(), mFlowLvl,
+                        mCourse, mGroup, mSubgroup, day, month, year, dayOfWeek, isNumerator);
                 lessonsViews[i] = lessonsView;
 
                 calendar.add(Calendar.DAY_OF_MONTH, 1);

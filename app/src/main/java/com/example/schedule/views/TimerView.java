@@ -1,7 +1,6 @@
 package com.example.schedule.views;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -67,7 +66,7 @@ public class TimerView extends LinearLayout {
 
         timerTV = new TextView(getContext());
         timerTV.setText(Integer.toString(timerSeconds));
-        switch (SettingsStorage.TEXT_SIZE) {
+        switch (SettingsStorage.textSize) {
             case 0:
                 timerTV.setTextSize(8.0f);
                 break;

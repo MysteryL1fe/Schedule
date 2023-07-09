@@ -7,6 +7,12 @@ public class LessonStruct {
     public String teacher;
     public String cabinet;
 
+    public LessonStruct(String name, String teacher, String cabinet) {
+        this.name = name;
+        this.teacher = teacher;
+        this.cabinet = cabinet;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -14,7 +14,7 @@
         android:layout_margin="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/lesson_name_edit_text"
+            android:id="@+id/lessonNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Название пары"
@@ -27,10 +27,23 @@
         android:layout_margin="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/teacher_edit_text"
+            android:id="@+id/cabinetEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Преподаватель"
+            android:hint="Кабинет"
+            android:inputType="textCapCharacters" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/surnameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Фамилия преподавателя"
             android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -40,11 +53,24 @@
         android:layout_margin="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cabinet_edit_text"
+            android:id="@+id/teacherNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Кабинет"
-            android:inputType="textCapCharacters" />
+            android:hint="Имя преподавателя"
+            android:inputType="textCapWords" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/patronymicEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Отчество преподавателя"
+            android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <CheckBox
@@ -71,7 +97,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/cancel_btn"
+            android:id="@+id/cancelBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
@@ -80,7 +106,7 @@
             android:textSize="20sp" />
 
         <Button
-            android:id="@+id/next_btn"
+            android:id="@+id/nextBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"

@@ -1,6 +1,9 @@
 package com.example.schedule.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -9,18 +12,16 @@ import android.widget.TextView;
 
 import com.example.schedule.LessonStruct;
 import com.example.schedule.R;
-import com.example.schedule.Schedule;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
-import com.example.schedule.exceptions.ScheduleException;
 import com.google.android.material.divider.MaterialDivider;
 
 import java.util.Calendar;
 
 public class LessonsView extends LinearLayout {
     private final LessonView[] lessonViews = new LessonView[8];
-    private Schedule schedule;
-    private int dayOfWeek, day, month, year;
+    private int flowLvl, course, group, subgroup, dayOfWeek, day, month, year;
     private boolean isNumerator, hasTimerView = false;
     private LoadLessons loadLessons;
     private TimerView timerView;
@@ -37,15 +38,18 @@ public class LessonsView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public LessonsView(Context context, Schedule schedule,
-                       int day, int month, int year, int dayOfWeek, boolean isNumerator) {
+    public LessonsView(Context context, int flowLvl, int course, int group, int subgroup, int day,
+                       int month, int year, int dayOfWeek, boolean isNumerator) {
         super(context);
-        init(schedule, day, month, year, dayOfWeek, isNumerator);
+        init(flowLvl, course, group, subgroup, day, month, year, dayOfWeek, isNumerator);
     }
 
-    public void init(Schedule schedule, int day, int month, int year, int dayOfWeek,
-                     boolean isNumerator) {
-        this.schedule = schedule;
+    public void init(int flowLvl, int course, int group, int subgroup, int day, int month, int year,
+                     int dayOfWeek, boolean isNumerator) {
+        this.flowLvl = flowLvl;
+        this.course = course;
+        this.group = group;
+        this.subgroup = subgroup;
         this.dayOfWeek = dayOfWeek;
         this.day = day;
         this.month = month;
@@ -123,17 +127,18 @@ public class LessonsView extends LinearLayout {
     }
 
     private class LoadLessons extends AsyncTask<Void, Void, Void> {
+        @SuppressLint("Range")
         @Override
         protected Void doInBackground(Void... voids) {
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
+            ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
             for (int i = 1; i < 9; i++) {
-                LessonStruct lesson = null;
-                try {
-                    lesson = schedule.getLesson(dayOfWeek, i, isNumerator);
-                } catch (ScheduleException ignored) {}
+                LessonStruct lesson = dbHelper.getLesson(
+                        flowLvl, course, group, subgroup, dayOfWeek, i, isNumerator
+                );
                 LessonView lessonView;
                 if (lesson != null) {
                     lessonView = new LessonView(getContext(), i, lesson.name,
@@ -145,10 +150,10 @@ public class LessonsView extends LinearLayout {
                 lessonView.setLayoutParams(params);
                 lessonViews[i - 1] = lessonView;
             }
-
             return null;
         }
 
+        @SuppressLint("UseCompatLoadingForDrawables")
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
@@ -167,7 +172,7 @@ public class LessonsView extends LinearLayout {
             TextView textView = new TextView(LessonsView.this.getContext());
             textView.setText(String.format("%s, %s %s %s", Utils.dayOfWeekToStr(dayOfWeek),
                     day, Utils.monthToStr(month), year));
-            switch (SettingsStorage.TEXT_SIZE) {
+            switch (SettingsStorage.textSize) {
                 case 0:
                     textView.setTextSize(10.0f);
                     break;
