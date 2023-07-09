@@ -2,10 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="29"
         tools:ignore="ScopedStorage" />
 
@@ -16,15 +18,23 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:screenOrientation="portrait"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
         tools:targetApi="31">
         <activity
+            android:name=".activities.ChangeHomeworkActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Schedule.Dialog">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".activities.ChangeLessonActivity"
-            android:theme="@style/Theme.Schedule.Dialog"
-            android:exported="false">
+            android:exported="false"
+            android:theme="@style/Theme.Schedule.Dialog">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

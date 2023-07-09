@@ -659,7 +659,7 @@ public class ChangeLessonView extends LinearLayout {
     }
 
     private class DeleteLessonBtnListener implements View.OnClickListener {
-        private boolean isNumerator, isDenominator;
+        private final boolean isNumerator, isDenominator;
 
         public DeleteLessonBtnListener(boolean isNumerator, boolean isDenominator) {
             this.isNumerator = isNumerator;
@@ -684,7 +684,7 @@ public class ChangeLessonView extends LinearLayout {
     }
 
     private class ChangeLessonBtnListener implements View.OnClickListener {
-        private boolean isNumerator, isDenominator;
+        private final boolean isNumerator, isDenominator;
 
         public ChangeLessonBtnListener(boolean isNumerator, boolean isDenominator) {
             this.isNumerator = isNumerator;

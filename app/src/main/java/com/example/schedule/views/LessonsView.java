@@ -134,19 +134,11 @@ public class LessonsView extends LinearLayout {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
             for (int i = 1; i < 9; i++) {
-                LessonStruct lesson = dbHelper.getLesson(
-                        flowLvl, course, group, subgroup, dayOfWeek, i, isNumerator
+                LessonView lessonView = new LessonView(
+                        getContext(), flowLvl, course, group, subgroup, day, month, year,
+                        dayOfWeek, isNumerator, i
                 );
-                LessonView lessonView;
-                if (lesson != null) {
-                    lessonView = new LessonView(getContext(), i, lesson.name,
-                            lesson.cabinet, lesson.teacher
-                    );
-                } else {
-                    lessonView = new LessonView(LessonsView.this.getContext(), i);
-                }
                 lessonView.setLayoutParams(params);
                 lessonViews[i - 1] = lessonView;
             }

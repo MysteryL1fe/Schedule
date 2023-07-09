@@ -18,7 +18,6 @@ import com.example.schedule.exceptions.ScheduleException;
 public class ChangeLessonActivity extends AppCompatActivity {
     private EditText lessonNameEditText, cabinetEditText;
     private EditText surnameEditText, teacherNameEditText, patronymicEditText;
-    private Button cancelBtn, nextBtn;
     private int flowLvl, course, group, subgroup, dayOfWeek, lessonNum;
     private boolean isNumerator, isDenominator;
     private CheckBox isNumeratorCheckBox, isDenominatorCheckBox;
@@ -48,8 +47,8 @@ public class ChangeLessonActivity extends AppCompatActivity {
         teacherNameEditText = findViewById(R.id.teacherNameEditText);
         patronymicEditText = findViewById(R.id.patronymicEditText);
         cabinetEditText = findViewById(R.id.cabinetEditText);
-        cancelBtn = findViewById(R.id.cancelBtn);
-        nextBtn = findViewById(R.id.nextBtn);
+        Button cancelBtn = findViewById(R.id.cancelBtn);
+        Button nextBtn = findViewById(R.id.nextBtn);
         isNumeratorCheckBox = findViewById(R.id.isNumeratorCheckBox);
         isDenominatorCheckBox = findViewById(R.id.isDenominatorCheckBox);
 
@@ -111,7 +110,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
     private class NextBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (lessonNameEditText.getText().toString().isEmpty() ||
+            if (lessonNameEditText.getText().toString().trim().isEmpty() ||
                     !(isNumeratorCheckBox.isChecked() || isDenominatorCheckBox.isChecked()))
                 return;
             ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeLessonActivity.this);

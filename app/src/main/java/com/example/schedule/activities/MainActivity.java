@@ -28,6 +28,7 @@ import com.example.schedule.SettingsStorage;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
@@ -50,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper = new ScheduleDBHelper(this);
         tmp();
+
+        Calendar calendar = Calendar.getInstance();
+        dbHelper.deleteHomeworkBefore(
+                calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
 
         int theme = SettingsStorage.getTheme(saves);
         switch (theme) {
@@ -526,6 +533,25 @@ public class MainActivity extends AppCompatActivity {
                         ScheduleDBHelper.KEY_LESSON, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON)),
                         ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM)),
                         ScheduleDBHelper.KEY_IS_NUMERATOR, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_IS_NUMERATOR))));
+            } while (cursor.moveToNext());
+        } else {
+            Log.w("Database", "0 rows");
+        }
+        cursor.close();
+        database.close();
+
+        Log.w("Database", "_____________ HOMEWORK TABLE _____________");
+        cursor = database.query(ScheduleDBHelper.HOMEWORK_TABLE_NAME, null, null, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
+                        ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
+                        ScheduleDBHelper.KEY_FLOW, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_FLOW)),
+                        ScheduleDBHelper.KEY_YEAR, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_YEAR)),
+                        ScheduleDBHelper.KEY_MONTH, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_MONTH)),
+                        ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
+                        ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM))));
             } while (cursor.moveToNext());
         } else {
             Log.w("Database", "0 rows");
