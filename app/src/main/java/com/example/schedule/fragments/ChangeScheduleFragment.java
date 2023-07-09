@@ -25,7 +25,6 @@ import com.example.schedule.views.ChangeLessonsView;
  * create an instance of this fragment.
  */
 public class ChangeScheduleFragment extends Fragment {
-
     private static final String ARG_FLOW_LVL = "flowLvl";
     private static final String ARG_COURSE = "course";
     private static final String ARG_GROUP = "group";
@@ -36,12 +35,6 @@ public class ChangeScheduleFragment extends Fragment {
 
     public ChangeScheduleFragment() {}
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment ChangeScheduleFragment.
-     */
     public static ChangeScheduleFragment newInstance(int flowLvl, int course, int group,
                                                      int subgroup) {
         ChangeScheduleFragment fragment = new ChangeScheduleFragment();

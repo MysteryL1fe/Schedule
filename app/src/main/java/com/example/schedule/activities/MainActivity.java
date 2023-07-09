@@ -538,20 +538,20 @@ public class MainActivity extends AppCompatActivity {
             Log.w("Database", "0 rows");
         }
         cursor.close();
-        database.close();
 
         Log.w("Database", "_____________ HOMEWORK TABLE _____________");
         cursor = database.query(ScheduleDBHelper.HOMEWORK_TABLE_NAME, null, null, null,
                 null, null, null);
         if (cursor.moveToFirst()) {
             do {
-                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
                         ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
                         ScheduleDBHelper.KEY_FLOW, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_FLOW)),
                         ScheduleDBHelper.KEY_YEAR, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_YEAR)),
                         ScheduleDBHelper.KEY_MONTH, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_MONTH)),
                         ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
-                        ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM))));
+                        ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
+                        ScheduleDBHelper.KEY_HOMEWORK, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_HOMEWORK))));
             } while (cursor.moveToNext());
         } else {
             Log.w("Database", "0 rows");

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -693,10 +694,48 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
+    public ArrayList<Homework> getAllHomeworks(int flowLvl, int course, int group, int subgroup,
+                                               SharedPreferences saves) {
+        ArrayList<Homework> result = new ArrayList<>();
+
+        int flowId = getFlowId(flowLvl, course, group, subgroup);
+        if (flowId == -1) return result;
+
+        SQLiteDatabase database = getReadableDatabase();
+        String[] columns = new String[] {
+                KEY_YEAR, KEY_MONTH, KEY_DAY, KEY_LESSON_NUM, KEY_HOMEWORK
+        };
+        String selection = String.format("%s = %s", KEY_FLOW, flowId);
+        Cursor cursor = database.query(
+                HOMEWORK_TABLE_NAME, columns, selection, null,
+                null, null, null
+        );
+        if (cursor.moveToFirst()) {
+            do {
+                int year = cursor.getInt(cursor.getColumnIndex(KEY_YEAR));
+                int month = cursor.getInt(cursor.getColumnIndex(KEY_MONTH));
+                int day = cursor.getInt(cursor.getColumnIndex(KEY_DAY));
+                int lessonNum = cursor.getInt(cursor.getColumnIndex(KEY_LESSON_NUM));
+                String homework = cursor.getString(cursor.getColumnIndex(KEY_HOMEWORK));
+                int dayOfWeek = Utils.getDayOfWeek(year, month, day);
+                boolean isNumerator = Utils.isNumerator(year, month, day, saves);
+                String lessonName = getLesson(flowLvl, course, group, subgroup, dayOfWeek,
+                        lessonNum, isNumerator).name;
+                result.add(new Homework(year, month, day, lessonNum, homework, lessonName));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        database.close();
+
+        return result;
+    }
+
+    @SuppressLint("Range")
     public String getHomework(int flowLvl, int course, int group, int subgroup,
                               int year, int month, int day, int lessonNum) {
         int flowId = getFlowId(flowLvl, course, group, subgroup);
         if (flowId == -1) return "";
+
         SQLiteDatabase database = getReadableDatabase();
         String[] columns = new String[] {KEY_HOMEWORK};
         String selection = String.format(

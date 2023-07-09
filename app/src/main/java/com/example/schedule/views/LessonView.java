@@ -16,13 +16,15 @@ import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
+import com.example.schedule.activities.ChangeHomeworkActivity;
 import com.example.schedule.activities.ChangeLessonActivity;
 import com.google.android.material.divider.MaterialDivider;
 
 public class LessonView extends LinearLayout {
     private LinearLayout firstStroke;
     private TimerView timerView;
-    private int flowLvl, course, group, subgroup, day, month, year, lessonNum;
+    private int flowLvl, course, group, subgroup, day, month, year, lessonNum, dayOfWeek;
+    private boolean isNumerator;
     private String homework;
 
     public LessonView(Context context) {
@@ -67,16 +69,22 @@ public class LessonView extends LinearLayout {
         this.day = day;
         this.month = month;
         this.year = year;
+        this.dayOfWeek = dayOfWeek;
         this.lessonNum = lessonNum;
+        this.isNumerator = isNumerator;
 
         ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
 
         LessonStruct lesson = dbHelper.getLesson(
                 flowLvl, course, group, subgroup, dayOfWeek, lessonNum, isNumerator
         );
-        String lessonName = lesson.name;
-        String lessonCabinet = lesson.cabinet;
-        String lessonTeacher = lesson.teacher;
+
+        String lessonName = "", lessonCabinet = "", lessonTeacher = "";
+        if (lesson != null) {
+            lessonName = lesson.name;
+            lessonCabinet = lesson.cabinet;
+            lessonTeacher = lesson.teacher;
+        }
 
         homework = dbHelper.getHomework(
                 flowLvl, course, group, subgroup, year, month, day, lessonNum
@@ -99,7 +107,6 @@ public class LessonView extends LinearLayout {
         TextView lessonNumTV = new TextView(getContext());
         lessonNumTV.setLayoutParams(paramsWrapWrap);
         lessonNumTV.setText(String.format("%s", lessonNum));
-        lessonNumTV.setTextSize(12.0f);
         lessonNumTV.setGravity(Gravity.START);
         lessonNumTV.setBackgroundResource(R.drawable.behind_lesson_num);
         lessonNumTV.setPadding(75, 5, 15, 5);
@@ -180,7 +187,7 @@ public class LessonView extends LinearLayout {
                 else
                     cabinetTV.setText(String.format("%s, %s", lessonCabinet, lessonTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
-                this.addView(cabinetTV);
+                lessonData.addView(cabinetTV);
             }
 
             if (homework.isEmpty()) {
@@ -216,7 +223,21 @@ public class LessonView extends LinearLayout {
 
                 TextView homeworkTV = new TextView(getContext());
                 homeworkTV.setLayoutParams(paramsMatchWrap);
+                homeworkTV.setText(homework);
                 thirdStroke.addView(homeworkTV);
+
+
+                switch (SettingsStorage.textSize) {
+                    case 0:
+                        homeworkTV.setTextSize(7.0f);
+                        break;
+                    case 2:
+                        homeworkTV.setTextSize(21.0f);
+                        break;
+                    default:
+                        homeworkTV.setTextSize(14.0f);
+                        break;
+                }
 
                 ImageButton changeHomeworkBtn = new ImageButton(getContext());
                 changeHomeworkBtn.setLayoutParams(paramsHomeworkButtons);
@@ -270,7 +291,7 @@ public class LessonView extends LinearLayout {
     private class ChangeHomeworkBtnListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getContext(), ChangeLessonActivity.class);
+            Intent intent = new Intent(getContext(), ChangeHomeworkActivity.class);
             intent.putExtra("flowLvl", flowLvl);
             intent.putExtra("course", course);
             intent.putExtra("group", group);
@@ -289,6 +310,11 @@ public class LessonView extends LinearLayout {
         public void onClick(View v) {
             new ScheduleDBHelper(getContext()).deleteHomework(
                     flowLvl, course, group, subgroup, year, month, day, lessonNum
+            );
+            LessonView.this.removeAllViews();
+            init(
+                    flowLvl, course, group, subgroup, day, month, year, dayOfWeek,
+                    isNumerator, lessonNum
             );
         }
     }

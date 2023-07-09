@@ -1,5 +1,6 @@
 package com.example.schedule.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,9 +9,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.example.schedule.Homework;
 import com.example.schedule.R;
+import com.example.schedule.ScheduleDBHelper;
+import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
+import com.example.schedule.views.HomeworkView;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,44 +27,71 @@ import com.example.schedule.activities.ScheduleActivity;
  * create an instance of this fragment.
  */
 public class HomeworkFragment extends Fragment {
+    private static final String ARG_FLOW_LVL = "flowLvl";
+    private static final String ARG_COURSE = "course";
+    private static final String ARG_GROUP = "group";
+    private static final String ARG_SUBGROUP = "subgroup";
 
-    public HomeworkFragment() {
-        // Required empty public constructor
-    }
+    private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
+    private LinearLayout mHomeworkContainer;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment HomewWorkFragment.
-     */
-    public static HomeworkFragment newInstance() {
+    public HomeworkFragment() {}
+
+    public static HomeworkFragment newInstance(int flowLvl, int course, int group, int subgroup) {
         HomeworkFragment fragment = new HomeworkFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_FLOW_LVL, flowLvl);
+        args.putInt(ARG_COURSE, course);
+        args.putInt(ARG_GROUP, group);
+        args.putInt(ARG_SUBGROUP, subgroup);
+        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mFlowLvl = getArguments().getInt(ARG_FLOW_LVL);
+            mCourse = getArguments().getInt(ARG_COURSE);
+            mGroup = getArguments().getInt(ARG_GROUP);
+            mSubgroup = getArguments().getInt(ARG_SUBGROUP);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home_work, container, false);
-
-        Button newHomeworkBtn = view.findViewById(R.id.new_homework_btn);
-        newHomeworkBtn.setOnClickListener(new NewHomeworkBtnListener());
+        View view = inflater.inflate(R.layout.fragment_homework, container, false);
+        mHomeworkContainer = view.findViewById(R.id.homework_container);
+        ArrayList<Homework> homeworks = new ScheduleDBHelper(getContext())
+                .getAllHomeworks(
+                        mFlowLvl, mCourse, mGroup, mSubgroup, getActivity().getSharedPreferences(
+                                SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
+                        )
+                );
+        if (homeworks.isEmpty()) {
+            TextView textView = new TextView(getContext());
+            textView.setText("Домашних заданий нету");
+            textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            mHomeworkContainer.addView(textView);
+            switch (SettingsStorage.textSize) {
+                case 0:
+                    textView.setTextSize(9.0f);
+                    break;
+                case 2:
+                    textView.setTextSize(27.0f);
+                    break;
+                default:
+                    textView.setTextSize(18.0f);
+                    break;
+            }
+        } else {
+            for (Homework homework : homeworks) {
+                mHomeworkContainer.addView(new HomeworkView(getContext(), homework));
+            }
+        }
 
         return view;
-    }
-
-    private class NewHomeworkBtnListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            ScheduleActivity scheduleActivity = (ScheduleActivity) getContext();
-            scheduleActivity.getSupportFragmentManager().beginTransaction().replace(
-                    R.id.fragment_view, NewHomeworkFragment.newInstance()).commit();
-        }
     }
 }
