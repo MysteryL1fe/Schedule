@@ -18,6 +18,7 @@ import com.example.schedule.Utils;
 import com.example.schedule.views.LessonsView;
 
 import java.util.Calendar;
+
 public class ScheduleFragment extends Fragment {
 
     private static final String ARG_FLOW_LVL = "flowLvl";

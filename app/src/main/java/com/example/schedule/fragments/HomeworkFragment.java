@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,16 +15,10 @@ import com.example.schedule.Homework;
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.activities.ScheduleActivity;
 import com.example.schedule.views.HomeworkView;
 
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeworkFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeworkFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
     private static final String ARG_COURSE = "course";

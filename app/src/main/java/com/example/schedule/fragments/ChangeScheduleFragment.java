@@ -1,7 +1,5 @@
 package com.example.schedule.fragments;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -13,17 +11,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.example.schedule.R;
-import com.example.schedule.Schedule;
-import com.example.schedule.ScheduleStorage;
-import com.example.schedule.SettingsStorage;
-import com.example.schedule.exceptions.ScheduleException;
 import com.example.schedule.views.ChangeLessonsView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChangeScheduleFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ChangeScheduleFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
     private static final String ARG_COURSE = "course";

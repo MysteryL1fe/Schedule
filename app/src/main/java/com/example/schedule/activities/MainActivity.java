@@ -23,7 +23,6 @@ import android.widget.Button;
 
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
-import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -54,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
 
         Calendar calendar = Calendar.getInstance();
         dbHelper.deleteHomeworkBefore(
+                calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        dbHelper.deleteTempScheduleBefore(
                 calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
@@ -91,7 +95,9 @@ public class MainActivity extends AppCompatActivity {
             subgroup = 0;
             SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
             SettingsStorage.changeToLastVersion(saves);
-            ScheduleStorage.clearStorage(saves);
+            SharedPreferences.Editor editor = saves.edit();
+            editor.remove("Storage");
+            editor.apply();
         }
 
         courseBtn = findViewById(R.id.courseBtn);
@@ -550,8 +556,28 @@ public class MainActivity extends AppCompatActivity {
                         ScheduleDBHelper.KEY_YEAR, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_YEAR)),
                         ScheduleDBHelper.KEY_MONTH, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_MONTH)),
                         ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
-                        ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
+                        ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM)),
                         ScheduleDBHelper.KEY_HOMEWORK, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_HOMEWORK))));
+            } while (cursor.moveToNext());
+        } else {
+            Log.w("Database", "0 rows");
+        }
+        cursor.close();
+
+        Log.w("Database", "_____________ TEMP SCHEDULE TABLE _____________");
+        cursor = database.query(ScheduleDBHelper.TEMP_SCHEDULE_TABLE_NAME, null, null, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
+                        ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
+                        ScheduleDBHelper.KEY_FLOW, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_FLOW)),
+                        ScheduleDBHelper.KEY_LESSON, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON)),
+                        ScheduleDBHelper.KEY_YEAR, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_YEAR)),
+                        ScheduleDBHelper.KEY_MONTH, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_MONTH)),
+                        ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
+                        ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM)),
+                        ScheduleDBHelper.KEY_WILL_LESSON_BE, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_WILL_LESSON_BE))));
             } while (cursor.moveToNext());
         } else {
             Log.w("Database", "0 rows");

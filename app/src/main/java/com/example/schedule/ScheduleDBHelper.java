@@ -28,13 +28,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ScheduleDBHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "schedule";
 
     public static final String KEY_ID = "_id";
     public static final String KEY_FLOW = "flow";
+    public static final String KEY_LESSON = "lesson";
     public static final String KEY_NAME = "name";
     public static final String KEY_LESSON_NUM = "lesson_num";
+    public static final String KEY_YEAR = "year";
+    public static final String KEY_MONTH = "month";
+    public static final String KEY_DAY = "day";
 
     public static final String TEACHER_TABLE_NAME = "teacher";
     public static final String KEY_SURNAME = "surname";
@@ -52,14 +56,13 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
 
     public static final String SCHEDULE_TABLE_NAME = "schedule";
     public static final String KEY_DAY_OF_WEEK = "day_of_week";
-    public static final String KEY_LESSON = "lesson";
     public static final String KEY_IS_NUMERATOR = "is_numerator";
 
     public static final String HOMEWORK_TABLE_NAME = "homework";
     public static final String KEY_HOMEWORK = "homework";
-    public static final String KEY_YEAR = "year";
-    public static final String KEY_MONTH = "month";
-    public static final String KEY_DAY = "day";
+
+    public static final String TEMP_SCHEDULE_TABLE_NAME = "temp_schedule";
+    public static final String KEY_WILL_LESSON_BE = "will_lesson_be";
 
     public ScheduleDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -103,10 +106,22 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
                 + FLOW_TABLE_NAME + "(" + KEY_ID + "), UNIQUE (" + KEY_FLOW + ", "
                 + KEY_YEAR + ", " + KEY_MONTH + ", " + KEY_DAY + ", " + KEY_LESSON_NUM + "));";
         db.execSQL(sql);
+
+        sql = "CREATE TABLE IF NOT EXISTS " + TEMP_SCHEDULE_TABLE_NAME + " (" + KEY_ID
+                + " INTEGER PRIMARY KEY AUTOINCREMENT, " + KEY_FLOW + " INTEGER NOT NULL, "
+                 + KEY_LESSON + " INTEGER NOT NULL, " + KEY_YEAR + " INTEGER NOT NULL, "
+                + KEY_MONTH + " INTEGER NOT NULL, " + KEY_DAY + " INTEGER NOT NULL, "
+                + KEY_LESSON_NUM + " INTEGER NOT NULL, " + KEY_WILL_LESSON_BE
+                + " BOOLEAN NOT NULL, FOREIGN KEY (" + KEY_FLOW + ") REFERENCES " + FLOW_TABLE_NAME
+                + "(" + KEY_ID + "), FOREIGN KEY (" + KEY_LESSON + ") REFERENCES "
+                + LESSON_TABLE_NAME + "(" + KEY_ID + "), UNIQUE (" + KEY_FLOW + ", " + KEY_YEAR
+                + ", " + KEY_MONTH + ", " + KEY_DAY + ", " + KEY_LESSON_NUM + "));";
+        db.execSQL(sql);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TEMP_SCHEDULE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + HOMEWORK_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + SCHEDULE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LESSON_TABLE_NAME);
@@ -118,6 +133,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TEMP_SCHEDULE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + HOMEWORK_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + SCHEDULE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LESSON_TABLE_NAME);
@@ -183,7 +199,6 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
         }
     }
 
-    @SuppressLint("Range")
     public void addOrUpdateSchedule(int flowLvl, int course, int group, int subgroup,
                                     int dayOfWeek, int lessonNum, boolean isNumerator,
                                     String lessonName, String cabinet, String teacherSurname,
@@ -203,7 +218,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
 
         if (flowId >= 0) {
             addOrUpdateSchedule(
-                    flowId, dayOfWeek, lessonNum, isNumerator,lessonName, cabinet, teacherSurname,
+                    flowId, dayOfWeek, lessonNum, isNumerator, lessonName, cabinet, teacherSurname,
                     teacherName, teacherPatronymic
             );
         }
@@ -216,8 +231,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = getWritableDatabase();
         database.beginTransaction();
         try {
-            int teacherId = -1, lessonId = -1, scheduleId = -1;
-            int oldLessonId = -1, oldTeacherId = -1;
+            int teacherId = -1, lessonId = -1, scheduleId = -1, oldLessonId = -1;
 
             // finding teacher id
             String[] columns = new String[] {KEY_ID};
@@ -288,19 +302,6 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
             }
             cursor.close();
 
-            if (oldLessonId >= 0) {
-                columns = new String[] {KEY_TEACHER};
-                selection = String.format("%s = %s", KEY_ID, oldLessonId);
-                cursor = database.query(
-                        TEACHER_TABLE_NAME, columns, selection, null,
-                        null, null, null
-                );
-                if (cursor.moveToFirst()) {
-                    oldTeacherId = cursor.getInt(cursor.getColumnIndex(KEY_TEACHER));
-                }
-                cursor.close();
-            }
-
             ContentValues contentValues = new ContentValues();
 
             if (teacherId < 0) {
@@ -366,39 +367,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
                 contentValues.clear();
             }
 
-            if (oldLessonId >= 0) {
-                // check old lesson
-                selection = String.format("%s = %s", KEY_LESSON, oldLessonId);
-                cursor = database.query(
-                        SCHEDULE_TABLE_NAME, null, selection, null,
-                        null, null, null
-                );
-                if (cursor.getCount() == 0) {
-                    // we can delete this lesson
-                    database.delete(
-                            LESSON_TABLE_NAME, KEY_ID + " = " + oldLessonId,
-                            null
-                    );
-                }
-                cursor.close();
-            }
-
-            if (oldLessonId >= 0) {
-                // check old teacher
-                selection = String.format("%s = %s", KEY_TEACHER, oldTeacherId);
-                cursor = database.query(
-                        LESSON_TABLE_NAME, null, selection, null,
-                        null, null, null
-                );
-                if (cursor.getCount() == 0) {
-                    // we can delete this teacher
-                    database.delete(
-                            TEACHER_TABLE_NAME, KEY_ID + " = " + oldTeacherId,
-                            null
-                    );
-                }
-                cursor.close();
-            }
+            checkLesson(oldLessonId);
 
             database.setTransactionSuccessful();
         } finally {
@@ -415,65 +384,23 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
         try {
             int flowId = getFlowId(flowLvl, course, group, subgroup);
             if (flowId >= 0) {
-                int lessonId = -1, teacherId = -1;
+                int lessonId = -1;
                 String[] columns = new String[] {KEY_LESSON};
-                String selection = String.format(
+                String scheduleSelection = String.format(
                         "%s = %s AND %s = %s AND %s = %s AND %s = %s", KEY_FLOW, flowId,
                         KEY_DAY_OF_WEEK, dayOfWeek, KEY_LESSON_NUM, lessonNum,
                         KEY_IS_NUMERATOR, isNumerator ? 1 : 0
                 );
                 Cursor cursor = database.query(
-                        SCHEDULE_TABLE_NAME, columns, selection, null,
+                        SCHEDULE_TABLE_NAME, columns, scheduleSelection, null,
                         null, null, null
                 );
                 if (cursor.moveToFirst()) {
                     lessonId = cursor.getInt(cursor.getColumnIndex(KEY_LESSON));
                     cursor.close();
-                    columns = new String[] {KEY_TEACHER};
-                    selection = String.format("%s = %s", KEY_ID, lessonId);
-                    cursor = database.query(
-                            LESSON_TABLE_NAME, columns, selection, null,
-                            null, null, null
-                    );
-                    if (cursor.moveToFirst()) {
-                        teacherId = cursor.getInt(cursor.getColumnIndex(KEY_TEACHER));
-                    }
-                    cursor.close();
                 } else cursor.close();
-                String clause = String.format(
-                        "%s = %s AND %s = %s AND %s = %s AND %s = %s", KEY_FLOW, flowId,
-                        KEY_DAY_OF_WEEK, dayOfWeek, KEY_LESSON_NUM, lessonNum,
-                        KEY_IS_NUMERATOR, isNumerator ? 1 : 0
-                );
-                database.delete(SCHEDULE_TABLE_NAME, clause, null);
-                if (lessonId >= 0) {
-                    selection = String.format("%s = %s", KEY_LESSON, lessonId);
-                    cursor = database.query(
-                            SCHEDULE_TABLE_NAME, null, selection,
-                            null, null, null, null
-                    );
-                    if (cursor.getCount() == 0) {
-                        database.delete(
-                                LESSON_TABLE_NAME, KEY_ID + " = " + lessonId,
-                                null
-                        );
-                    }
-                    cursor.close();
-                }
-                if (teacherId >= 0) {
-                    selection = String.format("%s = %s", KEY_TEACHER, teacherId);
-                    cursor = database.query(
-                            LESSON_TABLE_NAME, null, selection,
-                            null, null, null, null
-                    );
-                    if (cursor.getCount() == 0) {
-                        database.delete(
-                                TEACHER_TABLE_NAME, KEY_ID + " = " + teacherId,
-                                null
-                        );
-                    }
-                    cursor.close();
-                }
+                database.delete(SCHEDULE_TABLE_NAME, scheduleSelection, null);
+                checkLesson(lessonId);
             }
             database.setTransactionSuccessful();
         } finally {
@@ -488,7 +415,6 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
         database.beginTransaction();
         try {
             Set<Integer> lessonIds = new HashSet<>();
-            Set<Integer> teacherIds = new HashSet<>();
             String[] columns = new String[] {KEY_LESSON};
             String selection = String.format("%s = %s", KEY_FLOW, flowId);
             Cursor cursor = database.query(
@@ -503,40 +429,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
             database.delete(SCHEDULE_TABLE_NAME, selection, null);
 
             for (int lessonId : lessonIds) {
-                selection = String.format("%s = %s", KEY_LESSON, lessonId);
-                cursor = database.query(
-                        SCHEDULE_TABLE_NAME, null, selection,
-                        null, null, null, null
-                );
-                if (cursor.getCount() == 0) {
-                    cursor.close();
-                    columns = new String[] {KEY_TEACHER};
-                    selection = String.format("%s = %s", KEY_ID, lessonId);
-                    cursor = database.query(
-                            LESSON_TABLE_NAME, columns, selection, null,
-                            null, null, null
-                    );
-                    cursor.moveToFirst();
-                    teacherIds.add(cursor.getInt(cursor.getColumnIndex(KEY_TEACHER)));
-
-                    database.delete(LESSON_TABLE_NAME, selection, null);
-                }
-                cursor.close();
-            }
-
-            for (int teacherId : teacherIds) {
-                selection = String.format("%s = %s", KEY_TEACHER, teacherId);
-                cursor = database.query(
-                        LESSON_TABLE_NAME, null, selection,
-                        null, null, null, null
-                );
-                if (cursor.getCount() == 0) {
-                    database.delete(
-                            TEACHER_TABLE_NAME, KEY_ID + " = " + teacherId,
-                            null
-                    );
-                }
-                cursor.close();
+                checkLesson(lessonId);
             }
 
             database.setTransactionSuccessful();
@@ -795,7 +688,6 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
         database.close();
     }
 
-    @SuppressLint("Range")
     public void deleteHomework(int flowLvl, int course, int group, int subgroup,
                                int year, int month, int day, int lessonNum) {
         int flowId = getFlowId(flowLvl, course, group, subgroup);
@@ -809,7 +701,6 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
         database.close();
     }
 
-    @SuppressLint("Range")
     public void deleteHomeworkBefore(int year, int month, int day) {
         SQLiteDatabase database = getWritableDatabase();
         String clause = String.format(
@@ -822,8 +713,451 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
+    public LessonStruct getTempLesson(int flowLvl, int course, int group, int subgroup,
+                                      int year, int month, int day, int lessonNum) {
+        SQLiteDatabase database = getReadableDatabase();
+        String lessonNameColumn = "lesson_name";
+        String teacherNameColumn = "teacher_name";
+        String sql = "SELECT "
+                + LESSON_TABLE_NAME + "." + KEY_NAME + " AS " + lessonNameColumn + ", "
+                + LESSON_TABLE_NAME + "." + KEY_CABINET + ", "
+                + TEACHER_TABLE_NAME + "." + KEY_SURNAME + ", "
+                + TEACHER_TABLE_NAME + "." + KEY_NAME + " AS " + teacherNameColumn + ", "
+                + TEACHER_TABLE_NAME + "." + KEY_PATRONYMIC + ", "
+                + TEMP_SCHEDULE_TABLE_NAME + "." + KEY_WILL_LESSON_BE
+                + " FROM " + TEMP_SCHEDULE_TABLE_NAME
+                + " INNER JOIN " + FLOW_TABLE_NAME + " ON " + TEMP_SCHEDULE_TABLE_NAME + "."
+                + KEY_FLOW + " = " + FLOW_TABLE_NAME + "." + KEY_ID
+                + " INNER JOIN " + LESSON_TABLE_NAME + " ON " + TEMP_SCHEDULE_TABLE_NAME + "."
+                + KEY_LESSON + " = " + LESSON_TABLE_NAME + "." + KEY_ID
+                + " INNER JOIN " + TEACHER_TABLE_NAME + " ON " + LESSON_TABLE_NAME + "."
+                + KEY_TEACHER + " = " + TEACHER_TABLE_NAME + "." + KEY_ID + " WHERE "
+                + FLOW_TABLE_NAME + "." + KEY_FLOW_LVL + " = " + flowLvl + " AND "
+                + FLOW_TABLE_NAME + "." + KEY_COURSE + " = " + course + " AND "
+                + FLOW_TABLE_NAME + "." + KEY_GROUP + " = " + group + " AND "
+                + FLOW_TABLE_NAME + "." + KEY_SUBGROUP + " = " + subgroup + " AND "
+                + TEMP_SCHEDULE_TABLE_NAME + "." + KEY_YEAR + " = " + year + " AND "
+                + TEMP_SCHEDULE_TABLE_NAME + "." + KEY_MONTH + " = " + month + " AND "
+                + TEMP_SCHEDULE_TABLE_NAME + "." + KEY_DAY + " = " + day + " AND "
+                + TEMP_SCHEDULE_TABLE_NAME + "." + KEY_LESSON_NUM + " = " + lessonNum;
+        Cursor cursor = database.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            boolean willLessonBe = cursor.getInt(cursor.getColumnIndex(KEY_WILL_LESSON_BE)) == 1;
+            if (!willLessonBe) {
+                return new LessonStruct("", "", "");
+            }
+            String teacherSurname = cursor.getString(cursor.getColumnIndex(KEY_SURNAME));
+            String teacherName = cursor.getString(cursor.getColumnIndex(teacherNameColumn));
+            String teacherPatronymic = cursor.getString(cursor.getColumnIndex(KEY_PATRONYMIC));
+            String teacher;
+            if (teacherName.isEmpty() || teacherPatronymic.isEmpty()) {
+                teacher = teacherSurname.isEmpty() ? "" :
+                        teacherSurname.substring(0, 1).toUpperCase()
+                                + teacherSurname.substring(1);
+            } else {
+                teacher = (teacherSurname.isEmpty() ? "" :
+                        teacherSurname.substring(0, 1).toUpperCase()
+                                + teacherSurname.substring(1) + " ")
+                        + teacherName.substring(0, 1).toUpperCase() + "."
+                        + teacherPatronymic.substring(0, 1).toUpperCase() + ".";
+            }
+            String lessonName = cursor.getString(cursor.getColumnIndex(lessonNameColumn));
+            String cabinet = cursor.getString(cursor.getColumnIndex(KEY_CABINET));
+            cursor.close();
+            database.close();
+            return new LessonStruct(lessonName, teacher, cabinet);
+        } else {
+            cursor.close();
+            database.close();
+            return null;
+        }
+    }
+
+    @SuppressLint("Range")
+    public void addOrUpdateTempSchedule(int flowLvl, int course, int group, int subgroup,
+                                        int year, int month, int day, int lessonNum,
+                                        String lessonName, String cabinet, String teacherSurname,
+                                        String teacherName, String teacherPatronymic) {
+        if (lessonNum < 1 || lessonNum > 8 || lessonName.isEmpty()) {
+            return;
+        }
+        lessonName = lessonName.replaceAll("\"", "").trim();
+        cabinet = cabinet.replaceAll("\"", "");
+        teacherSurname = teacherSurname.replaceAll("\"", "").toLowerCase().trim();
+        teacherName = teacherName.replaceAll("\"", "").toLowerCase().trim();
+        teacherPatronymic = teacherPatronymic.replaceAll("\"", "")
+                .toLowerCase().trim();
+
+        int flowId = getFlowId(flowLvl, course, group, subgroup);
+
+        if (flowId >= 0) {
+            addOrUpdateTempSchedule(
+                    flowId, year, month, day, lessonNum, lessonName, cabinet, teacherSurname,
+                    teacherName, teacherPatronymic
+            );
+        }
+    }
+
+    @SuppressLint("Range")
+    private void addOrUpdateTempSchedule(int flowId, int year, int month, int day, int lessonNum,
+                                         String lessonName, String cabinet, String teacherSurname,
+                                         String teacherName, String teacherPatronymic) {
+        SQLiteDatabase database = getWritableDatabase();
+        database.beginTransaction();
+        try {
+            int teacherId = -1, lessonId = -1, tempScheduleId = -1, oldLessonId = -1;
+
+            // finding teacher id
+            String[] columns = new String[] {KEY_ID};
+            String selection = String.format(
+                    "%s = \"%s\" AND %s = \"%s\" AND %s = \"%s\"", KEY_SURNAME, teacherSurname,
+                    KEY_NAME, teacherName, KEY_PATRONYMIC, teacherPatronymic
+            );
+            Cursor cursor = database.query(
+                    TEACHER_TABLE_NAME, columns, selection, null,
+                    null, null, null
+            );
+            if (cursor.moveToFirst()) {
+                teacherId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+            }
+            cursor.close();
+
+            if (teacherId >= 0) {
+                // finding lesson id
+                columns = new String[] {KEY_ID};
+                selection = String.format(
+                        "%s = \"%s\" AND %s = \"%s\" AND %s = %s", KEY_NAME, lessonName,
+                        KEY_CABINET, cabinet, KEY_TEACHER, teacherId
+                );
+                cursor = database.query(
+                        LESSON_TABLE_NAME, columns, selection, null,
+                        null, null, null
+                );
+                if (cursor.moveToFirst()) {
+                    lessonId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+                }
+                cursor.close();
+            }
+
+            if (lessonId >= 0) {
+                // check if this schedule already exist
+                selection = String.format(
+                        "%s = %s AND %s = %s AND %s = %s AND %s = %s AND %s = %s " +
+                                "AND %s = %s AND %s = %s",
+                        KEY_FLOW, flowId, KEY_LESSON, lessonId, KEY_YEAR, year, KEY_MONTH, month,
+                        KEY_DAY, day, KEY_LESSON_NUM, lessonNum, KEY_WILL_LESSON_BE, 1
+                );
+                cursor = database.query(
+                        TEMP_SCHEDULE_TABLE_NAME, null, selection, null,
+                        null, null, null
+                );
+                if (cursor.moveToFirst()) {
+                    // nothing to change
+                    database.setTransactionSuccessful();
+                    return;
+                }
+                cursor.close();
+            }
+
+            // need we to add or to update
+            columns = new String[] {KEY_ID, KEY_LESSON};
+            selection = String.format(
+                    "%s = %s AND %s = %s AND %s = %s AND %s = %s AND %s = %s",
+                    KEY_FLOW, flowId, KEY_YEAR, year, KEY_MONTH, month,
+                    KEY_DAY, day, KEY_LESSON_NUM, lessonNum
+            );
+            cursor = database.query(
+                    TEMP_SCHEDULE_TABLE_NAME, columns, selection, null,
+                    null, null, null
+            );
+            if (cursor.moveToFirst()) {
+                tempScheduleId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+                oldLessonId = cursor.getInt(cursor.getColumnIndex(KEY_LESSON));
+            }
+            cursor.close();
+
+            ContentValues contentValues = new ContentValues();
+
+            if (teacherId < 0) {
+                // new teacher
+                contentValues = new ContentValues();
+                contentValues.put(KEY_SURNAME, teacherSurname);
+                contentValues.put(KEY_NAME, teacherName);
+                contentValues.put(KEY_PATRONYMIC, teacherPatronymic);
+                database.insert(TEACHER_TABLE_NAME, null, contentValues);
+                columns = new String[] {KEY_ID};
+                selection = String.format(
+                        "%s = \"%s\" AND %s = \"%s\" AND %s = \"%s\"", KEY_SURNAME, teacherSurname,
+                        KEY_NAME, teacherName, KEY_PATRONYMIC, teacherPatronymic
+                );
+                cursor = database.query(
+                        TEACHER_TABLE_NAME, columns, selection, null,
+                        null, null, null
+                );
+                cursor.moveToFirst();
+                teacherId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+                cursor.close();
+                contentValues.clear();
+            }
+
+            if (lessonId < 0) {
+                // new lesson
+                contentValues = new ContentValues();
+                contentValues.put(KEY_NAME, lessonName);
+                contentValues.put(KEY_CABINET, cabinet);
+                contentValues.put(KEY_TEACHER, teacherId);
+                database.insert(LESSON_TABLE_NAME, null, contentValues);
+                columns = new String[] {KEY_ID};
+                selection = String.format(
+                        "%s = \"%s\" AND %s = \"%s\" AND %s = %s", KEY_NAME, lessonName,
+                        KEY_CABINET, cabinet, KEY_TEACHER, teacherId
+                );
+                cursor = database.query(
+                        LESSON_TABLE_NAME, columns, selection, null,
+                        null, null, null
+                );
+                cursor.moveToFirst();
+                lessonId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+                cursor.close();
+                contentValues.clear();
+            }
+
+            if (tempScheduleId >= 0) {
+                // update schedule
+                contentValues.put(KEY_LESSON, lessonId);
+                contentValues.put(KEY_WILL_LESSON_BE, true);
+                database.update(
+                        TEMP_SCHEDULE_TABLE_NAME, contentValues,
+                        KEY_ID + " = " + tempScheduleId, null
+                );
+                contentValues.clear();
+            } else {
+                // add schedule
+                contentValues.put(KEY_FLOW, flowId);
+                contentValues.put(KEY_LESSON, lessonId);
+                contentValues.put(KEY_YEAR, year);
+                contentValues.put(KEY_MONTH, month);
+                contentValues.put(KEY_DAY, day);
+                contentValues.put(KEY_LESSON_NUM, lessonNum);
+                contentValues.put(KEY_WILL_LESSON_BE, true);
+                database.insert(TEMP_SCHEDULE_TABLE_NAME, null, contentValues);
+                contentValues.clear();
+            }
+
+            checkLesson(oldLessonId);
+
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+            database.close();
+        }
+    }
+
+    @SuppressLint("Range")
+    public void deleteTempSchedule(int flowLvl, int course, int group, int subgroup,
+                                   int year, int month, int day, int lessonNum) {
+        SQLiteDatabase database = getWritableDatabase();
+        database.beginTransaction();
+        try {
+            int flowId = getFlowId(flowLvl, course, group, subgroup);
+            if (flowId >= 0) {
+                int lessonId = -1;
+                String[] columns = new String[] {KEY_LESSON};
+                String tempScheduleSelection = String.format(
+                        "%s = %s AND %s = %s AND %s = %s AND %s = %s AND %s = %s", KEY_FLOW, flowId,
+                        KEY_YEAR, year, KEY_MONTH, month, KEY_DAY, day,
+                        KEY_LESSON_NUM, lessonNum
+                );
+                Cursor cursor = database.query(
+                        TEMP_SCHEDULE_TABLE_NAME, columns, tempScheduleSelection, null,
+                        null, null, null
+                );
+                if (cursor.moveToFirst()) {
+                    lessonId = cursor.getInt(cursor.getColumnIndex(KEY_LESSON));
+                    cursor.close();
+                } else cursor.close();
+                database.delete(SCHEDULE_TABLE_NAME, tempScheduleSelection, null);
+                checkLesson(lessonId);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+        database.close();
+    }
+
+    @SuppressLint("Range")
+    public void deleteTempScheduleBefore(int year, int month, int day) {
+        SQLiteDatabase database = getWritableDatabase();
+        database.beginTransaction();
+        try {
+            Set<Integer> lessonIds = new HashSet<>();
+            String[] columns = new String[] {KEY_LESSON};
+            String selection = String.format(
+                    "%s < %s OR (%s = %s AND %s < %s) OR (%s = %s AND %s = %s AND %s < %s)",
+                    KEY_YEAR, year, KEY_YEAR, year, KEY_MONTH, month,
+                    KEY_YEAR, year, KEY_MONTH, month, KEY_DAY, day
+            );
+            Cursor cursor = database.query(
+                    TEMP_SCHEDULE_TABLE_NAME, columns, selection, null,
+                    null, null, null
+            );
+            if (cursor.moveToFirst()) {
+                do {
+                    lessonIds.add(cursor.getInt(cursor.getColumnIndex(KEY_LESSON)));
+                } while (cursor.moveToNext());
+            } else cursor.close();
+            database.delete(TEMP_SCHEDULE_TABLE_NAME, selection, null);
+
+            for (int lessonId : lessonIds) {
+                checkLesson(lessonId);
+            }
+
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+        database.close();
+    }
+
+    @SuppressLint("Range")
+    public void setLessonWontBe(int flowLvl, int course, int group, int subgroup,
+                                int year, int month, int day, int lessonNum) {
+        SQLiteDatabase database = getWritableDatabase();
+        database.beginTransaction();
+        try {
+            int flowId = getFlowId(flowLvl, course, group, subgroup);
+            if (flowId == -1) {
+                database.setTransactionSuccessful();
+                return;
+            }
+
+            int lessonId = -1, tempScheduleId = -1, oldLessonId = -1;
+
+            // check if this schedule already exist
+            String selection = String.format(
+                    "%s = %s AND %s = %s AND %s = %s AND %s = %s AND %s = %s " +
+                            "AND %s = %s AND %s = %s",
+                    KEY_FLOW, flowId, KEY_LESSON, lessonId, KEY_YEAR, year, KEY_MONTH, month,
+                    KEY_DAY, day, KEY_LESSON_NUM, lessonNum, KEY_WILL_LESSON_BE, 0
+            );
+            Cursor cursor = database.query(
+                    TEMP_SCHEDULE_TABLE_NAME, null, selection, null,
+                    null, null, null
+            );
+            if (cursor.moveToFirst()) {
+                // nothing to change
+                database.setTransactionSuccessful();
+                return;
+            }
+            cursor.close();
+
+            // need we to add or to update
+            String[] columns = new String[] {KEY_ID, KEY_LESSON};
+            selection = String.format(
+                    "%s = %s AND %s = %s AND %s = %s AND %s = %s AND %s = %s",
+                    KEY_FLOW, flowId, KEY_YEAR, year, KEY_MONTH, month,
+                    KEY_DAY, day, KEY_LESSON_NUM, lessonNum
+            );
+            cursor = database.query(
+                    TEMP_SCHEDULE_TABLE_NAME, columns, selection, null,
+                    null, null, null
+            );
+            if (cursor.moveToFirst()) {
+                tempScheduleId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+                oldLessonId = cursor.getInt(cursor.getColumnIndex(KEY_LESSON));
+            }
+            cursor.close();
+
+            ContentValues contentValues = new ContentValues();
+
+            if (tempScheduleId >= 0) {
+                // update schedule
+                contentValues.put(KEY_LESSON, lessonId);
+                contentValues.put(KEY_WILL_LESSON_BE, false);
+                database.update(
+                        TEMP_SCHEDULE_TABLE_NAME, contentValues,
+                        KEY_ID + " = " + tempScheduleId, null
+                );
+                contentValues.clear();
+            } else {
+                // add schedule
+                contentValues.put(KEY_FLOW, flowId);
+                contentValues.put(KEY_LESSON, lessonId);
+                contentValues.put(KEY_YEAR, year);
+                contentValues.put(KEY_MONTH, month);
+                contentValues.put(KEY_DAY, day);
+                contentValues.put(KEY_LESSON_NUM, lessonNum);
+                contentValues.put(KEY_WILL_LESSON_BE, false);
+                database.insert(TEMP_SCHEDULE_TABLE_NAME, null, contentValues);
+                contentValues.clear();
+            }
+
+            checkLesson(oldLessonId);
+
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+            database.close();
+        }
+    }
+
+    @SuppressLint("Range")
+    private void checkLesson(int lessonId) {
+        if (lessonId >= 0) {
+            int teacherId = -1;
+            SQLiteDatabase database = getWritableDatabase();
+
+            String[] columns = new String[]{KEY_TEACHER};
+            String selection = String.format("%s = %s", KEY_ID, lessonId);
+            Cursor cursor = database.query(
+                    LESSON_TABLE_NAME, columns, selection, null,
+                    null, null, null
+            );
+            if (cursor.moveToFirst()) {
+                teacherId = cursor.getInt(cursor.getColumnIndex(KEY_TEACHER));
+            }
+            cursor.close();
+
+            selection = String.format("%s = %s", KEY_LESSON, lessonId);
+            cursor = database.query(
+                    SCHEDULE_TABLE_NAME, null, selection,
+                    null, null, null, null
+            );
+            if (cursor.getCount() == 0) {
+                cursor.close();
+                cursor = database.query(
+                        TEMP_SCHEDULE_TABLE_NAME, null, selection,
+                        null, null, null, null
+                );
+                if (cursor.getCount() == 0) {
+                    database.delete(
+                            LESSON_TABLE_NAME, KEY_ID + " = " + lessonId,
+                            null
+                    );
+                }
+                cursor.close();
+            } else cursor.close();
+
+            if (teacherId >= 0) {
+                selection = String.format("%s = %s", KEY_TEACHER, teacherId);
+                cursor = database.query(
+                        LESSON_TABLE_NAME, null, selection,
+                        null, null, null, null
+                );
+                if (cursor.getCount() == 0) {
+                    database.delete(
+                            TEACHER_TABLE_NAME, KEY_ID + " = " + teacherId,
+                            null
+                    );
+                }
+                cursor.close();
+            }
+        }
+    }
+
+    @SuppressLint("Range")
     private int getFlowId(int flowLvl, int course, int group, int subgroup) {
-        // finding flow id
         SQLiteDatabase database = getReadableDatabase();
         String[] columns = new String[] {KEY_ID};
         String selection = String.format(

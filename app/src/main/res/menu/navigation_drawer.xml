@@ -12,6 +12,10 @@
             android:icon="@drawable/red_circle"
             android:title="Изменить расписание" />
         <item
+            android:id="@+id/nav_temp_schedule"
+            android:icon="@drawable/red_circle"
+            android:title="Временное расписание" />
+        <item
             android:id="@+id/nav_homework"
             android:icon="@drawable/red_circle"
             android:title="Домашние задания" />

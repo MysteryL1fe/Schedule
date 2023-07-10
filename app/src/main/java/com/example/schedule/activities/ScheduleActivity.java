@@ -16,6 +16,7 @@ import com.example.schedule.R;
 import com.example.schedule.fragments.HomeworkFragment;
 import com.example.schedule.fragments.ScheduleFragment;
 import com.example.schedule.fragments.SettingsFragment;
+import com.example.schedule.fragments.TempScheduleFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
@@ -130,6 +131,12 @@ public class ScheduleActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().replace(
                             R.id.fragment_view,
                             ChangeScheduleFragment.newInstance(flowLvl, course, group, subgroup)
+                    ).commit();
+                    return true;
+                case R.id.nav_temp_schedule:
+                    fragmentManager.beginTransaction().replace(
+                            R.id.fragment_view,
+                            TempScheduleFragment.newInstance(flowLvl, course, group, subgroup)
                     ).commit();
                     return true;
                 case R.id.nav_homework:

@@ -11,15 +11,14 @@ import android.widget.EditText;
 
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
-import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.exceptions.ScheduleException;
 
 public class ChangeLessonActivity extends AppCompatActivity {
     private EditText lessonNameEditText, cabinetEditText;
     private EditText surnameEditText, teacherNameEditText, patronymicEditText;
     private int flowLvl, course, group, subgroup, dayOfWeek, lessonNum;
-    private boolean isNumerator, isDenominator;
+    private int year, month, day;
+    private boolean isNumerator, isDenominator, isTempLesson;
     private CheckBox isNumeratorCheckBox, isDenominatorCheckBox;
 
     @Override
@@ -32,10 +31,14 @@ public class ChangeLessonActivity extends AppCompatActivity {
         course = intent.getIntExtra("course", 0);
         group = intent.getIntExtra("group", 0);
         subgroup = intent.getIntExtra("subgroup", 0);
+        year = intent.getIntExtra("year", 0);
+        month = intent.getIntExtra("month", 0);
+        day = intent.getIntExtra("day", 0);
         dayOfWeek = intent.getIntExtra("dayOfWeek", 0);
         lessonNum = intent.getIntExtra("lessonNum", 0);
         isNumerator = intent.getBooleanExtra("isNumerator", true);
         isDenominator = intent.getBooleanExtra("isDenominator", true);
+        isTempLesson = intent.getBooleanExtra("isTempLesson", false);
         String lessonName = intent.getStringExtra("lessonName");
         String surname = intent.getStringExtra("surname");
         String teacherName = intent.getStringExtra("teacherName");
@@ -51,6 +54,11 @@ public class ChangeLessonActivity extends AppCompatActivity {
         Button nextBtn = findViewById(R.id.nextBtn);
         isNumeratorCheckBox = findViewById(R.id.isNumeratorCheckBox);
         isDenominatorCheckBox = findViewById(R.id.isDenominatorCheckBox);
+
+        if (isTempLesson) {
+            isNumeratorCheckBox.setVisibility(View.GONE);
+            isDenominatorCheckBox.setVisibility(View.GONE);
+        }
 
         switch (SettingsStorage.textSize) {
             case 0:
@@ -114,35 +122,47 @@ public class ChangeLessonActivity extends AppCompatActivity {
                     !(isNumeratorCheckBox.isChecked() || isDenominatorCheckBox.isChecked()))
                 return;
             ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeLessonActivity.this);
-            if (isNumeratorCheckBox.isChecked()) {
-                dbHelper.addOrUpdateSchedule(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true,
+            if (isTempLesson) {
+                dbHelper.addOrUpdateTempSchedule(
+                        flowLvl, course, group, subgroup, year, month, day, lessonNum,
                         lessonNameEditText.getText().toString(),
                         cabinetEditText.getText().toString(),
                         surnameEditText.getText().toString(),
                         teacherNameEditText.getText().toString(),
                         patronymicEditText.getText().toString()
                 );
-            } else if (isNumerator) {
-                dbHelper.deleteSchedule(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true
-                );
+            } else {
+                if (isNumeratorCheckBox.isChecked()) {
+                    dbHelper.addOrUpdateSchedule(
+                            flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true,
+                            lessonNameEditText.getText().toString(),
+                            cabinetEditText.getText().toString(),
+                            surnameEditText.getText().toString(),
+                            teacherNameEditText.getText().toString(),
+                            patronymicEditText.getText().toString()
+                    );
+                } else if (isNumerator) {
+                    dbHelper.deleteSchedule(
+                            flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true
+                    );
+                }
+                if (isDenominatorCheckBox.isChecked()) {
+                    dbHelper.addOrUpdateSchedule(
+                            flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false,
+                            lessonNameEditText.getText().toString(),
+                            cabinetEditText.getText().toString(),
+                            surnameEditText.getText().toString(),
+                            teacherNameEditText.getText().toString(),
+                            patronymicEditText.getText().toString()
+                    );
+                } else if (isDenominator) {
+                    dbHelper.deleteSchedule(
+                            flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false
+                    );
+                }
+                dbHelper.close();
+                finish();
             }
-            if (isDenominatorCheckBox.isChecked()) {
-                dbHelper.addOrUpdateSchedule(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false,
-                        lessonNameEditText.getText().toString(),
-                        cabinetEditText.getText().toString(),
-                        surnameEditText.getText().toString(),
-                        teacherNameEditText.getText().toString(),
-                        patronymicEditText.getText().toString()
-                );
-            } else if (isDenominator) {
-                dbHelper.deleteSchedule(
-                        flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false
-                );
-            }
-            finish();
         }
     }
 }

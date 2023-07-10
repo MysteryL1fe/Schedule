@@ -137,7 +137,7 @@ public class LessonsView extends LinearLayout {
             for (int i = 1; i < 9; i++) {
                 LessonView lessonView = new LessonView(
                         getContext(), flowLvl, course, group, subgroup, day, month, year,
-                        dayOfWeek, isNumerator, i
+                        dayOfWeek, isNumerator, i, false
                 );
                 lessonView.setLayoutParams(params);
                 lessonViews[i - 1] = lessonView;

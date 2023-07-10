@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
-import com.example.schedule.ScheduleStorage;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,11 +39,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SettingsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SettingsFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
     private static final String ARG_COURSE = "course";
@@ -60,12 +54,6 @@ public class SettingsFragment extends Fragment {
 
     public SettingsFragment() {}
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment SettingsFragment.
-     */
     public static SettingsFragment newInstance(int flowLvl, int course, int group, int subgroup) {
         SettingsFragment fragment = new SettingsFragment();
         Bundle args = new Bundle();
