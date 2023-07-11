@@ -2,17 +2,13 @@ package com.example.schedule.views;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.schedule.LessonStruct;
 import com.example.schedule.R;
-import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.google.android.material.divider.MaterialDivider;
@@ -23,7 +19,6 @@ public class LessonsView extends LinearLayout {
     private final LessonView[] lessonViews = new LessonView[8];
     private int flowLvl, course, group, subgroup, dayOfWeek, day, month, year;
     private boolean isNumerator, hasTimerView = false;
-    private LoadLessons loadLessons;
     private TimerView timerView;
 
     public LessonsView(Context context) {
@@ -55,7 +50,7 @@ public class LessonsView extends LinearLayout {
         this.month = month;
         this.year = year;
         this.isNumerator = isNumerator;
-        loadLessons = new LoadLessons();
+        LoadLessons loadLessons = new LoadLessons();
         loadLessons.execute();
     }
 

@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
     private Button courseBtn, groupBtn, subgroupBtn, flowLvlBtn, contBtn;
     private SharedPreferences saves;
-    private SharedPreferences.Editor editor;
     private ActivityResultLauncher<Intent> newFlowActivity;
     private final String[] flowLvlStr = new String[] {"Бакалавриат/Специалитет", "Магистратура",
             "Аспирантура"};
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         saves = getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE);
-        editor = saves.edit();
 
         dbHelper = new ScheduleDBHelper(this);
         tmp();

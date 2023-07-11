@@ -8,7 +8,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.schedule.R;
-import com.example.schedule.Schedule;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.google.android.material.divider.MaterialDivider;

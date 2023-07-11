@@ -26,7 +26,7 @@ public class LessonView extends LinearLayout {
     private LinearLayout firstStroke;
     private TimerView timerView;
     private int flowLvl, course, group, subgroup, day, month, year, lessonNum, dayOfWeek;
-    private boolean isNumerator, isTempLesson = false, isTempView, willLessonBe = true;
+    private boolean isNumerator, isTempView, willLessonBe = true;
     private String homework;
 
     public LessonView(Context context) {
@@ -80,6 +80,8 @@ public class LessonView extends LinearLayout {
         this.lessonNum = lessonNum;
         this.isNumerator = isNumerator;
         this.isTempView = isTempView;
+        boolean isTempLesson = false;
+        this.willLessonBe = true;
 
         ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
 
@@ -226,7 +228,7 @@ public class LessonView extends LinearLayout {
                 lessonData.addView(cabinetTV);
             }
 
-            if (homework.isEmpty()) {
+            if (homework.isEmpty() && willLessonBe && !isTempView) {
                 LinearLayout changeRow = new LinearLayout(getContext());
                 changeRow.setLayoutParams(paramsWrapWrap);
                 changeRow.setOrientation(HORIZONTAL);
@@ -244,7 +246,7 @@ public class LessonView extends LinearLayout {
                 changeHomeworkBtn.setPadding(10, 10, 10, 10);
                 changeHomeworkBtn.setOnClickListener(new ChangeHomeworkBtnListener());
                 changeRow.addView(changeHomeworkBtn);
-            } else {
+            } else if (willLessonBe && !isTempView) {
                 MaterialDivider divider = new MaterialDivider(getContext());
                 divider.setBackground(getResources().getDrawable(
                         R.drawable.divider_color, getContext().getTheme()
@@ -312,7 +314,7 @@ public class LessonView extends LinearLayout {
             tempLessonLayout.setOrientation(HORIZONTAL);
             this.addView(tempLessonLayout);
 
-            if (isTempLesson) {
+            if (isTempLesson || !willLessonBe) {
                 Button cancelTempLessonBtn = new Button(getContext());
                 cancelTempLessonBtn.setLayoutParams(paramsMatchWrap);
                 cancelTempLessonBtn.setText("Отменить");
@@ -332,11 +334,25 @@ public class LessonView extends LinearLayout {
                 }
             }
 
-            Button lessonWontBeBtn = new Button(getContext());
-            lessonWontBeBtn.setLayoutParams(paramsMatchWrap);
-            lessonWontBeBtn.setText("Пары не будет");
-            lessonWontBeBtn.setOnClickListener(new LessonWontBeBtnListener());
-            tempLessonLayout.addView(lessonWontBeBtn);
+            if (!lessonName.isEmpty() && willLessonBe && !isTempLesson) {
+                Button lessonWontBeBtn = new Button(getContext());
+                lessonWontBeBtn.setLayoutParams(paramsMatchWrap);
+                lessonWontBeBtn.setText("Пары не будет");
+                lessonWontBeBtn.setOnClickListener(new LessonWontBeBtnListener());
+                tempLessonLayout.addView(lessonWontBeBtn);
+
+                switch (SettingsStorage.textSize) {
+                    case 0:
+                        lessonWontBeBtn.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        lessonWontBeBtn.setTextSize(24.0f);
+                        break;
+                    default:
+                        lessonWontBeBtn.setTextSize(16.0f);
+                        break;
+                }
+            }
 
             Button replaceLessonBtn = new Button(getContext());
             replaceLessonBtn.setLayoutParams(paramsMatchWrap);
@@ -346,18 +362,21 @@ public class LessonView extends LinearLayout {
 
             switch (SettingsStorage.textSize) {
                 case 0:
-                    lessonWontBeBtn.setTextSize(8.0f);
                     replaceLessonBtn.setTextSize(8.0f);
                     break;
                 case 2:
-                    lessonWontBeBtn.setTextSize(24.0f);
                     replaceLessonBtn.setTextSize(24.0f);
                     break;
                 default:
-                    lessonWontBeBtn.setTextSize(16.0f);
                     replaceLessonBtn.setTextSize(16.0f);
                     break;
             }
+
+            divider = new MaterialDivider(getContext());
+            divider.setBackground(getResources().getDrawable(
+                    R.drawable.divider_color, getContext().getTheme()
+            ));
+            this.addView(divider);
         }
     }
 
@@ -373,7 +392,7 @@ public class LessonView extends LinearLayout {
         );
         timerView.setLayoutParams(params);
         timerView.setGravity(Gravity.END);
-        firstStroke.addView(timerView, 1);
+        firstStroke.addView(timerView, willLessonBe ? 1 : 2);
     }
 
     @Override
@@ -420,6 +439,11 @@ public class LessonView extends LinearLayout {
             new ScheduleDBHelper(getContext()).deleteTempSchedule(
                     flowLvl, course, group, subgroup, year, month, day, lessonNum
             );
+            LessonView.this.removeAllViews();
+            init(
+                    flowLvl, course, group, subgroup, day, month, year, dayOfWeek, isNumerator,
+                    lessonNum, isTempView
+            );
         }
     }
 
@@ -428,6 +452,11 @@ public class LessonView extends LinearLayout {
         public void onClick(View v) {
             new ScheduleDBHelper(getContext()).setLessonWontBe(
                     flowLvl, course, group, subgroup, year, month, day, lessonNum
+            );
+            LessonView.this.removeAllViews();
+            init(
+                    flowLvl, course, group, subgroup, day, month, year, dayOfWeek, isNumerator,
+                    lessonNum, isTempView
             );
         }
     }
@@ -444,7 +473,7 @@ public class LessonView extends LinearLayout {
             intent.putExtra("month", month);
             intent.putExtra("day", day);
             intent.putExtra("lessonNum", lessonNum);
-            intent.putExtra("isTempLesson", isTempLesson);
+            intent.putExtra("isTempView", isTempView);
             getContext().startActivity(intent);
         }
     }

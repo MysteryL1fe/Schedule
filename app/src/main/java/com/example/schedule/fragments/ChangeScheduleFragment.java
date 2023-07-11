@@ -18,9 +18,9 @@ public class ChangeScheduleFragment extends Fragment {
     private static final String ARG_COURSE = "course";
     private static final String ARG_GROUP = "group";
     private static final String ARG_SUBGROUP = "subgroup";
-
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
-    private LinearLayout mLessonsContainer;
+
+    private LinearLayout lessonsContainer;
 
     public ChangeScheduleFragment() {}
 
@@ -51,7 +51,7 @@ public class ChangeScheduleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_change_schedule, container, false);
-        mLessonsContainer = view.findViewById(R.id.lessons_container);
+        lessonsContainer = view.findViewById(R.id.lessons_container);
 
         return view;
     }
@@ -79,7 +79,7 @@ public class ChangeScheduleFragment extends Fragment {
 
             for (int i = 0; i < 12; i++) {
                 ChangeLessonsView changeLessonsView = new ChangeLessonsView(
-                        mLessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
+                        lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
                         dayOfWeek
                 );
                 changeLessonsViews[i] = changeLessonsView;
@@ -94,9 +94,9 @@ public class ChangeScheduleFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            mLessonsContainer.removeAllViews();
+            lessonsContainer.removeAllViews();
             for (int i = 0; i < 6; i++) {
-                mLessonsContainer.addView(changeLessonsViews[i]);
+                lessonsContainer.addView(changeLessonsViews[i]);
             }
         }
     }

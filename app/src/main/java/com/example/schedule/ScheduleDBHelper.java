@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -728,9 +726,9 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
                 + " FROM " + TEMP_SCHEDULE_TABLE_NAME
                 + " INNER JOIN " + FLOW_TABLE_NAME + " ON " + TEMP_SCHEDULE_TABLE_NAME + "."
                 + KEY_FLOW + " = " + FLOW_TABLE_NAME + "." + KEY_ID
-                + " INNER JOIN " + LESSON_TABLE_NAME + " ON " + TEMP_SCHEDULE_TABLE_NAME + "."
+                + " LEFT JOIN " + LESSON_TABLE_NAME + " ON " + TEMP_SCHEDULE_TABLE_NAME + "."
                 + KEY_LESSON + " = " + LESSON_TABLE_NAME + "." + KEY_ID
-                + " INNER JOIN " + TEACHER_TABLE_NAME + " ON " + LESSON_TABLE_NAME + "."
+                + " LEFT JOIN " + TEACHER_TABLE_NAME + " ON " + LESSON_TABLE_NAME + "."
                 + KEY_TEACHER + " = " + TEACHER_TABLE_NAME + "." + KEY_ID + " WHERE "
                 + FLOW_TABLE_NAME + "." + KEY_FLOW_LVL + " = " + flowLvl + " AND "
                 + FLOW_TABLE_NAME + "." + KEY_COURSE + " = " + course + " AND "
@@ -766,11 +764,10 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
             cursor.close();
             database.close();
             return new LessonStruct(lessonName, teacher, cabinet);
-        } else {
-            cursor.close();
-            database.close();
-            return null;
         }
+        cursor.close();
+        database.close();
+        return null;
     }
 
     @SuppressLint("Range")
@@ -976,7 +973,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
                     lessonId = cursor.getInt(cursor.getColumnIndex(KEY_LESSON));
                     cursor.close();
                 } else cursor.close();
-                database.delete(SCHEDULE_TABLE_NAME, tempScheduleSelection, null);
+                database.delete(TEMP_SCHEDULE_TABLE_NAME, tempScheduleSelection, null);
                 checkLesson(lessonId);
             }
             database.setTransactionSuccessful();

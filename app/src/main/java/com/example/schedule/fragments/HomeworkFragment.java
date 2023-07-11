@@ -24,9 +24,7 @@ public class HomeworkFragment extends Fragment {
     private static final String ARG_COURSE = "course";
     private static final String ARG_GROUP = "group";
     private static final String ARG_SUBGROUP = "subgroup";
-
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
-    private LinearLayout mHomeworkContainer;
 
     public HomeworkFragment() {}
 
@@ -56,7 +54,7 @@ public class HomeworkFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_homework, container, false);
-        mHomeworkContainer = view.findViewById(R.id.homework_container);
+        LinearLayout homeworkContainer = view.findViewById(R.id.homework_container);
         ArrayList<Homework> homeworks = new ScheduleDBHelper(getContext())
                 .getAllHomeworks(
                         mFlowLvl, mCourse, mGroup, mSubgroup, getActivity().getSharedPreferences(
@@ -67,7 +65,7 @@ public class HomeworkFragment extends Fragment {
             TextView textView = new TextView(getContext());
             textView.setText("Домашних заданий нету");
             textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            mHomeworkContainer.addView(textView);
+            homeworkContainer.addView(textView);
             switch (SettingsStorage.textSize) {
                 case 0:
                     textView.setTextSize(9.0f);
@@ -81,7 +79,7 @@ public class HomeworkFragment extends Fragment {
             }
         } else {
             for (Homework homework : homeworks) {
-                mHomeworkContainer.addView(new HomeworkView(getContext(), homework));
+                homeworkContainer.addView(new HomeworkView(getContext(), homework));
             }
         }
 

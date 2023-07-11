@@ -18,7 +18,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
     private EditText surnameEditText, teacherNameEditText, patronymicEditText;
     private int flowLvl, course, group, subgroup, dayOfWeek, lessonNum;
     private int year, month, day;
-    private boolean isNumerator, isDenominator, isTempLesson;
+    private boolean isNumerator, isDenominator, isTempView;
     private CheckBox isNumeratorCheckBox, isDenominatorCheckBox;
 
     @Override
@@ -38,7 +38,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
         lessonNum = intent.getIntExtra("lessonNum", 0);
         isNumerator = intent.getBooleanExtra("isNumerator", true);
         isDenominator = intent.getBooleanExtra("isDenominator", true);
-        isTempLesson = intent.getBooleanExtra("isTempLesson", false);
+        isTempView = intent.getBooleanExtra("isTempView", false);
         String lessonName = intent.getStringExtra("lessonName");
         String surname = intent.getStringExtra("surname");
         String teacherName = intent.getStringExtra("teacherName");
@@ -55,7 +55,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
         isNumeratorCheckBox = findViewById(R.id.isNumeratorCheckBox);
         isDenominatorCheckBox = findViewById(R.id.isDenominatorCheckBox);
 
-        if (isTempLesson) {
+        if (isTempView) {
             isNumeratorCheckBox.setVisibility(View.GONE);
             isDenominatorCheckBox.setVisibility(View.GONE);
         }
@@ -97,9 +97,18 @@ public class ChangeLessonActivity extends AppCompatActivity {
         }
 
         lessonNameEditText.setText(lessonName);
-        surnameEditText.setText(surname);
-        teacherNameEditText.setText(teacherName);
-        patronymicEditText.setText(patronymic);
+        surnameEditText.setText(
+                surname == null || surname.isEmpty() ? ""
+                        : surname.substring(0, 1).toUpperCase() + surname.substring(1)
+        );
+        teacherNameEditText.setText(
+                teacherName == null || teacherName.isEmpty() ? ""
+                        : teacherName.substring(0, 1).toUpperCase() + teacherName.substring(1)
+        );
+        patronymicEditText.setText(
+                patronymic == null || patronymic.isEmpty() ? ""
+                        : patronymic.substring(0, 1).toUpperCase() + patronymic.substring(1)
+        );
         cabinetEditText.setText(cabinet);
         isNumeratorCheckBox.setChecked(isNumerator);
         isDenominatorCheckBox.setChecked(isDenominator);
@@ -122,7 +131,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
                     !(isNumeratorCheckBox.isChecked() || isDenominatorCheckBox.isChecked()))
                 return;
             ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeLessonActivity.this);
-            if (isTempLesson) {
+            if (isTempView) {
                 dbHelper.addOrUpdateTempSchedule(
                         flowLvl, course, group, subgroup, year, month, day, lessonNum,
                         lessonNameEditText.getText().toString(),
@@ -160,9 +169,9 @@ public class ChangeLessonActivity extends AppCompatActivity {
                             flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false
                     );
                 }
-                dbHelper.close();
-                finish();
             }
+            dbHelper.close();
+            finish();
         }
     }
 }

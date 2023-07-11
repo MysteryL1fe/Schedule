@@ -13,7 +13,6 @@ import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
 
 public class NewFlowActivity extends AppCompatActivity {
-    private Button cancelBtn, nextBtn;
     private EditText newFlowTextEdit;
     private TextView errorTv;
     private String flow;
@@ -27,8 +26,8 @@ public class NewFlowActivity extends AppCompatActivity {
         flow = thisIntent.getStringExtra("flow");
         newFlowTextEdit = findViewById(R.id.newFlowTextEdit);
         errorTv = findViewById(R.id.errorTV);
-        cancelBtn = findViewById(R.id.cancelBtn);
-        nextBtn = findViewById(R.id.nextBtn);
+        Button cancelBtn = findViewById(R.id.cancelBtn);
+        Button nextBtn = findViewById(R.id.nextBtn);
 
         switch (SettingsStorage.textSize) {
             case 0:

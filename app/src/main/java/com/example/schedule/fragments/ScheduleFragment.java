@@ -25,9 +25,9 @@ public class ScheduleFragment extends Fragment {
     private static final String ARG_COURSE = "course";
     private static final String ARG_GROUP = "group";
     private static final String ARG_SUBGROUP = "subgroup";
-
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
-    private LinearLayout mLessonsContainer;
+
+    private LinearLayout lessonsContainer;
 
     public ScheduleFragment() {}
     public static ScheduleFragment newInstance(int flowLvl, int course, int group, int subgroup) {
@@ -57,7 +57,7 @@ public class ScheduleFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 
-        mLessonsContainer = view.findViewById(R.id.lessons_container);
+        lessonsContainer = view.findViewById(R.id.lessons_container);
 
         LoadLessons loadLessons = new LoadLessons();
         loadLessons.execute();
@@ -84,7 +84,7 @@ public class ScheduleFragment extends Fragment {
             );
 
             for (int i = 0; i < 21; i++) {
-                LessonsView lessonsView = new LessonsView(mLessonsContainer.getContext(), mFlowLvl,
+                LessonsView lessonsView = new LessonsView(lessonsContainer.getContext(), mFlowLvl,
                         mCourse, mGroup, mSubgroup, day, month, year, dayOfWeek, isNumerator);
                 lessonsViews[i] = lessonsView;
 
@@ -104,7 +104,7 @@ public class ScheduleFragment extends Fragment {
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
             for (int i = 0; i < 21; i++) {
-                mLessonsContainer.addView(lessonsViews[i]);
+                lessonsContainer.addView(lessonsViews[i]);
             }
         }
     }
