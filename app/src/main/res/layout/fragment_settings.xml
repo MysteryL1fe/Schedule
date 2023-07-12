@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="25dp"
-                android:text="Выбрать тему"
+                android:text="@string/choose_theme"
                 android:textSize="20sp" />
         </LinearLayout>
 
@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="25dp"
-                android:text="Импортировать расписание"
+                android:text="@string/import_schedule"
                 android:textSize="20sp" />
         </LinearLayout>
 
@@ -60,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="25dp"
-                android:text="Экспортировать расписание"
+                android:text="@string/export_schedule"
                 android:textSize="20sp" />
         </LinearLayout>
 
@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Размер шрифта"
+                android:text="@string/font_size"
                 android:textAlignment="center"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="24sp" />
@@ -106,7 +106,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Начало отсчета числителя"
+                android:text="@string/countdown_beginning"
                 android:textAlignment="center"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="24sp" />
@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="25dp"
-                android:text="Сменить группу"
+                android:text="@string/change_flow"
                 android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>

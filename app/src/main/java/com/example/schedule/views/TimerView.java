@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
 import com.google.android.material.divider.MaterialDivider;
@@ -54,18 +56,16 @@ public class TimerView extends LinearLayout {
         imageParams.rightMargin = 25;
 
         this.setGravity(Gravity.CENTER_HORIZONTAL);
-        this.setBackground(getResources().getDrawable(
-                R.drawable.lesson_background, getContext().getTheme()
+        this.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.lesson_background, getContext().getTheme()
         ));
 
         imageView = new ImageView(getContext());
-        imageView.setImageDrawable(
-                getResources().getDrawable(R.drawable.red_circle, getContext().getTheme())
-        );
+        imageView.setImageResource(R.drawable.red_circle);
         imageView.setLayoutParams(imageParams);
 
         timerTV = new TextView(getContext());
-        timerTV.setText(Integer.toString(timerSeconds));
+        timerTV.setText(String.format("%s", timerSeconds));
         switch (SettingsStorage.textSize) {
             case 0:
                 timerTV.setTextSize(8.0f);
@@ -83,8 +83,8 @@ public class TimerView extends LinearLayout {
             this.setOrientation(VERTICAL);
 
             MaterialDivider divider = new MaterialDivider(getContext());
-            divider.setBackground(getResources().getDrawable(
-                    R.drawable.divider_color, getContext().getTheme()
+            divider.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.divider_color, getContext().getTheme()
             ));
             this.addView(divider);
 

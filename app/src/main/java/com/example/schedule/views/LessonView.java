@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.example.schedule.LessonStruct;
 import com.example.schedule.R;
@@ -117,8 +118,9 @@ public class LessonView extends LinearLayout {
         this.setLayoutParams(paramsMatchWrap);
         this.setGravity(Gravity.START);
         this.setOrientation(VERTICAL);
-        this.setBackground(getResources().getDrawable(R.drawable.lesson_background,
-                getContext().getTheme()));
+        this.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.lesson_background, getContext().getTheme()
+        ));
 
         firstStroke = new LinearLayout(getContext());
         firstStroke.setLayoutParams(paramsMatchWrap);
@@ -137,15 +139,15 @@ public class LessonView extends LinearLayout {
         if (isTempLesson) {
             ImageView imageView = new ImageView(getContext());
             imageView.setLayoutParams(paramsWrapWrap);
-            imageView.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_temporary, getContext().getTheme()
+            imageView.setImageDrawable(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.ic_temporary, getContext().getTheme()
             ));
             firstStroke.addView(imageView);
         } else if (!willLessonBe) {
             ImageView imageView = new ImageView(getContext());
             imageView.setLayoutParams(paramsWrapWrap);
-            imageView.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_cross, getContext().getTheme()
+            imageView.setImageDrawable(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.ic_cross, getContext().getTheme()
             ));
             firstStroke.addView(imageView);
         }
@@ -219,9 +221,9 @@ public class LessonView extends LinearLayout {
                         break;
                 }
                 if (lessonTeacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", lessonCabinet));
+                    cabinetTV.setText(lessonCabinet);
                 else if (lessonCabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", lessonTeacher));
+                    cabinetTV.setText(lessonTeacher);
                 else
                     cabinetTV.setText(String.format("%s, %s", lessonCabinet, lessonTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
@@ -240,16 +242,16 @@ public class LessonView extends LinearLayout {
                 changeHomeworkBtn.setImageDrawable(ContextCompat.getDrawable(
                         getContext(), R.drawable.ic_homework
                 ));
-                changeHomeworkBtn.setBackground(getResources().getDrawable(
-                        R.drawable.secondary_color, getContext().getTheme()
+                changeHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
+                        getResources(), R.drawable.secondary_color, getContext().getTheme()
                 ));
                 changeHomeworkBtn.setPadding(10, 10, 10, 10);
                 changeHomeworkBtn.setOnClickListener(new ChangeHomeworkBtnListener());
                 changeRow.addView(changeHomeworkBtn);
             } else if (willLessonBe && !isTempView) {
                 MaterialDivider divider = new MaterialDivider(getContext());
-                divider.setBackground(getResources().getDrawable(
-                        R.drawable.divider_color, getContext().getTheme()
+                divider.setBackground(ResourcesCompat.getDrawable(
+                        getResources(), R.drawable.divider_color, getContext().getTheme()
                 ));
                 this.addView(divider);
 
@@ -281,9 +283,9 @@ public class LessonView extends LinearLayout {
                 changeHomeworkBtn.setImageDrawable(ContextCompat.getDrawable(
                         getContext(), R.drawable.ic_homework
                 ));
-                changeHomeworkBtn.setBackground(
-                        getResources().getDrawable(R.drawable.secondary_color, getContext().getTheme())
-                );
+                changeHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
+                        getResources(), R.drawable.secondary_color, getContext().getTheme()
+                ));
                 changeHomeworkBtn.setPadding(10, 10, 10, 10);
                 changeHomeworkBtn.setOnClickListener(new ChangeHomeworkBtnListener());
                 thirdStroke.addView(changeHomeworkBtn);
@@ -293,9 +295,9 @@ public class LessonView extends LinearLayout {
                 deleteHomeworkBtn.setImageDrawable(ContextCompat.getDrawable(
                         getContext(), R.drawable.ic_thrash)
                 );
-                deleteHomeworkBtn.setBackground(
-                        getResources().getDrawable(R.drawable.secondary_color, getContext().getTheme())
-                );
+                deleteHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
+                        getResources(), R.drawable.secondary_color, getContext().getTheme()
+                ));
                 deleteHomeworkBtn.setPadding(10, 10, 10, 10);
                 deleteHomeworkBtn.setOnClickListener(new DeleteHomeworkBtnListener());
                 thirdStroke.addView(deleteHomeworkBtn);
@@ -304,8 +306,8 @@ public class LessonView extends LinearLayout {
 
         if (isTempView) {
             MaterialDivider divider = new MaterialDivider(getContext());
-            divider.setBackground(getResources().getDrawable(
-                    R.drawable.divider_color, getContext().getTheme()
+            divider.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.divider_color, getContext().getTheme()
             ));
             this.addView(divider);
 
@@ -317,7 +319,7 @@ public class LessonView extends LinearLayout {
             if (isTempLesson || !willLessonBe) {
                 Button cancelTempLessonBtn = new Button(getContext());
                 cancelTempLessonBtn.setLayoutParams(paramsMatchWrap);
-                cancelTempLessonBtn.setText("Отменить");
+                cancelTempLessonBtn.setText(getResources().getString(R.string.cancel));
                 cancelTempLessonBtn.setOnClickListener(new CancelTempLessonBtnListener());
                 tempLessonLayout.addView(cancelTempLessonBtn);
 
@@ -337,7 +339,7 @@ public class LessonView extends LinearLayout {
             if (!lessonName.isEmpty() && willLessonBe && !isTempLesson) {
                 Button lessonWontBeBtn = new Button(getContext());
                 lessonWontBeBtn.setLayoutParams(paramsMatchWrap);
-                lessonWontBeBtn.setText("Пары не будет");
+                lessonWontBeBtn.setText(getResources().getString(R.string.lesson_wont_be));
                 lessonWontBeBtn.setOnClickListener(new LessonWontBeBtnListener());
                 tempLessonLayout.addView(lessonWontBeBtn);
 
@@ -356,7 +358,7 @@ public class LessonView extends LinearLayout {
 
             Button replaceLessonBtn = new Button(getContext());
             replaceLessonBtn.setLayoutParams(paramsMatchWrap);
-            replaceLessonBtn.setText("Заменить");
+            replaceLessonBtn.setText(getResources().getString(R.string.replace));
             replaceLessonBtn.setOnClickListener(new ReplaceLessonBtnListener());
             tempLessonLayout.addView(replaceLessonBtn);
 
@@ -373,8 +375,8 @@ public class LessonView extends LinearLayout {
             }
 
             divider = new MaterialDivider(getContext());
-            divider.setBackground(getResources().getDrawable(
-                    R.drawable.divider_color, getContext().getTheme()
+            divider.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.divider_color, getContext().getTheme()
             ));
             this.addView(divider);
         }

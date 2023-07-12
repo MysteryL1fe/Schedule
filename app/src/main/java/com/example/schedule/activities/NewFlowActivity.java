@@ -24,8 +24,8 @@ public class NewFlowActivity extends AppCompatActivity {
 
         Intent thisIntent = getIntent();
         flow = thisIntent.getStringExtra("flow");
-        newFlowTextEdit = findViewById(R.id.newFlowTextEdit);
         errorTv = findViewById(R.id.errorTV);
+        newFlowTextEdit = findViewById(R.id.newFlowTextEdit);
         Button cancelBtn = findViewById(R.id.cancelBtn);
         Button nextBtn = findViewById(R.id.nextBtn);
 
@@ -52,13 +52,13 @@ public class NewFlowActivity extends AppCompatActivity {
 
         switch (flow) {
             case "course":
-                newFlowTextEdit.setHint("Новый курс");
+                newFlowTextEdit.setHint(getString(R.string.new_course));
                 break;
             case "group":
-                newFlowTextEdit.setHint("Новая группа");
+                newFlowTextEdit.setHint(getString(R.string.new_group));
                 break;
             case "subgroup":
-                newFlowTextEdit.setHint("Новая подгруппа");
+                newFlowTextEdit.setHint(getString(R.string.new_subgroup));
                 break;
         }
 
@@ -87,13 +87,13 @@ public class NewFlowActivity extends AppCompatActivity {
             } catch (NumberFormatException e) {
                 switch (flow) {
                     case "course":
-                        errorTv.setText("Курс должен быть числом");
+                        errorTv.setText(getString(R.string.course_must_be_number));
                         break;
                     case "group":
-                        errorTv.setText("Группа должна быть числом");
+                        errorTv.setText(getString(R.string.group_must_be_number));
                         break;
                     case "subgroup":
-                        errorTv.setText("Подгруппа должна быть числом");
+                        errorTv.setText(getString(R.string.subgroup_must_be_number));
                         break;
                 }
                 errorTv.setVisibility(View.VISIBLE);

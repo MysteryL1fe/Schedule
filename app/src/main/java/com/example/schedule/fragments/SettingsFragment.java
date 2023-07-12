@@ -172,10 +172,10 @@ public class SettingsFragment extends Fragment {
     private void exportSchedule() {
         if (new ScheduleDBHelper(getContext())
                 .exportSchedule(mFlowLvl, mCourse, mGroup, mSubgroup)) {
-            Toast.makeText(getContext(), "Файл успешно добавлен в Загрузки",
+            Toast.makeText(getContext(), getString(R.string.schedule_exported),
                     Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(getContext(), "Произошла ошибка",
+            Toast.makeText(getContext(), getString(R.string.error),
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -183,9 +183,13 @@ public class SettingsFragment extends Fragment {
     private class ChooseThemeBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            String[] items = new String[] {"Системная", "Светлая", "Тёмная"};
+            String[] items = new String[] {
+                    getString(R.string.system_theme),
+                    getString(R.string.light_theme),
+                    getString(R.string.dark_theme)
+            };
             new MaterialAlertDialogBuilder(getContext(), R.style.Theme_Schedule_Dialog)
-                    .setTitle("Выберите тему")
+                    .setTitle(getString(R.string.choose_theme))
                     .setItems(items, new DialogInterfaceListener())
                     .show();
         }

@@ -12,10 +12,10 @@ import java.util.Calendar;
 public class SettingsStorage {
     private static final float VERSION = 1.00009f;
     public static final String SCHEDULE_SAVES = "ScheduleSaves";
+    private static final Gson GSON = new Gson();
+    private static final Type CALENDAR_TYPE = new TypeToken<Calendar>(){}.getType();
     public static int textSize = 1;
     private static Calendar countdownBeginning;
-    private static final Gson gson = new Gson();
-    private static final Type calendarType = new TypeToken<Calendar>(){}.getType();
 
     public static void updateTextSize(SharedPreferences saves) {
         textSize = saves.getInt("textSize", 1);
@@ -71,8 +71,8 @@ public class SettingsStorage {
 
     public static Calendar getCountdownBeginning(SharedPreferences saves) {
         if (countdownBeginning == null) {
-            countdownBeginning = gson.fromJson(
-                    saves.getString("countdownBeginning", ""), calendarType
+            countdownBeginning = GSON.fromJson(
+                    saves.getString("countdownBeginning", ""), CALENDAR_TYPE
             );
             if (countdownBeginning == null) {
                 Calendar calendar = Calendar.getInstance();
@@ -80,7 +80,7 @@ public class SettingsStorage {
                 countdownBeginning = calendar;
                 Editor editor = saves.edit();
                 editor.putString(
-                        "countdownBeginning", gson.toJson(countdownBeginning, calendarType)
+                        "countdownBeginning", GSON.toJson(countdownBeginning, CALENDAR_TYPE)
                 );
                 editor.apply();
             }
@@ -94,7 +94,7 @@ public class SettingsStorage {
         }
         SettingsStorage.countdownBeginning = countdownBeginning;
         Editor editor = saves.edit();
-        editor.putString("countdownBeginning", gson.toJson(countdownBeginning, calendarType));
+        editor.putString("countdownBeginning", GSON.toJson(countdownBeginning, CALENDAR_TYPE));
         editor.apply();
     }
 }

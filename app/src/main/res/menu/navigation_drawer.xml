@@ -6,22 +6,22 @@
         <item
             android:id="@+id/nav_schedule"
             android:icon="@drawable/red_circle"
-            android:title="Расписание" />
+            android:title="@string/schedule" />
         <item
             android:id="@+id/nav_change_schedule"
             android:icon="@drawable/red_circle"
-            android:title="Изменить расписание" />
+            android:title="@string/change_schedule" />
         <item
             android:id="@+id/nav_temp_schedule"
             android:icon="@drawable/red_circle"
-            android:title="Временное расписание" />
+            android:title="@string/temp_schedule" />
         <item
             android:id="@+id/nav_homework"
             android:icon="@drawable/red_circle"
-            android:title="Домашние задания" />
+            android:title="@string/homeworks" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/red_circle"
-            android:title="Настройки" />
+            android:title="@string/settings" />
     </group>
 </menu>

@@ -17,7 +17,7 @@
             android:id="@+id/homeworkEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Домашнее задание"
+            android:hint="@string/homework"
             android:inputType="textMultiLine|textCapSentences" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="Отмена"
+            android:text="@string/cancel"
             android:textSize="20sp" />
 
         <Button
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="Готово"
+            android:text="@string/ok"
             android:textSize="20sp" />
     </LinearLayout>
 </LinearLayout>

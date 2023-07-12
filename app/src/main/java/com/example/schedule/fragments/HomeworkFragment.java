@@ -63,7 +63,7 @@ public class HomeworkFragment extends Fragment {
                 );
         if (homeworks.isEmpty()) {
             TextView textView = new TextView(getContext());
-            textView.setText("Домашних заданий нету");
+            textView.setText(getString(R.string.homeworks_not_founded));
             textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             homeworkContainer.addView(textView);
             switch (SettingsStorage.textSize) {

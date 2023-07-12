@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Выберите дату"
+        android:text="@string/choose_date"
         android:textAlignment="center"
         android:textColor="?attr/colorOnPrimary" />
 

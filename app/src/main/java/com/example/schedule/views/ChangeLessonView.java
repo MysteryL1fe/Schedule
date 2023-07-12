@@ -175,9 +175,9 @@ public class ChangeLessonView extends LinearLayout {
                         break;
                 }
                 if (numerator.teacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.cabinet));
+                    cabinetTV.setText(numerator.cabinet);
                 else if (numerator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                    cabinetTV.setText(numerator.teacher);
                 else
                     cabinetTV.setText(
                             String.format("%s, %s", numerator.cabinet, numerator.teacher));
@@ -262,9 +262,9 @@ public class ChangeLessonView extends LinearLayout {
                         break;
                 }
                 if (numerator.teacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.cabinet));
+                    cabinetTV.setText(numerator.cabinet);
                 else if (numerator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                    cabinetTV.setText(numerator.teacher);
                 else
                     cabinetTV.setText(
                             String.format("%s, %s", numerator.cabinet, numerator.teacher));
@@ -350,9 +350,9 @@ public class ChangeLessonView extends LinearLayout {
                         break;
                 }
                 if (denominator.teacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", denominator.cabinet));
+                    cabinetTV.setText(denominator.cabinet);
                 else if (denominator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", denominator.teacher));
+                    cabinetTV.setText(denominator.teacher);
                 else
                     cabinetTV.setText(
                             String.format("%s, %s", denominator.cabinet, denominator.teacher));
@@ -436,9 +436,9 @@ public class ChangeLessonView extends LinearLayout {
                         break;
                 }
                 if (numerator.teacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.cabinet));
+                    cabinetTV.setText(numerator.cabinet);
                 else if (numerator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                    cabinetTV.setText(numerator.teacher);
                 else
                     cabinetTV.setText(
                             String.format("%s, %s", numerator.cabinet, numerator.teacher));
@@ -586,9 +586,9 @@ public class ChangeLessonView extends LinearLayout {
                         break;
                 }
                 if (denominator.teacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", denominator.cabinet));
+                    cabinetTV.setText(denominator.cabinet);
                 else if (denominator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", denominator.teacher));
+                    cabinetTV.setText(denominator.teacher);
                 else
                     cabinetTV.setText(
                             String.format("%s, %s", denominator.cabinet, denominator.teacher));
