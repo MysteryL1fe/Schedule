@@ -35,8 +35,11 @@ public class MainActivity extends AppCompatActivity {
     private Button courseBtn, groupBtn, subgroupBtn, flowLvlBtn, contBtn;
     private SharedPreferences saves;
     private ActivityResultLauncher<Intent> newFlowActivity;
-    private final String[] flowLvlStr = new String[] {"Бакалавриат/Специалитет", "Магистратура",
-            "Аспирантура"};
+    private final String[] flowLvlStr = new String[] {
+            getString(R.string.flow_lvl_0),
+            getString(R.string.flow_lvl_1),
+            getString(R.string.flow_lvl_2)
+    };
     private ScheduleDBHelper dbHelper;
 
     @SuppressLint("Range")
@@ -168,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateCourseBtn() {
         if (course == 0) {
-            courseBtn.setText("Выберите курс");
+            courseBtn.setText(getString(R.string.choose_course));
         } else {
             courseBtn.setText(String.format("%s курс", course));
         }
@@ -176,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateGroupBtn() {
         if (group == 0) {
-            groupBtn.setText("Выберите группу");
+            groupBtn.setText(getString(R.string.choose_group));
         } else {
             groupBtn.setText(String.format("%s группа", group));
         }
@@ -184,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateSubgroupBtn() {
         if (subgroup == 0) {
-            subgroupBtn.setText("Выберите подгруппу");
+            subgroupBtn.setText(getString(R.string.choose_subgroup));
         } else {
             subgroupBtn.setText(String.format("%s подгруппа", subgroup));
         }
@@ -229,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             Context context = MainActivity.this;
             new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
-                    .setTitle("Выберите уровень образования")
+                    .setTitle(getString(R.string.choose_flow_lvl))
                     .setItems(flowLvlStr, new DialogInterfaceListener())
                     .show();
         }
@@ -283,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
             itemsList.add("...");
             items = itemsList.toArray(new String[0]);
             new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
-                    .setTitle("Выберите курс")
+                    .setTitle(getString(R.string.choose_course))
                     .setItems(items, new DialogInterfaceListener())
                     .show();
         }
@@ -344,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
                 itemsList.add("...");
                 items = itemsList.toArray(new String[0]);
                 new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
-                        .setTitle("Выберите группу")
+                        .setTitle(getString(R.string.choose_group))
                         .setItems(items, new DialogInterfaceListener())
                         .show();
             }
@@ -405,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
                 itemsList.add("...");
                 items = itemsList.toArray(new String[0]);
                 new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
-                        .setTitle("Выберите подгруппу")
+                        .setTitle(getString(R.string.choose_subgroup))
                         .setItems(items, new DialogInterfaceListener())
                         .show();
             }

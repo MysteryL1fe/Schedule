@@ -240,9 +240,9 @@ public class LessonView extends LinearLayout {
                         break;
                 }
                 if (lessonTeacher.isEmpty())
-                    cabinetTV.setText(String.format("%s", lessonCabinet));
+                    cabinetTV.setText(lessonCabinet);
                 else if (lessonCabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", lessonTeacher));
+                    cabinetTV.setText(lessonTeacher);
                 else
                     cabinetTV.setText(String.format("%s, %s", lessonCabinet, lessonTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
@@ -367,7 +367,7 @@ public class LessonView extends LinearLayout {
             if (isTempLesson || !willLessonBe) {
                 Button cancelTempLessonBtn = new Button(getContext());
                 cancelTempLessonBtn.setLayoutParams(paramsMatchWrap);
-                cancelTempLessonBtn.setText("Отменить");
+                cancelTempLessonBtn.setText(getResources().getString(R.string.cancel));
                 cancelTempLessonBtn.setOnClickListener(new CancelTempLessonBtnListener());
                 tempLessonLayout.addView(cancelTempLessonBtn);
 
@@ -387,7 +387,7 @@ public class LessonView extends LinearLayout {
             if (!lessonName.isEmpty() && willLessonBe && !isTempLesson) {
                 Button lessonWontBeBtn = new Button(getContext());
                 lessonWontBeBtn.setLayoutParams(paramsMatchWrap);
-                lessonWontBeBtn.setText("Пары не будет");
+                lessonWontBeBtn.setText(getResources().getString(R.string.lesson_wont_be));
                 lessonWontBeBtn.setOnClickListener(new LessonWontBeBtnListener());
                 tempLessonLayout.addView(lessonWontBeBtn);
 
@@ -406,7 +406,7 @@ public class LessonView extends LinearLayout {
 
             Button replaceLessonBtn = new Button(getContext());
             replaceLessonBtn.setLayoutParams(paramsMatchWrap);
-            replaceLessonBtn.setText("Заменить");
+            replaceLessonBtn.setText(getResources().getString(R.string.replace));
             replaceLessonBtn.setOnClickListener(new ReplaceLessonBtnListener());
             tempLessonLayout.addView(replaceLessonBtn);
 

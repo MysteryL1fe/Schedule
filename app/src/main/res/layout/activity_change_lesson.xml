@@ -17,7 +17,7 @@
             android:id="@+id/lessonNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Название пары"
+            android:hint="@string/lesson_name"
             android:inputType="textCapSentences" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -30,7 +30,7 @@
             android:id="@+id/cabinetEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Кабинет"
+            android:hint="@string/cabinet"
             android:inputType="textCapCharacters" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -43,7 +43,7 @@
             android:id="@+id/surnameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Фамилия преподавателя"
+            android:hint="@string/teacher_surname"
             android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -56,7 +56,7 @@
             android:id="@+id/teacherNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Имя преподавателя"
+            android:hint="@string/teacher_name"
             android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -69,7 +69,7 @@
             android:id="@+id/patronymicEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Отчество преподавателя"
+            android:hint="@string/teacher_patronymic"
             android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,7 +78,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
-        android:text="Числитель"
+        android:text="@string/numerator"
         android:textAlignment="viewStart"
         android:textSize="20sp" />
 
@@ -87,7 +87,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
-        android:text="Знаменатель"
+        android:text="@string/denominator"
         android:textAlignment="viewStart"
         android:textSize="20sp" />
 
@@ -102,7 +102,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="Отмена"
+            android:text="@string/cancel"
             android:textSize="20sp" />
 
         <Button
@@ -111,7 +111,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="Готово"
+            android:text="@string/ok"
             android:textSize="20sp" />
     </LinearLayout>
 </LinearLayout>
