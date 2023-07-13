@@ -154,11 +154,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void updateCountdownBeginningBtn() {
-        Calendar calendar = SettingsStorage.getCountdownBeginning(
-                getActivity().getSharedPreferences(
-                        SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
-                )
-        );
+        Calendar calendar = SettingsStorage.getCountdownBeginning();
         SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy");
         countdownBeginningBtn.setText(format.format(calendar.getTime()));
     }

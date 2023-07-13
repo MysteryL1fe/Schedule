@@ -87,8 +87,8 @@ public class Utils {
         return (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7 + 1;
     }
 
-    public static boolean isNumerator(int year, int month, int day, SharedPreferences saves) {
-        Calendar from = SettingsStorage.getCountdownBeginning(saves);
+    public static boolean isNumerator(int year, int month, int day) {
+        Calendar from = SettingsStorage.getCountdownBeginning();
         Calendar to = new GregorianCalendar(year, month - 1, day);
         long diff = Math.abs(to.getTime().getTime() - from.getTime().getTime());
         long daysBetween = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);

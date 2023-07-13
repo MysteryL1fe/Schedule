@@ -6,6 +6,8 @@ import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import com.example.schedule.Homework;
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
@@ -32,9 +34,9 @@ public class HomeworkView extends LinearLayout {
     }
 
     private void init(Homework homework) {
-        LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+        LayoutParams paramsMatchWrap = new LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
         );
         paramsMatchWrap.topMargin = 20;
         paramsMatchWrap.bottomMargin = 20;
@@ -42,15 +44,16 @@ public class HomeworkView extends LinearLayout {
         this.setLayoutParams(paramsMatchWrap);
         this.setGravity(Gravity.START);
         this.setOrientation(VERTICAL);
-        this.setBackground(getResources().getDrawable(R.drawable.lesson_background,
-                getContext().getTheme()));
+        this.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.lesson_background, getContext().getTheme()
+        ));
 
         paramsMatchWrap.leftMargin = 10;
         paramsMatchWrap.rightMargin = 10;
 
         MaterialDivider startDivider = new MaterialDivider(getContext());
-        startDivider.setBackground(getResources().getDrawable(
-                R.drawable.divider_color, getContext().getTheme()
+        startDivider.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.divider_color, getContext().getTheme()
         ));
         this.addView(startDivider);
 
@@ -85,8 +88,8 @@ public class HomeworkView extends LinearLayout {
         }
 
         MaterialDivider endDivider = new MaterialDivider(getContext());
-        endDivider.setBackground(getResources().getDrawable(
-                R.drawable.divider_color, getContext().getTheme()
+        endDivider.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.divider_color, getContext().getTheme()
         ));
         this.addView(endDivider);
     }

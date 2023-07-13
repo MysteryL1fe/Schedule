@@ -1,16 +1,26 @@
 package com.example.schedule;
 
-import java.util.Objects;
-
 public class LessonStruct {
-    public String name;
-    public String teacher;
-    public String cabinet;
+    public final String lessonName;
+    public final String cabinet;
+    public final String surname;
+    public final String teacherName;
+    public final String patronymic;
+    public final boolean willLessonBe;
 
-    public LessonStruct(String name, String teacher, String cabinet) {
-        this.name = name;
-        this.teacher = teacher;
+    public LessonStruct(String lessonName, String cabinet, String surname, String teacherName,
+                        String patronymic) {
+        this(lessonName, cabinet, surname, teacherName, patronymic, true);
+    }
+
+    public LessonStruct(String lessonName, String cabinet, String surname, String teacherName,
+                        String patronymic, boolean willLessonBe) {
+        this.lessonName = lessonName;
         this.cabinet = cabinet;
+        this.surname = surname;
+        this.teacherName = teacherName;
+        this.patronymic = patronymic;
+        this.willLessonBe = willLessonBe;
     }
 
     @Override
@@ -18,7 +28,9 @@ public class LessonStruct {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LessonStruct that = (LessonStruct) o;
-        return Objects.equals(name, that.name) && Objects.equals(teacher, that.teacher)
-                && Objects.equals(cabinet, that.cabinet);
+
+        return lessonName.equals(that.lessonName) && cabinet.equals(that.cabinet)
+                && surname.equals(that.surname) && teacherName.equals(that.teacherName)
+                && patronymic.equals(that.patronymic) && willLessonBe == that.willLessonBe;
     }
 }

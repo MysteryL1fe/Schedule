@@ -78,10 +78,7 @@ public class ScheduleFragment extends Fragment {
             month = calendar.get(Calendar.MONTH) + 1;
             year = calendar.get(Calendar.YEAR);
             dayOfWeek = Utils.getDayOfWeek(year, month, day);
-            isNumerator = Utils.isNumerator(
-                    year, month, day,
-                    getActivity().getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE)
-            );
+            isNumerator = Utils.isNumerator(year, month, day);
 
             for (int i = 0; i < 21; i++) {
                 LessonsView lessonsView = new LessonsView(lessonsContainer.getContext(), mFlowLvl,

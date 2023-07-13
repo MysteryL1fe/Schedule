@@ -104,11 +104,7 @@ public class TempScheduleFragment extends Fragment {
         int month = calendar.get(Calendar.MONTH) + 1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int dayOfWeek = Utils.getDayOfWeek(year, month, day);
-        boolean isNumerator = Utils.isNumerator(
-                year, month, day, getActivity().getSharedPreferences(
-                        SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
-                )
-        );
+        boolean isNumerator = Utils.isNumerator(year, month, day);
         for (int i = 1; i < 9; i++) {
             LessonView lessonView = new LessonView(
                     getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, day, month, year,

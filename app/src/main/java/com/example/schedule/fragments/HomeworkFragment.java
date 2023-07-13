@@ -56,11 +56,7 @@ public class HomeworkFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_homework, container, false);
         LinearLayout homeworkContainer = view.findViewById(R.id.homework_container);
         ArrayList<Homework> homeworks = new ScheduleDBHelper(getContext())
-                .getAllHomeworks(
-                        mFlowLvl, mCourse, mGroup, mSubgroup, getActivity().getSharedPreferences(
-                                SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
-                        )
-                );
+                .getAllHomeworks(mFlowLvl, mCourse, mGroup, mSubgroup);
         if (homeworks.isEmpty()) {
             TextView textView = new TextView(getContext());
             textView.setText("Домашних заданий нету");

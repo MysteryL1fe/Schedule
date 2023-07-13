@@ -69,7 +69,21 @@ public class SettingsStorage {
         editor.apply();
     }
 
-    public static Calendar getCountdownBeginning(SharedPreferences saves) {
+    public static Calendar getCountdownBeginning() {
+        return (Calendar) countdownBeginning.clone();
+    }
+
+    public static void setCountdownBeginning(Calendar countdownBeginning, SharedPreferences saves) {
+        while (countdownBeginning.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            countdownBeginning.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        SettingsStorage.countdownBeginning = countdownBeginning;
+        Editor editor = saves.edit();
+        editor.putString("countdownBeginning", gson.toJson(countdownBeginning, calendarType));
+        editor.apply();
+    }
+
+    public static void updateCountdownBeginning(SharedPreferences saves) {
         if (countdownBeginning == null) {
             countdownBeginning = gson.fromJson(
                     saves.getString("countdownBeginning", ""), calendarType
@@ -85,16 +99,5 @@ public class SettingsStorage {
                 editor.apply();
             }
         }
-        return countdownBeginning;
-    }
-
-    public static void setCountdownBeginning(Calendar countdownBeginning, SharedPreferences saves) {
-        while (countdownBeginning.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
-            countdownBeginning.add(Calendar.DAY_OF_MONTH, -1);
-        }
-        SettingsStorage.countdownBeginning = countdownBeginning;
-        Editor editor = saves.edit();
-        editor.putString("countdownBeginning", gson.toJson(countdownBeginning, calendarType));
-        editor.apply();
     }
 }

@@ -64,6 +64,30 @@ public class ChangeLessonView extends LinearLayout {
         );
         dbHelper.close();
 
+        String numeratorTeacher = "", denominatorTeacher = "";
+        if (numerator != null && numerator.surname != null && !numerator.surname.isEmpty()) {
+            numeratorTeacher = numerator.surname.substring(0, 1).toUpperCase()
+                    + numerator.surname.substring(1);
+            if (numerator.teacherName != null && !numerator.teacherName.isEmpty()) {
+                numeratorTeacher += " " + numerator.teacherName.substring(0, 1).toUpperCase() + ".";
+            }
+            if (numerator.patronymic != null && !numerator.patronymic.isEmpty()) {
+                numeratorTeacher += " " + numerator.patronymic.substring(0, 1).toUpperCase() + ".";
+            }
+        }
+        if (denominator != null && denominator.surname != null && !denominator.surname.isEmpty()) {
+            denominatorTeacher = denominator.surname.substring(0, 1).toUpperCase()
+                    + denominator.surname.substring(1);
+            if (denominator.teacherName != null && !denominator.teacherName.isEmpty()) {
+                denominatorTeacher += " " + denominator.teacherName.substring(0, 1).toUpperCase()
+                        + ".";
+            }
+            if (denominator.patronymic != null && !denominator.patronymic.isEmpty()) {
+                denominatorTeacher += " " + denominator.patronymic.substring(0, 1).toUpperCase()
+                        + ".";
+            }
+        }
+
         LayoutParams paramsMatchWrap = new LayoutParams(
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT
@@ -127,9 +151,9 @@ public class ChangeLessonView extends LinearLayout {
                 break;
         }
 
-        if (numerator != null && numerator.name != null && !numerator.name.isEmpty()
-                && denominator != null && denominator.name != null && !denominator.name.isEmpty()
-                && numerator.equals(denominator)) {
+        if (numerator != null && numerator.lessonName != null && !numerator.lessonName.isEmpty()
+                && denominator != null && denominator.lessonName != null &&
+                !denominator.lessonName.isEmpty() && numerator.equals(denominator)) {
             LinearLayout secondStroke = new LinearLayout(context);
             secondStroke.setLayoutParams(paramsMatchWrap);
             secondStroke.setOrientation(HORIZONTAL);
@@ -155,11 +179,11 @@ public class ChangeLessonView extends LinearLayout {
                     lessonTV.setTextSize(16.0f);
                     break;
             }
-            lessonTV.setText(numerator.name);
+            lessonTV.setText(numerator.lessonName);
             lessonTV.setPadding(50, 0, 0, 0);
             lessonData.addView(lessonTV);
 
-            if (!numerator.cabinet.isEmpty() || !numerator.teacher.isEmpty()) {
+            if (!numerator.cabinet.isEmpty() || !numeratorTeacher.isEmpty()) {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
@@ -174,13 +198,13 @@ public class ChangeLessonView extends LinearLayout {
                         cabinetTV.setTextSize(16.0f);
                         break;
                 }
-                if (numerator.teacher.isEmpty())
+                if (numeratorTeacher.isEmpty())
                     cabinetTV.setText(String.format("%s", numerator.cabinet));
                 else if (numerator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                    cabinetTV.setText(String.format("%s", numeratorTeacher));
                 else
                     cabinetTV.setText(
-                            String.format("%s, %s", numerator.cabinet, numerator.teacher));
+                            String.format("%s, %s", numerator.cabinet, numeratorTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
                 lessonData.addView(cabinetTV);
             }
@@ -215,8 +239,9 @@ public class ChangeLessonView extends LinearLayout {
                     new DeleteLessonBtnListener(true, true));
             changeRow.addView(deleteLessonBtn);
         }
-        else if (numerator != null && numerator.name != null && !numerator.name.isEmpty()
-                && denominator != null && denominator.name != null && !denominator.name.isEmpty()) {
+        else if (numerator != null && numerator.lessonName != null
+                && !numerator.lessonName.isEmpty() && denominator != null
+                && denominator.lessonName != null && !denominator.lessonName.isEmpty()) {
             LinearLayout secondStroke = new LinearLayout(context);
             secondStroke.setLayoutParams(paramsMatchWrap);
             secondStroke.setOrientation(HORIZONTAL);
@@ -242,11 +267,11 @@ public class ChangeLessonView extends LinearLayout {
                     numeratorLessonTV.setTextSize(16.0f);
                     break;
             }
-            numeratorLessonTV.setText(numerator.name);
+            numeratorLessonTV.setText(numerator.lessonName);
             numeratorLessonTV.setPadding(50, 0, 0, 0);
             numeratorLessonData.addView(numeratorLessonTV);
 
-            if (!numerator.cabinet.isEmpty() || !numerator.teacher.isEmpty()) {
+            if (!numerator.cabinet.isEmpty() || !numeratorTeacher.isEmpty()) {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
@@ -261,13 +286,13 @@ public class ChangeLessonView extends LinearLayout {
                         cabinetTV.setTextSize(16.0f);
                         break;
                 }
-                if (numerator.teacher.isEmpty())
+                if (numeratorTeacher.isEmpty())
                     cabinetTV.setText(String.format("%s", numerator.cabinet));
                 else if (numerator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                    cabinetTV.setText(String.format("%s", numeratorTeacher));
                 else
                     cabinetTV.setText(
-                            String.format("%s, %s", numerator.cabinet, numerator.teacher));
+                            String.format("%s, %s", numerator.cabinet, numeratorTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
                 numeratorLessonData.addView(cabinetTV);
             }
@@ -330,11 +355,11 @@ public class ChangeLessonView extends LinearLayout {
                     denominatorLessonTV.setTextSize(16.0f);
                     break;
             }
-            denominatorLessonTV.setText(denominator.name);
+            denominatorLessonTV.setText(denominator.lessonName);
             denominatorLessonTV.setPadding(50, 0, 0, 0);
             denominatorLessonData.addView(denominatorLessonTV);
 
-            if (!denominator.cabinet.isEmpty() || !denominator.teacher.isEmpty()) {
+            if (!denominator.cabinet.isEmpty() || !denominatorTeacher.isEmpty()) {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
@@ -349,13 +374,13 @@ public class ChangeLessonView extends LinearLayout {
                         cabinetTV.setTextSize(16.0f);
                         break;
                 }
-                if (denominator.teacher.isEmpty())
+                if (denominatorTeacher.isEmpty())
                     cabinetTV.setText(String.format("%s", denominator.cabinet));
                 else if (denominator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", denominator.teacher));
+                    cabinetTV.setText(String.format("%s", denominatorTeacher));
                 else
                     cabinetTV.setText(
-                            String.format("%s, %s", denominator.cabinet, denominator.teacher));
+                            String.format("%s, %s", denominator.cabinet, denominatorTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
                 denominatorLessonData.addView(cabinetTV);
             }
@@ -389,8 +414,8 @@ public class ChangeLessonView extends LinearLayout {
             denominatorDeleteLessonBtn.setOnClickListener(
                     new DeleteLessonBtnListener(false, true));
             denominatorChangeRow.addView(denominatorDeleteLessonBtn);
-        }
-        else if (numerator != null && numerator.name != null && !numerator.name.isEmpty()) {
+        } else if (numerator != null && numerator.lessonName != null
+                && !numerator.lessonName.isEmpty()) {
             LinearLayout secondStroke = new LinearLayout(context);
             secondStroke.setLayoutParams(paramsMatchWrap);
             secondStroke.setOrientation(HORIZONTAL);
@@ -416,11 +441,11 @@ public class ChangeLessonView extends LinearLayout {
                     numeratorLessonTV.setTextSize(16.0f);
                     break;
             }
-            numeratorLessonTV.setText(numerator.name);
+            numeratorLessonTV.setText(numerator.lessonName);
             numeratorLessonTV.setPadding(50, 0, 0, 0);
             numeratorLessonData.addView(numeratorLessonTV);
 
-            if (!numerator.cabinet.isEmpty() || !numerator.teacher.isEmpty()) {
+            if (!numerator.cabinet.isEmpty() || !numeratorTeacher.isEmpty()) {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
@@ -435,13 +460,13 @@ public class ChangeLessonView extends LinearLayout {
                         cabinetTV.setTextSize(16.0f);
                         break;
                 }
-                if (numerator.teacher.isEmpty())
+                if (numeratorTeacher.isEmpty())
                     cabinetTV.setText(String.format("%s", numerator.cabinet));
                 else if (numerator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", numerator.teacher));
+                    cabinetTV.setText(String.format("%s", numeratorTeacher));
                 else
                     cabinetTV.setText(
-                            String.format("%s, %s", numerator.cabinet, numerator.teacher));
+                            String.format("%s, %s", numerator.cabinet, numeratorTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
                 numeratorLessonData.addView(cabinetTV);
             }
@@ -507,8 +532,8 @@ public class ChangeLessonView extends LinearLayout {
             denominatorChangeLessonBtn.setOnClickListener(
                     new ChangeLessonBtnListener(false, true));
             denominatorChangeRow.addView(denominatorChangeLessonBtn);
-        }
-        else if (denominator != null && denominator.name != null && !denominator.name.isEmpty()) {
+        } else if (denominator != null && denominator.lessonName != null
+                && !denominator.lessonName.isEmpty()) {
             LinearLayout secondStroke = new LinearLayout(context);
             secondStroke.setLayoutParams(paramsMatchWrap);
             secondStroke.setOrientation(HORIZONTAL);
@@ -566,11 +591,11 @@ public class ChangeLessonView extends LinearLayout {
                     denominatorLessonTV.setTextSize(16.0f);
                     break;
             }
-            denominatorLessonTV.setText(denominator.name);
+            denominatorLessonTV.setText(denominator.lessonName);
             denominatorLessonTV.setPadding(50, 0, 0, 0);
             denominatorLessonData.addView(denominatorLessonTV);
 
-            if (!denominator.cabinet.isEmpty() || !denominator.teacher.isEmpty()) {
+            if (!denominator.cabinet.isEmpty() || !denominatorTeacher.isEmpty()) {
                 TextView cabinetTV = new TextView(context);
                 cabinetTV.setLayoutParams(paramsMatchWrap);
                 cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
@@ -585,13 +610,13 @@ public class ChangeLessonView extends LinearLayout {
                         cabinetTV.setTextSize(16.0f);
                         break;
                 }
-                if (denominator.teacher.isEmpty())
+                if (denominatorTeacher.isEmpty())
                     cabinetTV.setText(String.format("%s", denominator.cabinet));
                 else if (denominator.cabinet.isEmpty())
-                    cabinetTV.setText(String.format("%s", denominator.teacher));
+                    cabinetTV.setText(String.format("%s", denominatorTeacher));
                 else
                     cabinetTV.setText(
-                            String.format("%s, %s", denominator.cabinet, denominator.teacher));
+                            String.format("%s, %s", denominator.cabinet, denominatorTeacher));
                 cabinetTV.setPadding(50, 0, 0, 25);
                 denominatorLessonData.addView(cabinetTV);
             }
@@ -706,8 +731,8 @@ public class ChangeLessonView extends LinearLayout {
             intent.putExtra("isNumerator", isNumerator);
             intent.putExtra("isDenominator", isDenominator);
             intent.putExtra("lessonName", isNumerator && numerator != null ?
-                    numerator.name : isDenominator && denominator != null ?
-                    denominator.name : "");
+                    numerator.lessonName : isDenominator && denominator != null ?
+                    denominator.lessonName : "");
             intent.putExtra("cabinet", isNumerator && numerator != null ?
                     numerator.cabinet : isDenominator && denominator != null ?
                     denominator.cabinet : "");

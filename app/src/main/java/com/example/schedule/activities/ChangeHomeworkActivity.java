@@ -15,6 +15,7 @@ import com.example.schedule.SettingsStorage;
 public class ChangeHomeworkActivity extends AppCompatActivity {
     private EditText homeworkEditText;
     private int flowLvl, course, group, subgroup, year, month, day, lessonNum;
+    private String lessonName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,7 @@ public class ChangeHomeworkActivity extends AppCompatActivity {
         month = intent.getIntExtra("month", 0);
         day = intent.getIntExtra("day", 0);
         lessonNum = intent.getIntExtra("lessonNum", 0);
+        lessonName = intent.getStringExtra("lessonName");
         String homework = intent.getStringExtra("homework");
 
         homeworkEditText = findViewById(R.id.homeworkEditText);
@@ -74,7 +76,7 @@ public class ChangeHomeworkActivity extends AppCompatActivity {
                 return;
             ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeHomeworkActivity.this);
             dbHelper.addOrUpdateHomework(
-                    flowLvl, course, group, subgroup, year, month, day, lessonNum,
+                    flowLvl, course, group, subgroup, year, month, day, lessonNum, lessonName,
                     homeworkEditText.getText().toString()
             );
             finish();

@@ -24,6 +24,7 @@ import android.widget.Button;
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.Utils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
                 calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
+
+        SettingsStorage.updateCountdownBeginning(saves);
 
         int theme = SettingsStorage.getTheme(saves);
         switch (theme) {
@@ -548,13 +551,14 @@ public class MainActivity extends AppCompatActivity {
                 null, null, null);
         if (cursor.moveToFirst()) {
             do {
-                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
+                Log.w("Database", String.format("%s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s, %s - %s",
                         ScheduleDBHelper.KEY_ID, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_ID)),
                         ScheduleDBHelper.KEY_FLOW, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_FLOW)),
                         ScheduleDBHelper.KEY_YEAR, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_YEAR)),
                         ScheduleDBHelper.KEY_MONTH, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_MONTH)),
                         ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
                         ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM)),
+                        ScheduleDBHelper.KEY_LESSON_NAME, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NAME)),
                         ScheduleDBHelper.KEY_HOMEWORK, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_HOMEWORK))));
             } while (cursor.moveToNext());
         } else {
