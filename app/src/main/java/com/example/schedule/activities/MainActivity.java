@@ -36,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences saves;
     private ActivityResultLauncher<Intent> newFlowActivity;
     private final String[] flowLvlStr = new String[] {
-            getString(R.string.flow_lvl_0),
-            getString(R.string.flow_lvl_1),
-            getString(R.string.flow_lvl_2)
+            "Бакалавриат/Специалитет",
+            "Магистратура",
+            "Аспирантура"
     };
     private ScheduleDBHelper dbHelper;
 
@@ -561,8 +561,8 @@ public class MainActivity extends AppCompatActivity {
                         ScheduleDBHelper.KEY_MONTH, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_MONTH)),
                         ScheduleDBHelper.KEY_DAY, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_DAY)),
                         ScheduleDBHelper.KEY_LESSON_NUM, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NUM)),
-                        ScheduleDBHelper.KEY_LESSON_NAME, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NAME)),
-                        ScheduleDBHelper.KEY_HOMEWORK, cursor.getInt(cursor.getColumnIndex(ScheduleDBHelper.KEY_HOMEWORK))));
+                        ScheduleDBHelper.KEY_LESSON_NAME, cursor.getString(cursor.getColumnIndex(ScheduleDBHelper.KEY_LESSON_NAME)),
+                        ScheduleDBHelper.KEY_HOMEWORK, cursor.getString(cursor.getColumnIndex(ScheduleDBHelper.KEY_HOMEWORK))));
             } while (cursor.moveToNext());
         } else {
             Log.w("Database", "0 rows");
