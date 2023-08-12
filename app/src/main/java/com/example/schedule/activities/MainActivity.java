@@ -230,8 +230,7 @@ public class MainActivity extends AppCompatActivity {
     private class FlowLvlBtnListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Context context = MainActivity.this;
-            new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
+            new MaterialAlertDialogBuilder(MainActivity.this, R.style.Theme_Schedule_Dialog)
                     .setTitle(getString(R.string.choose_flow_lvl))
                     .setItems(flowLvlStr, new DialogInterfaceListener())
                     .show();
@@ -261,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("Range")
         @Override
         public void onClick(View v) {
-            Context context = MainActivity.this;
             ArrayList<String> itemsList = new ArrayList<>();
             SQLiteDatabase database = dbHelper.getReadableDatabase();
             String[] columns = new String[] {ScheduleDBHelper.KEY_COURSE};
@@ -285,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
             database.close();
             itemsList.add("...");
             items = itemsList.toArray(new String[0]);
-            new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
+            new MaterialAlertDialogBuilder(MainActivity.this, R.style.Theme_Schedule_Dialog)
                     .setTitle(getString(R.string.choose_course))
                     .setItems(items, new DialogInterfaceListener())
                     .show();
@@ -295,7 +293,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (items[which].equals("...")) {
-                    Intent intent = new Intent(MainActivity.this, NewFlowActivity.class);
+                    Intent intent = new Intent(
+                            MainActivity.this, NewFlowActivity.class
+                    );
                     intent.putExtra("flow", "course");
                     newFlowActivity.launch(intent);
                     return;
@@ -321,7 +321,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (course > 0) {
-                Context context = MainActivity.this;
                 ArrayList<String> itemsList = new ArrayList<>();
                 SQLiteDatabase database = dbHelper.getReadableDatabase();
                 String[] columns = new String[] {ScheduleDBHelper.KEY_GROUP};
@@ -346,7 +345,9 @@ public class MainActivity extends AppCompatActivity {
                 database.close();
                 itemsList.add("...");
                 items = itemsList.toArray(new String[0]);
-                new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
+                new MaterialAlertDialogBuilder(
+                        MainActivity.this, R.style.Theme_Schedule_Dialog
+                )
                         .setTitle(getString(R.string.choose_group))
                         .setItems(items, new DialogInterfaceListener())
                         .show();
@@ -357,7 +358,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (items[which].equals("...")) {
-                    Intent intent = new Intent(MainActivity.this, NewFlowActivity.class);
+                    Intent intent = new Intent(
+                            MainActivity.this, NewFlowActivity.class
+                    );
                     intent.putExtra("flow", "group");
                     newFlowActivity.launch(intent);
                     return;
@@ -381,7 +384,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (course > 0 && group > 0) {
-                Context context = MainActivity.this;
                 ArrayList<String> itemsList = new ArrayList<>();
                 SQLiteDatabase database = dbHelper.getReadableDatabase();
                 String[] columns = new String[] {ScheduleDBHelper.KEY_SUBGROUP};
@@ -407,7 +409,9 @@ public class MainActivity extends AppCompatActivity {
                 database.close();
                 itemsList.add("...");
                 items = itemsList.toArray(new String[0]);
-                new MaterialAlertDialogBuilder(context, R.style.Theme_Schedule_Dialog)
+                new MaterialAlertDialogBuilder(
+                        MainActivity.this, R.style.Theme_Schedule_Dialog
+                )
                         .setTitle(getString(R.string.choose_subgroup))
                         .setItems(items, new DialogInterfaceListener())
                         .show();
@@ -418,7 +422,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (items[which].equals("...")) {
-                    Intent intent = new Intent(MainActivity.this, NewFlowActivity.class);
+                    Intent intent = new Intent(
+                            MainActivity.this, NewFlowActivity.class
+                    );
                     intent.putExtra("flow", "subgroup");
                     newFlowActivity.launch(intent);
                     return;
@@ -458,19 +464,25 @@ public class MainActivity extends AppCompatActivity {
                                 updateCourseBtn();
                                 updateGroupBtn();
                                 updateSubgroupBtn();
-                                SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
+                                SettingsStorage.saveCurFlow(
+                                        flowLvl, course, group, subgroup, saves
+                                );
                                 break;
                             case "group":
                                 group = res;
                                 subgroup = 0;
                                 updateGroupBtn();
                                 updateSubgroupBtn();
-                                SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
+                                SettingsStorage.saveCurFlow(
+                                        flowLvl, course, group, subgroup, saves
+                                );
                                 break;
                             case "subgroup":
                                 subgroup = res;
                                 updateSubgroupBtn();
-                                SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
+                                SettingsStorage.saveCurFlow(
+                                        flowLvl, course, group, subgroup, saves
+                                );
                                 break;
                         }
                     }

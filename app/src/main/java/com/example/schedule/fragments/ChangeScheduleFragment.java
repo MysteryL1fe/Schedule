@@ -1,5 +1,6 @@
 package com.example.schedule.fragments;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -8,10 +9,15 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.example.schedule.R;
+import com.example.schedule.SettingsStorage;
+import com.example.schedule.Utils;
+import com.example.schedule.activities.MainActivity;
 import com.example.schedule.views.ChangeLessonsView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class ChangeScheduleFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
@@ -21,6 +27,8 @@ public class ChangeScheduleFragment extends Fragment {
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
 
     private LinearLayout lessonsContainer;
+    private Button dayOfWeekBtn;
+    private int dayOfWeek = 1;
 
     public ChangeScheduleFragment() {}
 
@@ -51,52 +59,83 @@ public class ChangeScheduleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_change_schedule, container, false);
-        lessonsContainer = view.findViewById(R.id.lessons_container);
+
+        lessonsContainer = view.findViewById(R.id.lessonsContainer);
+        dayOfWeekBtn = view.findViewById(R.id.dayOfWeekBtn);
+        dayOfWeekBtn.setOnClickListener(new DayOfWeekBtnListener());
+
+        switch (SettingsStorage.textSize) {
+            case 0:
+                dayOfWeekBtn.setTextSize(10.0f);
+                break;
+            case 1:
+                dayOfWeekBtn.setTextSize(20.0f);
+                break;
+            case 2:
+                dayOfWeekBtn.setTextSize(30.0f);
+                break;
+        }
 
         return view;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
+        updateFragment();
+    }
+
+    public void updateFragment() {
+        dayOfWeekBtn.setText(Utils.dayOfWeekToStr(dayOfWeek));
+
         LoadLessons loadLessons = new LoadLessons();
         loadLessons.execute();
     }
 
     private class LoadLessons extends AsyncTask<Void, Void, Void> {
-        private final ChangeLessonsView[] changeLessonsViews = new ChangeLessonsView[14];
+        private ChangeLessonsView changeLessonsView;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            lessonsContainer.removeAllViews();
+        }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            int dayOfWeek = 1;
-            boolean isNumerator = true;
-
-            for (int i = 0; i < 12; i++) {
-                ChangeLessonsView changeLessonsView = new ChangeLessonsView(
-                        lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
-                        dayOfWeek
-                );
-                changeLessonsViews[i] = changeLessonsView;
-                if (++dayOfWeek == 7) {
-                    dayOfWeek = 1;
-                    isNumerator = !isNumerator;
-                }
-            }
+            changeLessonsView = new ChangeLessonsView(
+                    lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
+                    dayOfWeek
+            );
             return null;
         }
 
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            lessonsContainer.removeAllViews();
-            for (int i = 0; i < 6; i++) {
-                lessonsContainer.addView(changeLessonsViews[i]);
+
+            lessonsContainer.addView(changeLessonsView);
+        }
+    }
+
+    private class DayOfWeekBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            new MaterialAlertDialogBuilder(
+                    getContext(), R.style.Theme_Schedule_Dialog
+            )
+                    .setTitle("Выберите день недели")
+                    .setItems(Utils.daysOfWeekNames, new DialogInterfaceListener())
+                    .show();
+        }
+
+        private class DialogInterfaceListener implements DialogInterface.OnClickListener {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dayOfWeek = which + 1;
+                updateFragment();
             }
         }
     }

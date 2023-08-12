@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/background"
-    tools:context=".fragments.ChangeScheduleFragment" >
+    android:orientation="vertical"
+    tools:context=".fragments.ChangeScheduleFragment">
+
+    <Button
+        android:id="@+id/dayOfWeekBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="25dp"
+        android:textSize="20sp" />
 
     <LinearLayout
-        android:id="@+id/lessons_container"
+        android:id="@+id/lessonsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" />
-</ScrollView>
+</LinearLayout>

@@ -8,10 +8,10 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
-    private static final String[] daysOfWeekNames = new String[] {
+    public static final String[] daysOfWeekNames = new String[] {
             "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"
     };
-    private static final String[] monthsNames = new String[] {
+    public static final String[] monthsNames = new String[] {
             "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября",
             "Октября", "Ноября", "Декабря"
     };

@@ -78,21 +78,6 @@ public class ChangeLessonsView extends LinearLayout {
             ChangeLessonsView.this.setLayoutParams(thisParams);
             ChangeLessonsView.this.removeAllViews();
 
-            TextView textView = new TextView(ChangeLessonsView.this.getContext());
-            textView.setText(String.format("%s", Utils.dayOfWeekToStr(dayOfWeek)));
-            switch (SettingsStorage.textSize) {
-                case 0:
-                    textView.setTextSize(10.0f);
-                    break;
-                case 2:
-                    textView.setTextSize(30.0f);
-                    break;
-                default:
-                    textView.setTextSize(20.0f);
-                    break;
-            }
-            ChangeLessonsView.this.addView(textView);
-
             MaterialDivider firstDivider = new MaterialDivider(getContext());
             firstDivider.setBackground(getResources().getDrawable(
                     R.drawable.divider_color, getContext().getTheme()

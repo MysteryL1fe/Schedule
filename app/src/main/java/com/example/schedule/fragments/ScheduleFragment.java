@@ -59,7 +59,7 @@ public class ScheduleFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 
-        lessonsContainer = view.findViewById(R.id.lessons_container);
+        lessonsContainer = view.findViewById(R.id.lessonsContainer);
 
         return view;
     }
