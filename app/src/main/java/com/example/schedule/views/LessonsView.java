@@ -1,12 +1,13 @@
 package com.example.schedule.views;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
@@ -16,10 +17,7 @@ import com.google.android.material.divider.MaterialDivider;
 import java.util.Calendar;
 
 public class LessonsView extends LinearLayout {
-    private final LessonView[] lessonViews = new LessonView[8];
-    private int flowLvl, course, group, subgroup, dayOfWeek, day, month, year;
-    private boolean isNumerator, hasTimerView = false;
-    private TimerView timerView;
+    private boolean shouldShow;
 
     public LessonsView(Context context) {
         super(context);
@@ -33,164 +31,89 @@ public class LessonsView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public LessonsView(Context context, int flowLvl, int course, int group, int subgroup, int day,
-                       int month, int year, int dayOfWeek, boolean isNumerator) {
+    public LessonsView(Context context, int flowLvl, int course, int group, int subgroup,
+                       int year, int month, int day) {
         super(context);
-        init(flowLvl, course, group, subgroup, day, month, year, dayOfWeek, isNumerator);
+        init(flowLvl, course, group, subgroup, year, month, day);
     }
 
-    public void init(int flowLvl, int course, int group, int subgroup, int day, int month, int year,
-                     int dayOfWeek, boolean isNumerator) {
-        this.flowLvl = flowLvl;
-        this.course = course;
-        this.group = group;
-        this.subgroup = subgroup;
-        this.dayOfWeek = dayOfWeek;
-        this.day = day;
-        this.month = month;
-        this.year = year;
-        this.isNumerator = isNumerator;
-        LoadLessons loadLessons = new LoadLessons();
-        loadLessons.execute();
-    }
+    public void init(int flowLvl, int course, int group, int subgroup,
+                     int year, int month, int day) {
 
-    public void addTimer() {
-        int lessonNum = Utils.getLesson();
-        if (lessonNum >= 0) {
-            lessonViews[lessonNum].addTimer(this);
-        } else if (lessonNum > -9) {
-            timerView = new TimerView(
-                    getContext(), Utils.getTimeToNextLesson(), this, this
-            );
-            this.addView(timerView, Math.abs(lessonNum + 1) * 2 + 1);
-        } else {
-            timerView = new TimerView(
-                    getContext(), Utils.getTimeToNextLesson(), this, this
-            );
-            this.addView(timerView, 1);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        LinearLayout.LayoutParams thisParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        thisParams.bottomMargin = 25;
+
+        this.setOrientation(VERTICAL);
+        this.setPadding(5, 15, 5, 15);
+        this.setLayoutParams(thisParams);
+        this.removeAllViews();
+
+        int dayOfWeek = Utils.getDayOfWeek(year, month, day);
+        boolean isNumerator = Utils.isNumerator(year, month, day);
+        boolean isDisplayModeFull = SettingsStorage.displayModeFull;
+        shouldShow = isDisplayModeFull;
+
+        TextView textView = new TextView(LessonsView.this.getContext());
+        textView.setText(String.format("%s, %s %s %s", Utils.dayOfWeekToStr(dayOfWeek),
+                day, Utils.monthToStr(month), year));
+        switch (SettingsStorage.textSize) {
+            case 0:
+                textView.setTextSize(10.0f);
+                break;
+            case 2:
+                textView.setTextSize(30.0f);
+                break;
+            default:
+                textView.setTextSize(20.0f);
         }
-        hasTimerView = true;
-    }
+        LessonsView.this.addView(textView);
 
-    public void updateTimer() {
-        if (timerView != null) removeView(timerView);
-        hasTimerView = false;
-        int lessonNum = Utils.getLesson();
-        if (lessonNum >= 0) {
-            lessonViews[lessonNum].addTimer(this);
-        } else if (lessonNum > -9) {
-            timerView = new TimerView(
-                    getContext(), Utils.getTimeToNextLesson(), this, this
+        MaterialDivider firstDivider = new MaterialDivider(getContext());
+        firstDivider.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.divider_color, getResources().newTheme()
+        ));
+        LessonsView.this.addView(firstDivider);
+
+        for (int i = 1; i < 9; i++) {
+            LessonView lessonView = new LessonView(
+                    getContext(), flowLvl, course, group, subgroup, year, month, day,
+                    dayOfWeek, isNumerator, i
             );
-            this.addView(timerView, Math.abs(lessonNum) * 2);
-            hasTimerView = true;
-        } else {
-            Calendar calendar = Calendar.getInstance();
-            if (calendar.get(Calendar.DAY_OF_MONTH) + 1 == day) {
-                addTimer();
-                hasTimerView = true;
-            }
-            else {
-                ViewGroup parent = (ViewGroup) getParent();
-                ((LessonsView) parent.getChildAt(1)).addTimer();
-            }
-        }
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (timerView != null)
-            removeView(timerView);
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        ViewGroup parent;
-        if (hasWindowFocus && !hasTimerView && this.getChildCount() > 0
-                && ((parent = (ViewGroup) this.getParent())
-                .indexOfChild(this) == 0 && Utils.getLesson() > -9
-                || parent.indexOfChild(this) == 1 && Utils.getLesson() == -9))
-            addTimer();
-        else if (!hasWindowFocus) {
-            hasTimerView = false;
-            if (timerView != null) {
-                removeView(timerView);
-            }
-        }
-    }
-
-    private class LoadLessons extends AsyncTask<Void, Void, Void> {
-        @SuppressLint("Range")
-        @Override
-        protected Void doInBackground(Void... voids) {
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            for (int i = 1; i < 9; i++) {
-                LessonView lessonView = new LessonView(
-                        getContext(), flowLvl, course, group, subgroup, day, month, year,
-                        dayOfWeek, isNumerator, i, false
-                );
+            if (isDisplayModeFull || lessonView.isShouldShow()) {
                 lessonView.setLayoutParams(params);
-                lessonViews[i - 1] = lessonView;
-            }
-            return null;
-        }
+                shouldShow = true;
 
-        @SuppressLint("UseCompatLoadingForDrawables")
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-
-            LinearLayout.LayoutParams thisParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            thisParams.bottomMargin = 25;
-
-            LessonsView.this.setOrientation(VERTICAL);
-            LessonsView.this.setPadding(5, 15, 5, 15);
-            LessonsView.this.setLayoutParams(thisParams);
-            LessonsView.this.removeAllViews();
-
-            TextView textView = new TextView(LessonsView.this.getContext());
-            textView.setText(String.format("%s, %s %s %s", Utils.dayOfWeekToStr(dayOfWeek),
-                    day, Utils.monthToStr(month), year));
-            switch (SettingsStorage.textSize) {
-                case 0:
-                    textView.setTextSize(10.0f);
-                    break;
-                case 2:
-                    textView.setTextSize(30.0f);
-                    break;
-                default:
-                    textView.setTextSize(20.0f);
-            }
-            LessonsView.this.addView(textView);
-
-            MaterialDivider firstDivider = new MaterialDivider(getContext());
-            firstDivider.setBackground(getResources().getDrawable(
-                    R.drawable.divider_color, getContext().getTheme()
-            ));
-            LessonsView.this.addView(firstDivider);
-
-            for (int i = 0; i < 8; i++) {
-                LessonsView.this.addView(lessonViews[i]);
+                LessonsView.this.addView(lessonView);
                 MaterialDivider divider = new MaterialDivider(getContext());
-                divider.setBackground(getResources().getDrawable(
-                        R.drawable.divider_color, getContext().getTheme()
+                divider.setBackground(ResourcesCompat.getDrawable(
+                        getResources(), R.drawable.divider_color, getContext().getTheme()
                 ));
                 LessonsView.this.addView(divider);
             }
-
-            ViewGroup parent;
-            if (((parent = (ViewGroup) LessonsView.this.getParent())
-                    .indexOfChild(LessonsView.this) == 0 && Utils.getLesson() > -9
-                    || parent.indexOfChild(LessonsView.this) == 1 && Utils.getLesson() == -9))
-                addTimer();
         }
+    }
+
+    public boolean addTimer(Calendar curTime) {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof LessonView) {
+                LessonView lessonView = (LessonView) child;
+                if (lessonView.addTimer(curTime)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isShouldShow() {
+        return shouldShow;
     }
 }

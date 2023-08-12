@@ -585,7 +585,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase database = getReadableDatabase();
         String[] columns = new String[] {
-                KEY_YEAR, KEY_MONTH, KEY_DAY, KEY_LESSON_NUM, KEY_HOMEWORK
+                KEY_YEAR, KEY_MONTH, KEY_DAY, KEY_LESSON_NUM, KEY_HOMEWORK, KEY_LESSON_NAME
         };
         String selection = String.format("%s = %s", KEY_FLOW, flowId);
         Cursor cursor = database.query(
@@ -599,10 +599,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
                 int day = cursor.getInt(cursor.getColumnIndex(KEY_DAY));
                 int lessonNum = cursor.getInt(cursor.getColumnIndex(KEY_LESSON_NUM));
                 String homework = cursor.getString(cursor.getColumnIndex(KEY_HOMEWORK));
-                int dayOfWeek = Utils.getDayOfWeek(year, month, day);
-                boolean isNumerator = Utils.isNumerator(year, month, day);
-                String lessonName = getLesson(flowLvl, course, group, subgroup, dayOfWeek,
-                        lessonNum, isNumerator).lessonName;
+                String lessonName = cursor.getString(cursor.getColumnIndex(KEY_LESSON_NAME));
                 result.add(new Homework(year, month, day, lessonNum, homework, lessonName));
             } while (cursor.moveToNext());
         }

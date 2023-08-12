@@ -24,7 +24,6 @@ import android.widget.Button;
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.Utils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -65,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         SettingsStorage.updateCountdownBeginning(saves);
+        SettingsStorage.updateDisplayMode(saves);
 
         int theme = SettingsStorage.getTheme(saves);
         switch (theme) {

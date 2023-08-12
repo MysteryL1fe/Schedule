@@ -3,8 +3,10 @@ package com.example.schedule.views;
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,14 +15,13 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.activities.ScheduleActivity;
 import com.google.android.material.divider.MaterialDivider;
 
 public class TimerView extends LinearLayout {
-    private LessonsView lessonsView;
     private ImageView imageView;
     private TextView timerTV;
     private CountDownTimer timer;
-    private ViewGroup parent;
 
     public TimerView(Context context) {
         super(context);
@@ -34,14 +35,12 @@ public class TimerView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public TimerView(Context context, int timerSeconds, LessonsView lessonsView, ViewGroup parent) {
+    public TimerView(Context context, long timerSeconds) {
         super(context);
-        this.lessonsView = lessonsView;
-        this.parent = parent;
         init(timerSeconds);
     }
 
-    public void init(int timerSeconds) {
+    public void init(long timerSeconds) {
         LayoutParams params = new LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -55,14 +54,18 @@ public class TimerView extends LinearLayout {
         imageParams.gravity = Gravity.CENTER;
         imageParams.rightMargin = 25;
 
+        this.setOrientation(HORIZONTAL);
         this.setGravity(Gravity.CENTER_HORIZONTAL);
         this.setBackground(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.lesson_background, getContext().getTheme()
         ));
 
+        timerSeconds++;
+
         imageView = new ImageView(getContext());
         imageView.setImageResource(R.drawable.red_circle);
         imageView.setLayoutParams(imageParams);
+        this.addView(imageView);
 
         timerTV = new TextView(getContext());
         timerTV.setText(String.format("%s", timerSeconds));
@@ -78,39 +81,10 @@ public class TimerView extends LinearLayout {
                 break;
         }
         timerTV.setLayoutParams(params);
-
-        if (parent.getClass() == LessonsView.class) {
-            this.setOrientation(VERTICAL);
-
-            MaterialDivider divider = new MaterialDivider(getContext());
-            divider.setBackground(ResourcesCompat.getDrawable(
-                    getResources(), R.drawable.divider_color, getContext().getTheme()
-            ));
-            this.addView(divider);
-
-            LinearLayout timerLayout = new LinearLayout(getContext());
-            timerLayout.setOrientation(HORIZONTAL);
-            timerLayout.setGravity(Gravity.CENTER);
-            this.addView(timerLayout);
-
-            timerLayout.addView(imageView);
-            timerLayout.addView(timerTV);
-        } else {
-            this.setOrientation(HORIZONTAL);
-            this.addView(imageView);
-            this.addView(timerTV);
-        }
+        this.addView(timerTV);
 
         timer = new Timer(timerSeconds * 1000L, 1000);
         timer.start();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        if (!hasWindowFocus) {
-            timer.cancel();
-        }
     }
 
     @Override
@@ -120,14 +94,6 @@ public class TimerView extends LinearLayout {
     }
 
     private class Timer extends CountDownTimer {
-
-        /**
-         * @param millisInFuture    The number of millis in the future from the call
-         *                          to {@link #start()} until the countdown is done and {@link #onFinish()}
-         *                          is called.
-         * @param countDownInterval The interval along the way to receive
-         *                          {@link #onTick(long)} callbacks.
-         */
         public Timer(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
         }
@@ -148,8 +114,15 @@ public class TimerView extends LinearLayout {
 
         @Override
         public void onFinish() {
-            lessonsView.updateTimer();
-            parent.removeView(TimerView.this);
+            ViewParent parent = getParent();
+            while (parent != null && !(parent instanceof LessonView)) {
+                parent = parent.getParent();
+            }
+            if (parent != null) {
+                ((LessonView) parent).removeTimer();
+            }
+            Context context = getContext();
+            if (context instanceof ScheduleActivity) ((ScheduleActivity) context).updateTimer();
             cancel();
         }
     }

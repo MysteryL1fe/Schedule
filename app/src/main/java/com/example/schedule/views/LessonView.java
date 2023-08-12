@@ -22,14 +22,24 @@ import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.example.schedule.activities.ChangeHomeworkActivity;
 import com.example.schedule.activities.ChangeLessonActivity;
+import com.example.schedule.activities.ScheduleActivity;
+import com.example.schedule.fragments.NewHomeworkFragment;
+import com.example.schedule.fragments.ScheduleFragment;
+import com.example.schedule.fragments.TempScheduleFragment;
 import com.google.android.material.divider.MaterialDivider;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class LessonView extends LinearLayout {
     private LinearLayout firstStroke;
     private TimerView timerView;
     private int flowLvl, course, group, subgroup, day, month, year, lessonNum, dayOfWeek;
-    private boolean isNumerator, isTempView, willLessonBe = true;
+    private boolean isNumerator, isTempView, isHomeworkView, isTempLesson, willLessonBe = true;
+    private boolean shouldShow, isTimerViewBefore;
     private String lessonName, homework;
+    private TempScheduleFragment tempScheduleFragment;
+    private NewHomeworkFragment newHomeworkFragment;
 
     public LessonView(Context context) {
         super(context);
@@ -43,19 +53,41 @@ public class LessonView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public LessonView(Context context, int flowLvl, int course, int group, int subgroup, int day,
-                      int month, int year, int dayOfWeek, boolean isNumerator, int lessonNum,
-                      boolean isTempView) {
+    public LessonView(Context context, int flowLvl, int course, int group, int subgroup, int year,
+                      int month, int day, int dayOfWeek, boolean isNumerator, int lessonNum) {
         super(context);
         init(
-                flowLvl, course, group, subgroup, day, month, year, dayOfWeek, isNumerator,
-                lessonNum, isTempView
+                flowLvl, course, group, subgroup, year, month, day, dayOfWeek, isNumerator,
+                lessonNum
         );
     }
 
-    private void init(int flowLvl, int course, int group, int subgroup, int day, int month,
-                      int year, int dayOfWeek, boolean isNumerator, int lessonNum,
-                      boolean isTempView) {
+    public LessonView(Context context, int flowLvl, int course, int group, int subgroup, int year,
+                      int month, int day, int dayOfWeek, boolean isNumerator, int lessonNum,
+                      TempScheduleFragment tempScheduleFragment) {
+        super(context);
+        this.isTempView = true;
+        this.tempScheduleFragment = tempScheduleFragment;
+        init(
+                flowLvl, course, group, subgroup, year, month, day, dayOfWeek, isNumerator,
+                lessonNum
+        );
+    }
+
+    public LessonView(Context context, int flowLvl, int course, int group, int subgroup, int year,
+                      int month, int day, int dayOfWeek, boolean isNumerator, int lessonNum,
+                      NewHomeworkFragment newHomeworkFragment) {
+        super(context);
+        this.isHomeworkView = true;
+        this.newHomeworkFragment = newHomeworkFragment;
+        init(
+                flowLvl, course, group, subgroup, year, month, day, dayOfWeek, isNumerator,
+                lessonNum
+        );
+    }
+
+    private void init(int flowLvl, int course, int group, int subgroup, int year, int month,
+                      int day, int dayOfWeek, boolean isNumerator, int lessonNum) {
         LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -75,15 +107,16 @@ public class LessonView extends LinearLayout {
         this.course = course;
         this.group = group;
         this.subgroup = subgroup;
-        this.day = day;
-        this.month = month;
         this.year = year;
+        this.month = month;
+        this.day = day;
         this.dayOfWeek = dayOfWeek;
         this.lessonNum = lessonNum;
         this.isNumerator = isNumerator;
-        this.isTempView = isTempView;
-        boolean isTempLesson = false;
+        this.isTempLesson = false;
         this.willLessonBe = true;
+
+        shouldShow = SettingsStorage.displayModeFull;
 
         ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
 
@@ -106,6 +139,7 @@ public class LessonView extends LinearLayout {
                     lessonTeacher += " " + lesson.patronymic.substring(0, 1).toUpperCase() + ".";
                 }
             }
+            shouldShow = true;
         }
 
         LessonStruct tempLesson = dbHelper.getTempLesson(
@@ -125,8 +159,10 @@ public class LessonView extends LinearLayout {
                 }
             }
             isTempLesson = true;
+            shouldShow = true;
         } else if (tempLesson != null) {
             willLessonBe = false;
+            shouldShow = true;
         }
 
         Homework homework = dbHelper.getHomework(
@@ -194,13 +230,13 @@ public class LessonView extends LinearLayout {
                 break;
         }
 
-        if (!lessonName.isEmpty()) {
-            LinearLayout secondStroke = new LinearLayout(getContext());
-            secondStroke.setLayoutParams(paramsMatchWrap);
-            secondStroke.setOrientation(HORIZONTAL);
-            secondStroke.setPadding(0, 10, 0, 10);
-            this.addView(secondStroke);
+        LinearLayout secondStroke = new LinearLayout(getContext());
+        secondStroke.setLayoutParams(paramsMatchWrap);
+        secondStroke.setOrientation(HORIZONTAL);
+        secondStroke.setPadding(0, 10, 0, 10);
+        this.addView(secondStroke);
 
+        if (!lessonName.isEmpty()) {
             LinearLayout lessonData = new LinearLayout(getContext());
             lessonData.setLayoutParams(paramsMatchWrap);
             lessonData.setOrientation(VERTICAL);
@@ -248,107 +284,113 @@ public class LessonView extends LinearLayout {
                 cabinetTV.setPadding(50, 0, 0, 25);
                 lessonData.addView(cabinetTV);
             }
+        }
 
-            if (homework == null && willLessonBe && !isTempLesson && !isTempView) {
-                LinearLayout changeRow = new LinearLayout(getContext());
-                changeRow.setLayoutParams(paramsWrapWrap);
-                changeRow.setOrientation(HORIZONTAL);
-                changeRow.setPadding(25, 0, 0, 0);
-                secondStroke.addView(changeRow);
+        if (homework == null && isHomeworkView) {
+            LinearLayout changeRow = new LinearLayout(getContext());
+            changeRow.setLayoutParams(paramsWrapWrap);
+            changeRow.setOrientation(HORIZONTAL);
+            changeRow.setPadding(25, 0, 0, 0);
+            secondStroke.addView(changeRow);
 
-                ImageButton changeHomeworkBtn = new ImageButton(getContext());
-                changeHomeworkBtn.setLayoutParams(paramsHomeworkButtons);
-                changeHomeworkBtn.setImageDrawable(ContextCompat.getDrawable(
-                        getContext(), R.drawable.ic_homework
-                ));
-                changeHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
-                        getResources(), R.drawable.secondary_color, getContext().getTheme()
-                ));
-                changeHomeworkBtn.setPadding(10, 10, 10, 10);
-                changeHomeworkBtn.setOnClickListener(new ChangeHomeworkBtnListener());
-                changeRow.addView(changeHomeworkBtn);
-            } else if (willLessonBe && !isTempLesson && !isTempView) {
-                MaterialDivider divider = new MaterialDivider(getContext());
-                divider.setBackground(ResourcesCompat.getDrawable(
-                        getResources(), R.drawable.divider_color, getContext().getTheme()
-                ));
-                this.addView(divider);
+            ImageButton changeHomeworkBtn = new ImageButton(getContext());
+            changeHomeworkBtn.setLayoutParams(paramsHomeworkButtons);
+            changeHomeworkBtn.setImageDrawable(ContextCompat.getDrawable(
+                    getContext(), R.drawable.ic_homework
+            ));
+            changeHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.secondary_color, getContext().getTheme()
+            ));
+            changeHomeworkBtn.setPadding(10, 10, 10, 10);
+            changeHomeworkBtn.setOnClickListener(new ChangeHomeworkBtnListener());
+            changeRow.addView(changeHomeworkBtn);
+        } else if (isHomeworkView) {
+            MaterialDivider divider = new MaterialDivider(getContext());
+            divider.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.divider_color, getContext().getTheme()
+            ));
+            this.addView(divider);
 
-                LinearLayout thirdStroke = new LinearLayout(getContext());
-                thirdStroke.setLayoutParams(paramsMatchWrap);
-                thirdStroke.setOrientation(HORIZONTAL);
-                thirdStroke.setPadding(25, 0, 0, 0);
-                this.addView(thirdStroke);
+            LinearLayout thirdStroke = new LinearLayout(getContext());
+            thirdStroke.setLayoutParams(paramsMatchWrap);
+            thirdStroke.setOrientation(HORIZONTAL);
+            thirdStroke.setPadding(25, 0, 0, 0);
+            this.addView(thirdStroke);
 
-                TextView homeworkTV = new TextView(getContext());
-                homeworkTV.setLayoutParams(paramsMatchWrap);
-                homeworkTV.setText(homework.homework);
-                thirdStroke.addView(homeworkTV);
+            TextView homeworkTV = new TextView(getContext());
+            homeworkTV.setLayoutParams(paramsMatchWrap);
+            homeworkTV.setText(String.format(
+                    "Домашнее задание, %s:\n%s", homework.lessonName, homework.homework
+            ));
+            thirdStroke.addView(homeworkTV);
 
-                switch (SettingsStorage.textSize) {
-                    case 0:
-                        homeworkTV.setTextSize(7.0f);
-                        break;
-                    case 2:
-                        homeworkTV.setTextSize(21.0f);
-                        break;
-                    default:
-                        homeworkTV.setTextSize(14.0f);
-                        break;
-                }
+            switch (SettingsStorage.textSize) {
+                case 0:
+                    homeworkTV.setTextSize(7.0f);
+                    break;
+                case 2:
+                    homeworkTV.setTextSize(21.0f);
+                    break;
+                default:
+                    homeworkTV.setTextSize(14.0f);
+                    break;
+            }
 
-                ImageButton changeHomeworkBtn = new ImageButton(getContext());
-                changeHomeworkBtn.setLayoutParams(paramsHomeworkButtons);
-                changeHomeworkBtn.setImageDrawable(ResourcesCompat.getDrawable(
-                        getResources(), R.drawable.ic_homework, getContext().getTheme()
-                ));
-                changeHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
-                        getResources(), R.drawable.secondary_color, getContext().getTheme()
-                ));
-                changeHomeworkBtn.setPadding(10, 10, 10, 10);
-                changeHomeworkBtn.setOnClickListener(new ChangeHomeworkBtnListener());
-                thirdStroke.addView(changeHomeworkBtn);
+            ImageButton changeHomeworkBtn = new ImageButton(getContext());
+            changeHomeworkBtn.setLayoutParams(paramsHomeworkButtons);
+            changeHomeworkBtn.setImageDrawable(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.ic_homework, getContext().getTheme()
+            ));
+            changeHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.secondary_color, getContext().getTheme()
+            ));
+            changeHomeworkBtn.setPadding(10, 10, 10, 10);
+            changeHomeworkBtn.setOnClickListener(new ChangeHomeworkBtnListener());
+            thirdStroke.addView(changeHomeworkBtn);
 
-                ImageButton deleteHomeworkBtn = new ImageButton(getContext());
-                deleteHomeworkBtn.setLayoutParams(paramsHomeworkButtons);
-                deleteHomeworkBtn.setImageDrawable(ResourcesCompat.getDrawable(
-                        getResources(), R.drawable.ic_thrash, getContext().getTheme()
-                ));
-                deleteHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
-                        getResources(), R.drawable.secondary_color, getContext().getTheme()
-                ));
-                deleteHomeworkBtn.setPadding(10, 10, 10, 10);
-                deleteHomeworkBtn.setOnClickListener(new DeleteHomeworkBtnListener());
-                thirdStroke.addView(deleteHomeworkBtn);
-            } else if (homework != null && !isTempView) {
-                MaterialDivider divider = new MaterialDivider(getContext());
-                divider.setBackground(ResourcesCompat.getDrawable(
-                        getResources(), R.drawable.divider_color, getContext().getTheme()
-                ));
-                this.addView(divider);
+            ImageButton deleteHomeworkBtn = new ImageButton(getContext());
+            deleteHomeworkBtn.setLayoutParams(paramsHomeworkButtons);
+            deleteHomeworkBtn.setImageDrawable(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.ic_thrash, getContext().getTheme()
+            ));
+            deleteHomeworkBtn.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.secondary_color, getContext().getTheme()
+            ));
+            deleteHomeworkBtn.setPadding(10, 10, 10, 10);
+            deleteHomeworkBtn.setOnClickListener(new DeleteHomeworkBtnListener());
+            thirdStroke.addView(deleteHomeworkBtn);
+        } else if (homework != null && !isTempView) {
+            shouldShow = true;
 
-                LinearLayout thirdStroke = new LinearLayout(getContext());
-                thirdStroke.setLayoutParams(paramsMatchWrap);
-                thirdStroke.setOrientation(HORIZONTAL);
-                thirdStroke.setPadding(25, 0, 0, 0);
-                this.addView(thirdStroke);
+            MaterialDivider divider = new MaterialDivider(getContext());
+            divider.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.divider_color, getContext().getTheme()
+            ));
+            this.addView(divider);
 
-                TextView homeworkTV = new TextView(getContext());
-                homeworkTV.setLayoutParams(paramsMatchWrap);
-                homeworkTV.setText(String.format("%s:\n%s", homework.lessonName, homework.homework));
-                thirdStroke.addView(homeworkTV);
+            LinearLayout thirdStroke = new LinearLayout(getContext());
+            thirdStroke.setLayoutParams(paramsMatchWrap);
+            thirdStroke.setOrientation(HORIZONTAL);
+            thirdStroke.setPadding(25, 0, 0, 0);
+            this.addView(thirdStroke);
 
-                switch (SettingsStorage.textSize) {
-                    case 0:
-                        homeworkTV.setTextSize(7.0f);
-                        break;
-                    case 2:
-                        homeworkTV.setTextSize(21.0f);
-                        break;
-                    default:
-                        homeworkTV.setTextSize(14.0f);
-                        break;
-                }
+            TextView homeworkTV = new TextView(getContext());
+            homeworkTV.setLayoutParams(paramsMatchWrap);
+            homeworkTV.setText(String.format(
+                    "Домашнее задание, %s:\n%s", homework.lessonName, homework.homework
+            ));
+            thirdStroke.addView(homeworkTV);
+
+            switch (SettingsStorage.textSize) {
+                case 0:
+                    homeworkTV.setTextSize(7.0f);
+                    break;
+                case 2:
+                    homeworkTV.setTextSize(21.0f);
+                    break;
+                default:
+                    homeworkTV.setTextSize(14.0f);
+                    break;
             }
         }
 
@@ -430,26 +472,86 @@ public class LessonView extends LinearLayout {
         }
     }
 
-    public void addTimer(LessonsView lessonsView) {
-        LayoutParams params = new LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT,
-                1.0f
-        );
+    public boolean addTimer(Calendar curTime) {
+        if (lessonName.isEmpty()) return false;
 
-        timerView = new TimerView(
-                getContext(), Utils.getTimeToNextLesson(), lessonsView, firstStroke
+        int hourLessonBegin = Utils.getLessonBeginningHour(lessonNum);
+        int minuteLessonBegin = Utils.getLessonBeginningMinute(lessonNum);
+        Calendar lessonBegin = new GregorianCalendar(
+                year, month - 1, day, hourLessonBegin, minuteLessonBegin
         );
-        timerView.setLayoutParams(params);
-        timerView.setGravity(Gravity.END);
-        firstStroke.addView(timerView, willLessonBe ? 1 : 2);
+        if (lessonBegin.after(curTime)) {
+            LayoutParams params = new LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.WRAP_CONTENT,
+                    1.0f
+            );
+
+            timerView = new TimerView(
+                    getContext(),
+                    (lessonBegin.getTime().getTime() - curTime.getTime().getTime()) / 1000
+            );
+            timerView.setLayoutParams(params);
+            timerView.setGravity(Gravity.CENTER);
+            this.addView(timerView, 0);
+
+            MaterialDivider divider = new MaterialDivider(getContext());
+            divider.setBackground(ResourcesCompat.getDrawable(
+                    getResources(), R.drawable.divider_color, getContext().getTheme()
+            ));
+            this.addView(divider, 1);
+
+            isTimerViewBefore = true;
+
+            return true;
+        }
+
+        int hourLessonEnd = Utils.getLessonEndingHour(lessonNum);
+        int minuteLessonEnd = Utils.getLessonEndingMinute(lessonNum);
+        Calendar lessonEnd = new GregorianCalendar(
+                year, month - 1, day, hourLessonEnd, minuteLessonEnd
+        );
+        if (lessonEnd.after(curTime)) {
+            LayoutParams params = new LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.WRAP_CONTENT,
+                    1.0f
+            );
+
+            timerView = new TimerView(
+                    getContext(),
+                    (lessonEnd.getTime().getTime() - curTime.getTime().getTime()) / 1000
+            );
+            timerView.setLayoutParams(params);
+            timerView.setGravity(Gravity.END);
+            firstStroke.addView(timerView, willLessonBe && !isTempLesson ? 1 : 2);
+
+            isTimerViewBefore = false;
+
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isShouldShow() {
+        return shouldShow;
+    }
+
+    public void removeTimer() {
+        if (timerView != null && isTimerViewBefore) {
+            LessonView.this.removeViewAt(0);
+            LessonView.this.removeViewAt(0);
+            timerView = null;
+        } else if (timerView != null) {
+            firstStroke.removeView(timerView);
+            timerView = null;
+        }
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        if (!hasWindowFocus && timerView != null)
-            firstStroke.removeView(timerView);
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        removeTimer();
     }
 
     private class ChangeHomeworkBtnListener implements OnClickListener {
@@ -476,11 +578,17 @@ public class LessonView extends LinearLayout {
             new ScheduleDBHelper(getContext()).deleteHomework(
                     flowLvl, course, group, subgroup, year, month, day, lessonNum
             );
+            homework = "";
+            boolean updateTimer = timerView != null;
             LessonView.this.removeAllViews();
             init(
                     flowLvl, course, group, subgroup, day, month, year, dayOfWeek,
-                    isNumerator, lessonNum, isTempView
+                    isNumerator, lessonNum
             );
+            Context context = getContext();
+            if (updateTimer && context instanceof ScheduleActivity) {
+                ((ScheduleActivity) context).updateTimer();
+            }
         }
     }
 
@@ -490,11 +598,7 @@ public class LessonView extends LinearLayout {
             new ScheduleDBHelper(getContext()).deleteTempSchedule(
                     flowLvl, course, group, subgroup, year, month, day, lessonNum
             );
-            LessonView.this.removeAllViews();
-            init(
-                    flowLvl, course, group, subgroup, day, month, year, dayOfWeek, isNumerator,
-                    lessonNum, isTempView
-            );
+            tempScheduleFragment.updateFragment();
         }
     }
 
@@ -504,11 +608,7 @@ public class LessonView extends LinearLayout {
             new ScheduleDBHelper(getContext()).setLessonWontBe(
                     flowLvl, course, group, subgroup, year, month, day, lessonNum
             );
-            LessonView.this.removeAllViews();
-            init(
-                    flowLvl, course, group, subgroup, day, month, year, dayOfWeek, isNumerator,
-                    lessonNum, isTempView
-            );
+            tempScheduleFragment.updateFragment();
         }
     }
 

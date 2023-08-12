@@ -1,6 +1,5 @@
 package com.example.schedule.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +15,7 @@ import com.example.schedule.Homework;
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.activities.ScheduleActivity;
 import com.example.schedule.views.HomeworkView;
 
 import java.util.ArrayList;
@@ -54,7 +55,23 @@ public class HomeworkFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_homework, container, false);
-        LinearLayout homeworkContainer = view.findViewById(R.id.homework_container);
+
+        Button newHomeworkBtn = view.findViewById(R.id.newHomeworkBtn);
+        newHomeworkBtn.setOnClickListener(new NewHomeworkBtnListener());
+
+        switch (SettingsStorage.textSize) {
+            case 0:
+                newHomeworkBtn.setTextSize(10.0f);
+                break;
+            case 2:
+                newHomeworkBtn.setTextSize(30.0f);
+                break;
+            default:
+                newHomeworkBtn.setTextSize(20.0f);
+                break;
+        }
+
+        LinearLayout homeworkContainer = view.findViewById(R.id.homeworkContainer);
         ArrayList<Homework> homeworks = new ScheduleDBHelper(getContext())
                 .getAllHomeworks(mFlowLvl, mCourse, mGroup, mSubgroup);
         if (homeworks.isEmpty()) {
@@ -64,21 +81,30 @@ public class HomeworkFragment extends Fragment {
             homeworkContainer.addView(textView);
             switch (SettingsStorage.textSize) {
                 case 0:
-                    textView.setTextSize(9.0f);
+                    textView.setTextSize(12.0f);
                     break;
                 case 2:
-                    textView.setTextSize(27.0f);
+                    textView.setTextSize(36.0f);
                     break;
                 default:
-                    textView.setTextSize(18.0f);
+                    textView.setTextSize(24.0f);
                     break;
             }
         } else {
             for (Homework homework : homeworks) {
-                homeworkContainer.addView(new HomeworkView(getContext(), homework));
+                homeworkContainer.addView(new HomeworkView(
+                        getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, homework
+                ));
             }
         }
 
         return view;
+    }
+
+    private class NewHomeworkBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            ((ScheduleActivity) getActivity()).setNewHomeworkFragment();
+        }
     }
 }

@@ -1,8 +1,11 @@
 package com.example.schedule.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -10,11 +13,15 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.example.schedule.Homework;
 import com.example.schedule.R;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
+import com.example.schedule.activities.ChangeHomeworkActivity;
 import com.google.android.material.divider.MaterialDivider;
 
 public class HomeworkView extends LinearLayout {
+    private int flowLvl, course, group, subgroup;
+    private Homework homework;
 
     public HomeworkView(Context context) {
         super(context);
@@ -28,15 +35,23 @@ public class HomeworkView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public HomeworkView(Context context, Homework homework) {
+    public HomeworkView(Context context, int flowLvl, int course, int group, int subgroup,
+                        Homework homework) {
         super(context);
-        init(homework);
+        init(flowLvl, course, group, subgroup, homework);
     }
 
-    private void init(Homework homework) {
+    private void init(int flowLvl, int course, int group, int subgroup, Homework homework) {
+        this.flowLvl = flowLvl;
+        this.course = course;
+        this.group = group;
+        this.subgroup = subgroup;
+        this.homework = homework;
+
         LayoutParams paramsMatchWrap = new LayoutParams(
                 LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT
+                LayoutParams.WRAP_CONTENT,
+                1
         );
         paramsMatchWrap.topMargin = 20;
         paramsMatchWrap.bottomMargin = 20;
@@ -72,6 +87,33 @@ public class HomeworkView extends LinearLayout {
         homeworkTV.setText(homework.homework);
         this.addView(homeworkTV);
 
+        MaterialDivider divider = new MaterialDivider(getContext());
+        divider.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.divider_color, getContext().getTheme()
+        ));
+        this.addView(divider);
+
+        /*LinearLayout btnLayout = new LinearLayout(getContext());
+        btnLayout.setOrientation(HORIZONTAL);
+        btnLayout.setLayoutParams(paramsMatchWrap);
+        this.addView(btnLayout);
+
+        Button deleteBtn = new Button(getContext());
+        deleteBtn.setText(R.string.delete);
+        deleteBtn.setLayoutParams(paramsMatchWrap);
+        deleteBtn.setGravity(Gravity.CENTER);
+        deleteBtn.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        deleteBtn.setOnClickListener(new DeleteBtnListener());
+        btnLayout.addView(deleteBtn);
+
+        Button changeBtn = new Button(getContext());
+        changeBtn.setText(R.string.change);
+        changeBtn.setLayoutParams(paramsMatchWrap);
+        changeBtn.setGravity(Gravity.CENTER);
+        changeBtn.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        changeBtn.setOnClickListener(new ChangeBtnListener());
+        btnLayout.addView(changeBtn);*/
+
         switch (SettingsStorage.textSize) {
             case 0:
                 dayTV.setTextSize(8.0f);
@@ -87,10 +129,39 @@ public class HomeworkView extends LinearLayout {
                 break;
         }
 
-        MaterialDivider endDivider = new MaterialDivider(getContext());
+        /*MaterialDivider endDivider = new MaterialDivider(getContext());
         endDivider.setBackground(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.divider_color, getContext().getTheme()
         ));
-        this.addView(endDivider);
+        this.addView(endDivider);*/
     }
+
+    /*private class DeleteBtnListener implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            new ScheduleDBHelper(getContext()).deleteHomework(
+                    flowLvl, course, group, subgroup,
+                    homework.year, homework.month, homework.day, homework.lessonNum
+            );
+            ((LinearLayout) HomeworkView.this.getParent()).removeView(HomeworkView.this);
+        }
+    }
+
+    private class ChangeBtnListener implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getContext(), ChangeHomeworkActivity.class);
+            intent.putExtra("flowLvl", flowLvl);
+            intent.putExtra("course", course);
+            intent.putExtra("group", group);
+            intent.putExtra("subgroup", subgroup);
+            intent.putExtra("year", homework.year);
+            intent.putExtra("month", homework.month);
+            intent.putExtra("day", homework.day);
+            intent.putExtra("lessonNum", homework.lessonNum);
+            intent.putExtra("lessonName", homework.lessonName);
+            intent.putExtra("homework", homework.homework);
+            getContext().startActivity(intent);
+        }
+    }*/
 }

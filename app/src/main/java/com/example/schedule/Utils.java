@@ -1,10 +1,6 @@
 package com.example.schedule;
 
-import android.content.SharedPreferences;
-
-import androidx.annotation.NonNull;
-
-import org.jetbrains.annotations.Contract;
+import androidx.annotation.IntRange;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -12,74 +8,53 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
-    private static final String[] daysOfWeekNames = new String[] {"Понедельник", "Вторник", "Среда",
-            "Четверг", "Пятница", "Суббота", "Воскресенье"};
-    private static final String[] monthsNames = new String[] {"Января", "Февраля", "Марта",
-            "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"};
+    private static final String[] daysOfWeekNames = new String[] {
+            "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"
+    };
+    private static final String[] monthsNames = new String[] {
+            "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября",
+            "Октября", "Ноября", "Декабря"
+    };
+    private static final int[] lessonBeginningHours = new int[] {
+            8, 9, 11, 13, 15, 16, 18, 20
+    };
+    private static final int[] lessonBeginningMinutes = new int[] {
+            0, 45, 30, 25, 10, 55, 40, 10
+    };
+    private static final int[] lessonEndingHours = new int[] {
+            9, 11, 13, 15, 16, 18, 20, 21
+    };
+    private static final int[] lessonEndingMinutes = new int[] {
+            35, 20, 5, 0, 45, 30, 0, 30
+    };
 
-    @NonNull
-    @Contract(pure = true)
-    public static String getTimeByLesson(int lesson) {
-        switch (lesson) {
-            case 1:
-                return "8:00 - 9:35";
-            case 2:
-                return "9:45 - 11:20";
-            case 3:
-                return "11:30 - 13:05";
-            case 4:
-                return "13:25 - 15:00";
-            case 5:
-                return "15:10 - 16:45";
-            case 6:
-                return "16:55 - 18:30";
-            case 7:
-                return "18:40 - 20:00";
-            case 8:
-                return "20:10 - 21:30";
-            default:
-                return "";
-        }
+    public static String getTimeByLesson(@IntRange(from = 1, to = 8) int lessonNum) {
+        if (lessonNum < 1 || lessonNum > 8) return "";
+        return String.format(
+                "%s:%2s-%s:%2s", lessonBeginningHours[lessonNum - 1],
+                lessonBeginningMinutes[lessonNum - 1], lessonEndingHours[lessonNum - 1],
+                lessonEndingMinutes[lessonNum - 1]
+        ).replace(' ', '0').replace("-", " - ");
     }
 
-    private static int getEndLessonTime(int lesson) {
-        if (lesson > 7 || lesson < -9) return 0;
-        switch (lesson) {
-            case 0:
-                return 575 * 60;
-            case 1:
-                return 680 * 60;
-            case 2:
-                return 785 * 60;
-            case 3:
-                return 900 * 60;
-            case 4:
-                return 1005 * 60;
-            case 5:
-                return 1110 * 60;
-            case 6:
-                return 1200 * 60;
-            case 7:
-                return 1290 * 60;
-            case -1:
-                return 480 * 60;
-            case -2:
-                return 585 * 60;
-            case -3:
-                return 690 * 60;
-            case -4:
-                return 805 * 60;
-            case -5:
-                return 910 * 60;
-            case -6:
-                return 1015 * 60;
-            case -7:
-                return 1120 * 60;
-            case -8:
-                return 1210 * 60;
-            default:
-                return 1440 * 60;
-        }
+    public static int getLessonBeginningHour(@IntRange(from = 1, to = 8) int lessonNum) {
+        if (lessonNum < 1 || lessonNum > 8) return -1;
+        return lessonBeginningHours[lessonNum - 1];
+    }
+
+    public static int getLessonBeginningMinute(@IntRange(from = 1, to = 8) int lessonNum) {
+        if (lessonNum < 1 || lessonNum > 8) return -1;
+        return lessonBeginningMinutes[lessonNum - 1];
+    }
+
+    public static int getLessonEndingHour(@IntRange(from = 1, to = 8) int lessonNum) {
+        if (lessonNum < 1 || lessonNum > 8) return -1;
+        return lessonEndingHours[lessonNum - 1];
+    }
+
+    public static int getLessonEndingMinute(@IntRange(from = 1, to = 8) int lessonNum) {
+        if (lessonNum < 1 || lessonNum > 8) return -1;
+        return lessonEndingMinutes[lessonNum - 1];
     }
 
     public static int getDayOfWeek(int year, int month, int day) {
@@ -95,11 +70,11 @@ public class Utils {
         return daysBetween / 7 % 2 == 0;
     }
 
-    public static String dayOfWeekToStr(int dayOfWeek) {
+    public static String dayOfWeekToStr(@IntRange(from = 1, to = 7) int dayOfWeek) {
         return dayOfWeek < 1 || dayOfWeek > 7 ? "" : daysOfWeekNames[dayOfWeek - 1];
     }
 
-    public static String monthToStr(int month) {
+    public static String monthToStr(@IntRange(from = 1, to = 12) int month) {
         return month < 1 || month > 12 ? "" : monthsNames[month - 1];
     }
 
@@ -110,56 +85,5 @@ public class Utils {
             sb.append((char) ('a' + Math.abs(random.nextInt()) % 26));
         }
         return sb.toString();
-    }
-
-    public static int getLesson() {
-        Calendar calendar = Calendar.getInstance();
-        int time = calendar.get(Calendar.HOUR_OF_DAY) * 3600 + calendar.get(Calendar.MINUTE) * 60
-                + calendar.get(Calendar.SECOND);
-        if (time < 28800) {
-            return -1;
-        } else if (time <= 34500) {
-            return 0;
-        } else if (time <= 35100) {
-            return -2;
-        } else if (time <= 40800) {
-            return 1;
-        } else if (time <= 41400) {
-            return -3;
-        } else if (time <= 47100) {
-            return 2;
-        } else if (time <= 48300) {
-            return -4;
-        } else if (time <= 54000) {
-            return 3;
-        } else if (time <= 54600) {
-            return -5;
-        } else if (time <= 60300) {
-            return 4;
-        } else if (time <= 60900) {
-            return -6;
-        } else if (time <= 66600) {
-            return 5;
-        } else if (time <= 67200) {
-            return -7;
-        } else if (time <= 72000) {
-            return 6;
-        } else if (time <= 72600) {
-            return -8;
-        } else if (time <= 77400) {
-            return 7;
-        } else return -9;
-    }
-
-    public static int getTimeToNextLesson() {
-        int lesson = getLesson();
-        Calendar calendar = Calendar.getInstance();
-        if (lesson > -9) return getEndLessonTime(lesson) -
-                calendar.get(Calendar.HOUR_OF_DAY) * 3600 -
-                calendar.get(Calendar.MINUTE) * 60 - calendar.get(Calendar.SECOND) + 1;
-        else return getEndLessonTime(lesson)
-                - calendar.get(Calendar.HOUR_OF_DAY) * 3600
-                - calendar.get(Calendar.MINUTE) * 60 - calendar.get(Calendar.SECOND)
-                + getEndLessonTime(-1) + 1;
     }
 }

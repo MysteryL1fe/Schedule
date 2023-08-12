@@ -3,10 +3,12 @@ package com.example.schedule.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -14,6 +16,7 @@ import com.example.schedule.SettingsStorage;
 import com.example.schedule.fragments.ChangeScheduleFragment;
 import com.example.schedule.R;
 import com.example.schedule.fragments.HomeworkFragment;
+import com.example.schedule.fragments.NewHomeworkFragment;
 import com.example.schedule.fragments.ScheduleFragment;
 import com.example.schedule.fragments.SettingsFragment;
 import com.example.schedule.fragments.TempScheduleFragment;
@@ -49,17 +52,14 @@ public class ScheduleActivity extends AppCompatActivity {
         updateTextSize();
 
         fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                ScheduleFragment.newInstance(flowLvl, course, group, subgroup)).commit();
-        navView.setCheckedItem(R.id.nav_schedule);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        fragmentManager.beginTransaction().replace(R.id.fragment_view,
-                ScheduleFragment.newInstance(flowLvl, course, group, subgroup)).commit();
-        navView.setCheckedItem(R.id.nav_schedule);
+        if (savedInstanceState == null) {
+            fragmentManager.beginTransaction().replace(
+                    R.id.fragment_view,
+                    ScheduleFragment.newInstance(flowLvl, course, group, subgroup)
+            ).commit();
+            navView.setCheckedItem(R.id.nav_schedule);
+        }
     }
 
     public void updateTextSize() {
@@ -88,20 +88,18 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
-    public int getFlowLvl() {
-        return flowLvl;
+    public void updateTimer() {
+        for (Fragment fragment : fragmentManager.getFragments()) {
+            if (fragment instanceof ScheduleFragment) ((ScheduleFragment) fragment).addTimer();
+        }
     }
 
-    public int getCourse() {
-        return course;
-    }
-
-    public int getGroup() {
-        return group;
-    }
-
-    public int getSubgroup() {
-        return subgroup;
+    public void setNewHomeworkFragment() {
+        fragmentManager.beginTransaction().replace(
+                R.id.fragment_view,
+                NewHomeworkFragment.newInstance(flowLvl, course, group, subgroup)
+        ).commit();
+        navView.setCheckedItem(R.id.nav_homework);
     }
 
     private class DrawerLayoutListener implements View.OnClickListener {
@@ -118,7 +116,6 @@ public class ScheduleActivity extends AppCompatActivity {
                 drawerLayout.close();
                 return false;
             }
-            navView.setCheckedItem(item);
             drawerLayout.close();
             switch (item.getItemId()) {
                 case R.id.nav_schedule:

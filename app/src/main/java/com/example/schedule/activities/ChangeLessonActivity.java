@@ -140,6 +140,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
                         teacherNameEditText.getText().toString(),
                         patronymicEditText.getText().toString()
                 );
+
             } else {
                 if (isNumeratorCheckBox.isChecked()) {
                     dbHelper.addOrUpdateSchedule(

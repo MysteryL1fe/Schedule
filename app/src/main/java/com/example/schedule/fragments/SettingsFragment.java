@@ -24,10 +24,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
@@ -49,8 +51,9 @@ public class SettingsFragment extends Fragment {
     private ActivityResultLauncher<Intent> fileChooserActivity;
     private ActivityResultLauncher<String> requestReadPermissionLauncher;
     private ActivityResultLauncher<String> requestWritePermissionLauncher;
-    private TextView fontSizeTV, countdownBeginningTV;
+    private TextView fontSizeTV, countdownBeginningTV, displayModeTV;
     private Button chooseThemeBtn, chooseFlowBtn, importBtn, exportBtn, countdownBeginningBtn;
+    private ToggleButton displayModeToggleBtn;
 
     public SettingsFragment() {}
 
@@ -100,12 +103,14 @@ public class SettingsFragment extends Fragment {
 
         fontSizeTV = view.findViewById(R.id.fontSizeTV);
         countdownBeginningTV = view.findViewById(R.id.countdownBeginningTV);
+        displayModeTV = view.findViewById(R.id.displayModeTV);
         chooseThemeBtn = view.findViewById(R.id.chooseThemeBtn);
         chooseFlowBtn = view.findViewById(R.id.chooseFlowBtn);
         importBtn = view.findViewById(R.id.importBtn);
         exportBtn = view.findViewById(R.id.exportBtn);
         countdownBeginningBtn = view.findViewById(R.id.countdownBeginningBtn);
         SeekBar seekBar = view.findViewById(R.id.textSizeSeekBar);
+        displayModeToggleBtn = view.findViewById(R.id.displayModeToggleBtn);
 
         chooseThemeBtn.setOnClickListener(new ChooseThemeBtnListener());
         chooseFlowBtn.setOnClickListener(new ChooseFlowBtnListener());
@@ -114,7 +119,9 @@ public class SettingsFragment extends Fragment {
         countdownBeginningBtn.setOnClickListener(new CountdownBeginningBtnListener());
         seekBar.setOnSeekBarChangeListener(new TextSizeSeekBarListener());
         seekBar.setProgress(SettingsStorage.textSize);
+        displayModeToggleBtn.setOnCheckedChangeListener(new DisplayModeToggleBtnListener());
 
+        displayModeToggleBtn.setChecked(SettingsStorage.displayModeFull);
         updateCountdownBeginningBtn();
         updateScreen();
 
@@ -126,29 +133,35 @@ public class SettingsFragment extends Fragment {
             case 0:
                 fontSizeTV.setTextSize(12.0f);
                 countdownBeginningTV.setTextSize(12.0f);
+                displayModeTV.setTextSize(12.0f);
                 chooseThemeBtn.setTextSize(10.0f);
                 chooseFlowBtn.setTextSize(10.0f);
                 importBtn.setTextSize(10.0f);
                 exportBtn.setTextSize(10.0f);
                 countdownBeginningBtn.setTextSize(10.0f);
-                break;
-            case 1:
-                fontSizeTV.setTextSize(24.0f);
-                countdownBeginningTV.setTextSize(24.0f);
-                chooseThemeBtn.setTextSize(20.0f);
-                chooseFlowBtn.setTextSize(20.0f);
-                importBtn.setTextSize(20.0f);
-                exportBtn.setTextSize(20.0f);
-                countdownBeginningBtn.setTextSize(20.0f);
+                displayModeToggleBtn.setTextSize(10.0f);
                 break;
             case 2:
                 fontSizeTV.setTextSize(36.0f);
                 countdownBeginningTV.setTextSize(36.0f);
+                displayModeTV.setTextSize(36.0f);
                 chooseThemeBtn.setTextSize(30.0f);
                 chooseFlowBtn.setTextSize(30.0f);
                 importBtn.setTextSize(30.0f);
                 exportBtn.setTextSize(30.0f);
                 countdownBeginningBtn.setTextSize(30.0f);
+                displayModeToggleBtn.setTextSize(30.0f);
+                break;
+            default:
+                fontSizeTV.setTextSize(24.0f);
+                countdownBeginningTV.setTextSize(24.0f);
+                displayModeTV.setTextSize(24.0f);
+                chooseThemeBtn.setTextSize(20.0f);
+                chooseFlowBtn.setTextSize(20.0f);
+                importBtn.setTextSize(20.0f);
+                exportBtn.setTextSize(20.0f);
+                countdownBeginningBtn.setTextSize(20.0f);
+                displayModeToggleBtn.setTextSize(20.0f);
                 break;
         }
     }
@@ -323,6 +336,15 @@ public class SettingsFragment extends Fragment {
                     )
             );
             updateCountdownBeginningBtn();
+        }
+    }
+
+    private class DisplayModeToggleBtnListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            SettingsStorage.saveDisplayMode(isChecked, getActivity().getSharedPreferences(
+                    SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
+            ));
         }
     }
 }

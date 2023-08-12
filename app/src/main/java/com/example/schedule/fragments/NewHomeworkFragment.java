@@ -1,7 +1,6 @@
 package com.example.schedule.fragments;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -23,22 +22,22 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class TempScheduleFragment extends Fragment {
+public class NewHomeworkFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
     private static final String ARG_COURSE = "course";
     private static final String ARG_GROUP = "group";
     private static final String ARG_SUBGROUP = "subgroup";
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
 
-    private LinearLayout tempLessonContainer;
+    private LinearLayout homeworkLessonContainer;
     private Button chooseDayBtn;
     private Calendar calendar = Calendar.getInstance();
 
-    public TempScheduleFragment() {}
+    public NewHomeworkFragment() {}
 
-    public static TempScheduleFragment newInstance(int flowLvl, int course, int group,
-                                                   int subgroup) {
-        TempScheduleFragment fragment = new TempScheduleFragment();
+    public static NewHomeworkFragment newInstance(int flowLvl, int course, int group,
+                                                  int subgroup) {
+        NewHomeworkFragment fragment = new NewHomeworkFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_FLOW_LVL, flowLvl);
         args.putInt(ARG_COURSE, course);
@@ -62,11 +61,11 @@ public class TempScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_temp_schedule, container, false);
+        View view = inflater.inflate(R.layout.fragment_new_homework, container, false);
 
         calendar = Calendar.getInstance();
 
-        tempLessonContainer = view.findViewById(R.id.tempLessonContainer);
+        homeworkLessonContainer = view.findViewById(R.id.homeworkLessonContainer);
         TextView chooseDayTV = view.findViewById(R.id.chooseDayTV);
         chooseDayBtn = view.findViewById(R.id.chooseDayBtn);
 
@@ -100,14 +99,14 @@ public class TempScheduleFragment extends Fragment {
 
     public void updateFragment() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
         );
         params.setMargins(0, 20, 0, 20);
         SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy");
         chooseDayBtn.setText(format.format(calendar.getTime()));
 
-        tempLessonContainer.removeAllViews();
+        homeworkLessonContainer.removeAllViews();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -119,7 +118,7 @@ public class TempScheduleFragment extends Fragment {
                     dayOfWeek, isNumerator, i, this
             );
             lessonView.setLayoutParams(params);
-            tempLessonContainer.addView(lessonView);
+            homeworkLessonContainer.addView(lessonView);
         }
     }
 

@@ -1,35 +1,37 @@
 package com.example.schedule.fragments;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.Utils;
 import com.example.schedule.views.LessonsView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ScheduleFragment extends Fragment {
-
     private static final String ARG_FLOW_LVL = "flowLvl";
     private static final String ARG_COURSE = "course";
     private static final String ARG_GROUP = "group";
     private static final String ARG_SUBGROUP = "subgroup";
     private int mFlowLvl = 0, mCourse = 0, mGroup = 0, mSubgroup = 0;
 
+    private final ArrayList<LessonsView> lessonsViews = new ArrayList<>();
     private LinearLayout lessonsContainer;
+    private boolean lessonsLoaded = false;
 
     public ScheduleFragment() {}
+
     public static ScheduleFragment newInstance(int flowLvl, int course, int group, int subgroup) {
         ScheduleFragment fragment = new ScheduleFragment();
         Bundle args = new Bundle();
@@ -59,50 +61,96 @@ public class ScheduleFragment extends Fragment {
 
         lessonsContainer = view.findViewById(R.id.lessons_container);
 
-        LoadLessons loadLessons = new LoadLessons();
-        loadLessons.execute();
-
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        LoadLessons loadLessons = new LoadLessons();
+        loadLessons.execute();
+    }
+
+    public void addTimer() {
+        if (lessonsLoaded) {
+            Calendar curTime = Calendar.getInstance();
+            for (LessonsView lessonsView : lessonsViews) {
+                if (lessonsView.addTimer(curTime)) {
+                    break;
+                }
+            }
+        }
+    }
+
     private class LoadLessons extends AsyncTask<Void, Void, Void> {
-        private final LessonsView[] lessonsViews = new LessonsView[21];
+        private TextView emptyLessonsViews;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            lessonsLoaded = false;
+            lessonsViews.clear();
+            lessonsContainer.removeAllViews();
+        }
 
         @Override
         protected Void doInBackground(Void... voids) {
             Calendar calendar = Calendar.getInstance();
-            int day, month, year, dayOfWeek;
-            boolean isNumerator;
+            int year, month, day;
 
-            day = calendar.get(Calendar.DAY_OF_MONTH);
-            month = calendar.get(Calendar.MONTH) + 1;
             year = calendar.get(Calendar.YEAR);
-            dayOfWeek = Utils.getDayOfWeek(year, month, day);
-            isNumerator = Utils.isNumerator(year, month, day);
+            month = calendar.get(Calendar.MONTH) + 1;
+            day = calendar.get(Calendar.DAY_OF_MONTH);
 
-            for (int i = 0; i < 21; i++) {
-                LessonsView lessonsView = new LessonsView(lessonsContainer.getContext(), mFlowLvl,
-                        mCourse, mGroup, mSubgroup, day, month, year, dayOfWeek, isNumerator);
-                lessonsViews[i] = lessonsView;
+            for (int i = 0; i < 31; i++) {
+                LessonsView lessonsView = new LessonsView(
+                        lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
+                        year, month, day
+                );
+                if (lessonsView.isShouldShow()) {
+                    lessonsViews.add(lessonsView);
+                }
 
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
-                day = calendar.get(Calendar.DAY_OF_MONTH);
-                month = calendar.get(Calendar.MONTH) + 1;
                 year = calendar.get(Calendar.YEAR);
-                if (++dayOfWeek == 8) {
-                    dayOfWeek = 1;
-                    isNumerator = !isNumerator;
-                }
+                month = calendar.get(Calendar.MONTH) + 1;
+                day = calendar.get(Calendar.DAY_OF_MONTH);
             }
+
+            emptyLessonsViews = new TextView(lessonsContainer.getContext());
+            emptyLessonsViews.setText("Занятия не найдены");
+            emptyLessonsViews.setGravity(Gravity.CENTER);
+
+            switch (SettingsStorage.textSize) {
+                case 0:
+                    emptyLessonsViews.setTextSize(12.0f);
+                    break;
+                case 2:
+                    emptyLessonsViews.setTextSize(36.0f);
+                    break;
+                default:
+                    emptyLessonsViews.setTextSize(24.0f);
+                    break;
+            }
+
             return null;
         }
 
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            for (int i = 0; i < 21; i++) {
-                lessonsContainer.addView(lessonsViews[i]);
+
+            if (lessonsViews.isEmpty()) {
+                lessonsContainer.addView(emptyLessonsViews);
             }
+
+            for (LessonsView lessonsView : lessonsViews) {
+                lessonsContainer.addView(lessonsView);
+            }
+
+            lessonsLoaded = true;
+            addTimer();
         }
     }
 }

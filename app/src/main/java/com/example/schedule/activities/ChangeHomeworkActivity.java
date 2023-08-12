@@ -13,9 +13,8 @@ import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 
 public class ChangeHomeworkActivity extends AppCompatActivity {
-    private EditText homeworkEditText;
+    private EditText lessonNameEditText, homeworkEditText;
     private int flowLvl, course, group, subgroup, year, month, day, lessonNum;
-    private String lessonName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,31 +30,36 @@ public class ChangeHomeworkActivity extends AppCompatActivity {
         month = intent.getIntExtra("month", 0);
         day = intent.getIntExtra("day", 0);
         lessonNum = intent.getIntExtra("lessonNum", 0);
-        lessonName = intent.getStringExtra("lessonName");
+        String lessonName = intent.getStringExtra("lessonName");
         String homework = intent.getStringExtra("homework");
 
+        lessonNameEditText = findViewById(R.id.lessonNameEditText);
         homeworkEditText = findViewById(R.id.homeworkEditText);
         Button cancelBtn = findViewById(R.id.cancelBtn);
         Button nextBtn = findViewById(R.id.nextBtn);
 
         switch (SettingsStorage.textSize) {
             case 0:
+                lessonNameEditText.setTextSize(10.0f);
                 homeworkEditText.setTextSize(10.0f);
                 cancelBtn.setTextSize(10.0f);
                 nextBtn.setTextSize(10.0f);
                 break;
             case 1:
+                lessonNameEditText.setTextSize(20.0f);
                 homeworkEditText.setTextSize(20.0f);
                 cancelBtn.setTextSize(20.0f);
                 nextBtn.setTextSize(20.0f);
                 break;
             case 2:
+                lessonNameEditText.setTextSize(30.0f);
                 homeworkEditText.setTextSize(30.0f);
                 cancelBtn.setTextSize(30.0f);
                 nextBtn.setTextSize(30.0f);
                 break;
         }
 
+        lessonNameEditText.setText(lessonName);
         homeworkEditText.setText(homework);
 
         cancelBtn.setOnClickListener(new CancelBtnListener());
@@ -76,7 +80,8 @@ public class ChangeHomeworkActivity extends AppCompatActivity {
                 return;
             ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeHomeworkActivity.this);
             dbHelper.addOrUpdateHomework(
-                    flowLvl, course, group, subgroup, year, month, day, lessonNum, lessonName,
+                    flowLvl, course, group, subgroup, year, month, day, lessonNum,
+                    lessonNameEditText.getText().toString(),
                     homeworkEditText.getText().toString()
             );
             finish();

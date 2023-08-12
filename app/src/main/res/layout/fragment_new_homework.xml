@@ -5,26 +5,35 @@
     android:layout_height="match_parent"
     android:background="?attr/background"
     android:orientation="vertical"
-    tools:context=".fragments.HomeworkFragment">
+    tools:context=".fragments.NewHomeworkFragment">
 
-    <Button
-        android:id="@+id/newHomeworkBtn"
+    <TextView
+        android:id="@+id/chooseDayTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/change_homework"
+        android:layout_gravity="center"
+        android:text="@string/choose_date"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnPrimary" />
+
+    <Button
+        android:id="@+id/chooseDayBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="25dp"
         android:textSize="20sp" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/homeworkContainer"
+            android:id="@+id/homeworkLessonContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
+
     </ScrollView>
 
 </LinearLayout>

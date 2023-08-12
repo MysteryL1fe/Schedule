@@ -15,6 +15,7 @@ public class SettingsStorage {
     private static final Gson GSON = new Gson();
     private static final Type CALENDAR_TYPE = new TypeToken<Calendar>(){}.getType();
     public static int textSize = 1;
+    public static boolean displayModeFull = true;
     private static Calendar countdownBeginning;
 
     public static void updateTextSize(SharedPreferences saves) {
@@ -99,5 +100,16 @@ public class SettingsStorage {
                 editor.apply();
             }
         }
+    }
+
+    public static void updateDisplayMode(SharedPreferences saves) {
+        SettingsStorage.displayModeFull = saves.getBoolean("displayFull", true);
+    }
+
+    public static void saveDisplayMode(boolean isFullDisplay, SharedPreferences saves) {
+        SettingsStorage.displayModeFull = isFullDisplay;
+        Editor editor = saves.edit();
+        editor.putBoolean("displayFull", isFullDisplay);
+        editor.apply();
     }
 }
