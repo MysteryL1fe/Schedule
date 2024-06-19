@@ -35,8 +35,8 @@ import com.example.schedule.repo.TempScheduleRepo;
 import com.google.android.material.divider.MaterialDivider;
 
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 public class LessonView extends LinearLayout {
     private LinearLayout firstStroke;
@@ -474,15 +474,15 @@ public class LessonView extends LinearLayout {
         }
     }
 
-    public boolean addTimer(Calendar curTime) {
+    public boolean addTimer(LocalDateTime time) {
         if (lessonName.isEmpty()) return false;
 
         int hourLessonBegin = Utils.getLessonBeginningHour(lessonNum);
         int minuteLessonBegin = Utils.getLessonBeginningMinute(lessonNum);
-        Calendar lessonBegin = new GregorianCalendar(
-                year, month - 1, day, hourLessonBegin, minuteLessonBegin
+        LocalDateTime lessonBegin = LocalDateTime.of(
+                year, month, day, hourLessonBegin, minuteLessonBegin
         );
-        if (lessonBegin.after(curTime)) {
+        if (lessonBegin.isAfter(time)) {
             LayoutParams params = new LayoutParams(
                     LayoutParams.MATCH_PARENT,
                     LayoutParams.WRAP_CONTENT,
@@ -491,7 +491,8 @@ public class LessonView extends LinearLayout {
 
             timerView = new TimerView(
                     getContext(),
-                    (lessonBegin.getTime().getTime() - curTime.getTime().getTime()) / 1000
+                    lessonBegin.toEpochSecond(ZoneOffset.UTC)
+                            - time.toEpochSecond(ZoneOffset.UTC)
             );
             timerView.setLayoutParams(params);
             timerView.setGravity(Gravity.CENTER);
@@ -510,10 +511,10 @@ public class LessonView extends LinearLayout {
 
         int hourLessonEnd = Utils.getLessonEndingHour(lessonNum);
         int minuteLessonEnd = Utils.getLessonEndingMinute(lessonNum);
-        Calendar lessonEnd = new GregorianCalendar(
-                year, month - 1, day, hourLessonEnd, minuteLessonEnd
+        LocalDateTime lessonEnd = LocalDateTime.of(
+                year, month, day, hourLessonEnd, minuteLessonEnd
         );
-        if (lessonEnd.after(curTime)) {
+        if (lessonEnd.isAfter(time)) {
             LayoutParams params = new LayoutParams(
                     LayoutParams.MATCH_PARENT,
                     LayoutParams.WRAP_CONTENT,
@@ -522,7 +523,8 @@ public class LessonView extends LinearLayout {
 
             timerView = new TimerView(
                     getContext(),
-                    (lessonEnd.getTime().getTime() - curTime.getTime().getTime()) / 1000
+                    lessonEnd.toEpochSecond(ZoneOffset.UTC)
+                            - time.toEpochSecond(ZoneOffset.UTC)
             );
             timerView.setLayoutParams(params);
             timerView.setGravity(Gravity.END);

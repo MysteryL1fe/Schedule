@@ -2,10 +2,7 @@ package com.example.schedule;
 
 import androidx.annotation.IntRange;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDate;
 
 public class Utils {
     public static final String[] daysOfWeekNames = new String[] {
@@ -57,17 +54,17 @@ public class Utils {
         return lessonEndingMinutes[lessonNum - 1];
     }
 
-    public static int getDayOfWeek(int year, int month, int day) {
-        Calendar calendar = new GregorianCalendar(year, month - 1, day);
-        return (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7 + 1;
-    }
-
     public static boolean isNumerator(int year, int month, int day) {
-        Calendar from = SettingsStorage.getCountdownBeginning();
-        Calendar to = new GregorianCalendar(year, month - 1, day);
-        long diff = Math.abs(to.getTime().getTime() - from.getTime().getTime());
-        long daysBetween = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-        return daysBetween / 7 % 2 == 0;
+        LocalDate date = LocalDate.of(year, month, day);
+
+        LocalDate prevYear = LocalDate.of(year - 1, 9, 1);
+        prevYear = prevYear.minusDays(prevYear.getDayOfWeek().getValue() - 1);
+
+        LocalDate curYear = LocalDate.of(year, 9, 1);
+        curYear = curYear.minusDays(curYear.getDayOfWeek().getValue() - 1);
+
+        if (date.isAfter(curYear)) return (date.toEpochDay() - curYear.toEpochDay()) / 7 % 2 == 0;
+        return (date.toEpochDay() - prevYear.toEpochDay()) / 7 % 2 == 0;
     }
 
     public static String dayOfWeekToStr(@IntRange(from = 1, to = 7) int dayOfWeek) {
@@ -76,14 +73,5 @@ public class Utils {
 
     public static String monthToStr(@IntRange(from = 1, to = 12) int month) {
         return month < 1 || month > 12 ? "" : monthsNames[month - 1];
-    }
-
-    public static String generateStr() {
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 12; i++) {
-            sb.append((char) ('a' + Math.abs(random.nextInt()) % 26));
-        }
-        return sb.toString();
     }
 }

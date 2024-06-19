@@ -17,9 +17,8 @@ import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.example.schedule.views.LessonView;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class NewHomeworkFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
@@ -30,7 +29,7 @@ public class NewHomeworkFragment extends Fragment {
 
     private LinearLayout homeworkLessonContainer;
     private Button chooseDayBtn;
-    private Calendar calendar = Calendar.getInstance();
+    private LocalDate date;
 
     public NewHomeworkFragment() {}
 
@@ -62,7 +61,7 @@ public class NewHomeworkFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_homework, container, false);
 
-        calendar = Calendar.getInstance();
+        date = LocalDate.now();
 
         homeworkLessonContainer = view.findViewById(R.id.homeworkLessonContainer);
         TextView chooseDayTV = view.findViewById(R.id.chooseDayTV);
@@ -102,14 +101,15 @@ public class NewHomeworkFragment extends Fragment {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
         params.setMargins(0, 20, 0, 20);
-        SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy");
-        chooseDayBtn.setText(format.format(calendar.getTime()));
+        chooseDayBtn.setText(date.format(
+                DateTimeFormatter.ofPattern("dd MMM yyyy")
+        ));
 
         homeworkLessonContainer.removeAllViews();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int dayOfWeek = Utils.getDayOfWeek(year, month, day);
+        int year = date.getYear();
+        int month = date.getMonthValue();
+        int day = date.getDayOfMonth();
+        int dayOfWeek = date.getDayOfWeek().getValue();
         boolean isNumerator = Utils.isNumerator(year, month, day);
         for (int i = 1; i < 9; i++) {
             LessonView lessonView = new LessonView(
@@ -125,8 +125,8 @@ public class NewHomeworkFragment extends Fragment {
         @Override
         public void onClick(View v) {
             new DatePickerDialog(
-                    getContext(), new DatePickerDialogListener(), calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+                    getContext(), new DatePickerDialogListener(), date.getYear(),
+                    date.getMonthValue() - 1, date.getDayOfMonth()
             ).show();
         }
     }
@@ -134,7 +134,7 @@ public class NewHomeworkFragment extends Fragment {
     private class DatePickerDialogListener implements DatePickerDialog.OnDateSetListener {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-            calendar = new GregorianCalendar(year, month, dayOfMonth);
+            date = LocalDate.of(year, month + 1, dayOfMonth);
             updateFragment();
         }
     }

@@ -15,8 +15,9 @@ import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.views.LessonsView;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class ScheduleFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
@@ -73,9 +74,9 @@ public class ScheduleFragment extends Fragment {
 
     public void addTimer() {
         if (lessonsLoaded) {
-            Calendar curTime = Calendar.getInstance();
+            LocalDateTime time = LocalDateTime.now();
             for (LessonsView lessonsView : lessonsViews) {
-                if (lessonsView.addTimer(curTime)) {
+                if (lessonsView.addTimer(time)) {
                     break;
                 }
             }
@@ -95,26 +96,18 @@ public class ScheduleFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Calendar calendar = Calendar.getInstance();
-            int year, month, day;
-
-            year = calendar.get(Calendar.YEAR);
-            month = calendar.get(Calendar.MONTH) + 1;
-            day = calendar.get(Calendar.DAY_OF_MONTH);
+            LocalDate date = LocalDate.now();
 
             for (int i = 0; i < 31; i++) {
                 LessonsView lessonsView = new LessonsView(
                         lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
-                        year, month, day
+                        date.getYear(), date.getMonthValue(), date.getDayOfMonth()
                 );
                 if (lessonsView.isShouldShow()) {
                     lessonsViews.add(lessonsView);
                 }
 
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
-                year = calendar.get(Calendar.YEAR);
-                month = calendar.get(Calendar.MONTH) + 1;
-                day = calendar.get(Calendar.DAY_OF_MONTH);
+                date = date.plusDays(1);
             }
 
             emptyLessonsViews = new TextView(lessonsContainer.getContext());

@@ -95,32 +95,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="25dp"
             android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/countdownBeginningTV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/countdown_beginning"
-                android:textAlignment="center"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="24sp" />
-
-            <Button
-                android:id="@+id/countdownBeginningBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="25dp"
-                android:textSize="20sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="25dp"
-            android:layout_weight="1"
             android:orientation="horizontal">
 
             <Button

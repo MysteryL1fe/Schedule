@@ -13,7 +13,8 @@ import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.google.android.material.divider.MaterialDivider;
 
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class LessonsView extends LinearLayout {
     private boolean shouldShow;
@@ -54,7 +55,7 @@ public class LessonsView extends LinearLayout {
         this.setLayoutParams(thisParams);
         this.removeAllViews();
 
-        int dayOfWeek = Utils.getDayOfWeek(year, month, day);
+        int dayOfWeek = LocalDate.of(year, month, day).getDayOfWeek().getValue();
         boolean isNumerator = Utils.isNumerator(year, month, day);
         boolean isDisplayModeFull = SettingsStorage.displayModeFull;
         shouldShow = isDisplayModeFull;
@@ -99,12 +100,12 @@ public class LessonsView extends LinearLayout {
         }
     }
 
-    public boolean addTimer(Calendar curTime) {
+    public boolean addTimer(LocalDateTime time) {
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child instanceof LessonView) {
                 LessonView lessonView = (LessonView) child;
-                if (lessonView.addTimer(curTime)) {
+                if (lessonView.addTimer(time)) {
                     return true;
                 }
             }

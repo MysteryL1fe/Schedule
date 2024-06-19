@@ -350,7 +350,7 @@ public class FlowRepo {
         List<Integer> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String sql = "SELECT DISTINCT flow FROM flow WHERE flow_lvl=? AND course=? AND flow=?;";
+        String sql = "SELECT DISTINCT subgroup FROM flow WHERE flow_lvl=? AND course=? AND flow=?;";
         String[] selectionArgs = new String[] {
                 String.valueOf(flowLvl), String.valueOf(course), String.valueOf(flow)
         };

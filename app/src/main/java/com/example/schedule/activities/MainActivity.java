@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         homeworkRepo.deleteAllBeforeDate(now);
         tempScheduleRepo.deleteAllBeforeDate(now);
 
-        SettingsStorage.updateCountdownBeginning(saves);
         SettingsStorage.updateDisplayMode(saves);
 
         int theme = SettingsStorage.getTheme(saves);
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             subgroup = curFlow[3];
             startActivitySchedule();
         } else {
-            flowLvl = 0;
+            flowLvl = 1;
             course = 0;
             group = 0;
             subgroup = 0;
