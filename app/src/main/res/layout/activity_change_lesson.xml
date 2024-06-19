@@ -27,50 +27,24 @@
         android:layout_margin="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/teacherEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/teacher"
+            android:inputType="textCapWords" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/cabinetEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/cabinet"
             android:inputType="textCapCharacters" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/surnameEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/teacher_surname"
-            android:inputType="textCapWords" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/teacherNameEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/teacher_name"
-            android:inputType="textCapWords" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/patronymicEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/teacher_patronymic"
-            android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <CheckBox

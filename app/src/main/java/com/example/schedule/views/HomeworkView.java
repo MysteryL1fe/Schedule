@@ -1,28 +1,21 @@
 package com.example.schedule.views;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 
-import com.example.schedule.Homework;
 import com.example.schedule.R;
-import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.Utils;
-import com.example.schedule.activities.ChangeHomeworkActivity;
+import com.example.schedule.entity.Homework;
 import com.google.android.material.divider.MaterialDivider;
 
-public class HomeworkView extends LinearLayout {
-    private int flowLvl, course, group, subgroup;
-    private Homework homework;
+import java.time.format.DateTimeFormatter;
 
+public class HomeworkView extends LinearLayout {
     public HomeworkView(Context context) {
         super(context);
     }
@@ -42,12 +35,6 @@ public class HomeworkView extends LinearLayout {
     }
 
     private void init(int flowLvl, int course, int group, int subgroup, Homework homework) {
-        this.flowLvl = flowLvl;
-        this.course = course;
-        this.group = group;
-        this.subgroup = subgroup;
-        this.homework = homework;
-
         LayoutParams paramsMatchWrap = new LayoutParams(
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT,
@@ -76,15 +63,16 @@ public class HomeworkView extends LinearLayout {
         dayTV.setLayoutParams(paramsMatchWrap);
         dayTV.setGravity(Gravity.START);
         dayTV.setText(String.format(
-                "%s, %s %s %s", homework.lessonName, homework.day,
-                Utils.monthToStr(homework.month), homework.year
+                "%s, %s", homework.getLessonName(), homework.getLessonDate().format(
+                        DateTimeFormatter.ofPattern("dd MMM yyyy")
+                )
         ));
         this.addView(dayTV);
 
         TextView homeworkTV = new TextView(getContext());
         homeworkTV.setLayoutParams(paramsMatchWrap);
         homeworkTV.setGravity(Gravity.START);
-        homeworkTV.setText(homework.homework);
+        homeworkTV.setText(homework.getHomework());
         this.addView(homeworkTV);
 
         MaterialDivider divider = new MaterialDivider(getContext());

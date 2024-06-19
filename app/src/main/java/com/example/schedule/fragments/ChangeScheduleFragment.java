@@ -3,19 +3,17 @@ package com.example.schedule.fragments;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import androidx.fragment.app.Fragment;
+
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
-import com.example.schedule.activities.MainActivity;
 import com.example.schedule.views.ChangeLessonsView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 

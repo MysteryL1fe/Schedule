@@ -17,6 +17,7 @@
     <string name="change">Изменить</string>
     <string name="cancel">Отмена</string>
     <string name="delete">Удалить</string>
+    <string name="teacher">Преподаватель</string>
     <string name="teacher_surname">Фамилия преподавателя</string>
     <string name="teacher_name">Имя преподавателя</string>
     <string name="teacher_patronymic">Отчество преподавателя</string>

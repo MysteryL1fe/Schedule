@@ -3,7 +3,6 @@ package com.example.schedule.views;
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -16,7 +15,6 @@ import androidx.core.content.res.ResourcesCompat;
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
-import com.google.android.material.divider.MaterialDivider;
 
 public class TimerView extends LinearLayout {
     private ImageView imageView;

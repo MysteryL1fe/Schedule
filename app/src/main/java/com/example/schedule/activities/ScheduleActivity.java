@@ -1,20 +1,19 @@
 package com.example.schedule.activities;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-
+import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.fragments.ChangeScheduleFragment;
-import com.example.schedule.R;
 import com.example.schedule.fragments.HomeworkFragment;
 import com.example.schedule.fragments.NewHomeworkFragment;
 import com.example.schedule.fragments.ScheduleFragment;

@@ -14,8 +14,6 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
-import com.example.schedule.Homework;
-import com.example.schedule.LessonStruct;
 import com.example.schedule.R;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
@@ -23,11 +21,20 @@ import com.example.schedule.Utils;
 import com.example.schedule.activities.ChangeHomeworkActivity;
 import com.example.schedule.activities.ChangeLessonActivity;
 import com.example.schedule.activities.ScheduleActivity;
+import com.example.schedule.entity.Homework;
+import com.example.schedule.entity.Lesson;
+import com.example.schedule.entity.Schedule;
+import com.example.schedule.entity.TempSchedule;
 import com.example.schedule.fragments.NewHomeworkFragment;
-import com.example.schedule.fragments.ScheduleFragment;
 import com.example.schedule.fragments.TempScheduleFragment;
+import com.example.schedule.repo.FlowRepo;
+import com.example.schedule.repo.HomeworkRepo;
+import com.example.schedule.repo.LessonRepo;
+import com.example.schedule.repo.ScheduleRepo;
+import com.example.schedule.repo.TempScheduleRepo;
 import com.google.android.material.divider.MaterialDivider;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -37,9 +44,11 @@ public class LessonView extends LinearLayout {
     private int flowLvl, course, group, subgroup, day, month, year, lessonNum, dayOfWeek;
     private boolean isNumerator, isTempView, isHomeworkView, isTempLesson, willLessonBe = true;
     private boolean shouldShow, isTimerViewBefore;
-    private String lessonName, homework;
+    private String lessonName, lessonTeacher, lessonCabinet, homework;
     private TempScheduleFragment tempScheduleFragment;
     private NewHomeworkFragment newHomeworkFragment;
+    private HomeworkRepo homeworkRepo;
+    private TempScheduleRepo tempScheduleRepo;
 
     public LessonView(Context context) {
         super(context);
@@ -119,45 +128,38 @@ public class LessonView extends LinearLayout {
         shouldShow = SettingsStorage.displayModeFull;
 
         ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
+        FlowRepo flowRepo = new FlowRepo(dbHelper);
+        LessonRepo lessonRepo = new LessonRepo(dbHelper);
+        homeworkRepo = new HomeworkRepo(dbHelper, flowRepo);
+        ScheduleRepo scheduleRepo = new ScheduleRepo(dbHelper, flowRepo, lessonRepo);
+        tempScheduleRepo = new TempScheduleRepo(dbHelper, flowRepo, lessonRepo);
 
-        LessonStruct lesson = dbHelper.getLesson(
+        Schedule schedule = scheduleRepo.findByFlowAndDayOfWeekAndLessonNumAndNumerator(
                 flowLvl, course, group, subgroup, dayOfWeek, lessonNum, isNumerator
+        );
+        Lesson lesson = schedule == null ? null : lessonRepo.findById(
+                schedule.getLesson()
         );
 
         lessonName = "";
-        String lessonCabinet = "", lessonTeacher = "";
+        lessonTeacher = "";
+        lessonCabinet = "";
         if (lesson != null) {
-            lessonName = lesson.lessonName;
-            lessonCabinet = lesson.cabinet;
-            if (lesson.surname != null && !lesson.surname.isEmpty()) {
-                lessonTeacher = lesson.surname.substring(0, 1).toUpperCase()
-                        + lesson.surname.substring(1);
-                if (lesson.teacherName != null && !lesson.teacherName.isEmpty()) {
-                    lessonTeacher += " " + lesson.teacherName.substring(0, 1).toUpperCase() + ".";
-                }
-                if (lesson.patronymic != null && !lesson.patronymic.isEmpty()) {
-                    lessonTeacher += " " + lesson.patronymic.substring(0, 1).toUpperCase() + ".";
-                }
-            }
+            lessonName = lesson.getName();
+            lessonTeacher = lesson.getTeacher();
+            lessonCabinet = lesson.getCabinet();
             shouldShow = true;
         }
 
-        LessonStruct tempLesson = dbHelper.getTempLesson(
-                flowLvl, course, group, subgroup, year, month, day, lessonNum
+        TempSchedule tempSchedule = tempScheduleRepo.findByFlowAndLessonDateAndLessonNum(
+                flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
         );
-        if (tempLesson != null && tempLesson.willLessonBe) {
-            lessonName = tempLesson.lessonName;
-            lessonCabinet = tempLesson.cabinet;
-            if (tempLesson.surname != null && !tempLesson.surname.isEmpty()) {
-                lessonTeacher = tempLesson.surname.substring(0, 1).toUpperCase()
-                        + tempLesson.surname.substring(1);
-                if (tempLesson.teacherName != null && !tempLesson.teacherName.isEmpty()) {
-                    lessonTeacher += " " + tempLesson.teacherName.substring(0, 1).toUpperCase() + ".";
-                }
-                if (tempLesson.patronymic != null && !tempLesson.patronymic.isEmpty()) {
-                    lessonTeacher += " " + tempLesson.patronymic.substring(0, 1).toUpperCase() + ".";
-                }
-            }
+        Lesson tempLesson = tempSchedule == null ? null :
+                lessonRepo.findById(tempSchedule.getLesson());
+        if (tempLesson != null && tempSchedule.isWillLessonBe()) {
+            lessonName = tempLesson.getName();
+            lessonTeacher = tempLesson.getTeacher();
+            lessonCabinet = tempLesson.getCabinet();
             isTempLesson = true;
             shouldShow = true;
         } else if (tempLesson != null) {
@@ -165,10 +167,10 @@ public class LessonView extends LinearLayout {
             shouldShow = true;
         }
 
-        Homework homework = dbHelper.getHomework(
-                flowLvl, course, group, subgroup, year, month, day, lessonNum
+        Homework homework = homeworkRepo.findByFlowAndLessonDateAndLessonNum(
+                flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
         );
-        if (homework != null) this.homework = homework.homework;
+        if (homework != null) this.homework = homework.getHomework();
 
         dbHelper.close();
 
@@ -320,7 +322,7 @@ public class LessonView extends LinearLayout {
             TextView homeworkTV = new TextView(getContext());
             homeworkTV.setLayoutParams(paramsMatchWrap);
             homeworkTV.setText(String.format(
-                    "Домашнее задание, %s:\n%s", homework.lessonName, homework.homework
+                    "Домашнее задание, %s:\n%s", homework.getLessonName(), homework.getHomework()
             ));
             thirdStroke.addView(homeworkTV);
 
@@ -377,7 +379,7 @@ public class LessonView extends LinearLayout {
             TextView homeworkTV = new TextView(getContext());
             homeworkTV.setLayoutParams(paramsMatchWrap);
             homeworkTV.setText(String.format(
-                    "Домашнее задание, %s:\n%s", homework.lessonName, homework.homework
+                    "Домашнее задание, %s:\n%s", homework.getLessonName(), homework.getHomework()
             ));
             thirdStroke.addView(homeworkTV);
 
@@ -575,8 +577,8 @@ public class LessonView extends LinearLayout {
     private class DeleteHomeworkBtnListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            new ScheduleDBHelper(getContext()).deleteHomework(
-                    flowLvl, course, group, subgroup, year, month, day, lessonNum
+            homeworkRepo.deleteByFlowAndLessonDateAndLessonNum(
+                    flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
             );
             homework = "";
             boolean updateTimer = timerView != null;
@@ -595,8 +597,8 @@ public class LessonView extends LinearLayout {
     private class CancelTempLessonBtnListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            new ScheduleDBHelper(getContext()).deleteTempSchedule(
-                    flowLvl, course, group, subgroup, year, month, day, lessonNum
+            tempScheduleRepo.deleteByFlowAndLessonDateAndLessonNum(
+                    flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
             );
             tempScheduleFragment.updateFragment();
         }
@@ -605,8 +607,9 @@ public class LessonView extends LinearLayout {
     private class LessonWontBeBtnListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            new ScheduleDBHelper(getContext()).setLessonWontBe(
-                    flowLvl, course, group, subgroup, year, month, day, lessonNum
+            tempScheduleRepo.addOrUpdate(
+                    flowLvl, course, group, subgroup, lessonName, lessonTeacher, lessonCabinet,
+                    LocalDate.of(year, month, day), lessonNum, false
             );
             tempScheduleFragment.updateFragment();
         }

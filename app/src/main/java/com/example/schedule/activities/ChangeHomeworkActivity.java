@@ -1,16 +1,18 @@
 package com.example.schedule.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.schedule.R;
-import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.repo.HomeworkRepo;
+
+import java.time.LocalDate;
 
 public class ChangeHomeworkActivity extends AppCompatActivity {
     private EditText lessonNameEditText, homeworkEditText;
@@ -78,11 +80,11 @@ public class ChangeHomeworkActivity extends AppCompatActivity {
         public void onClick(View v) {
             if (homeworkEditText.getText().toString().trim().isEmpty())
                 return;
-            ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeHomeworkActivity.this);
-            dbHelper.addOrUpdateHomework(
-                    flowLvl, course, group, subgroup, year, month, day, lessonNum,
-                    lessonNameEditText.getText().toString(),
-                    homeworkEditText.getText().toString()
+            HomeworkRepo homeworkRepo = new HomeworkRepo(ChangeHomeworkActivity.this);
+            homeworkRepo.addOrUpdate(
+                    flowLvl, course, group, subgroup, lessonNameEditText.getText().toString(),
+                    homeworkEditText.getText().toString(), LocalDate.of(year, month, day),
+                    lessonNum
             );
             finish();
         }

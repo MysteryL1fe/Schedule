@@ -5,11 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.example.schedule.R;
-import com.example.schedule.SettingsStorage;
-import com.example.schedule.Utils;
 import com.google.android.material.divider.MaterialDivider;
 
 public class ChangeLessonsView extends LinearLayout {

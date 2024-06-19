@@ -1,9 +1,6 @@
 package com.example.schedule.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +8,16 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.schedule.Homework;
+import androidx.fragment.app.Fragment;
+
 import com.example.schedule.R;
-import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
+import com.example.schedule.entity.Homework;
+import com.example.schedule.repo.HomeworkRepo;
 import com.example.schedule.views.HomeworkView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class HomeworkFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
@@ -72,8 +71,8 @@ public class HomeworkFragment extends Fragment {
         }
 
         LinearLayout homeworkContainer = view.findViewById(R.id.homeworkContainer);
-        ArrayList<Homework> homeworks = new ScheduleDBHelper(getContext())
-                .getAllHomeworks(mFlowLvl, mCourse, mGroup, mSubgroup);
+        HomeworkRepo homeworkRepo = new HomeworkRepo(getContext());
+        List<Homework> homeworks = homeworkRepo.findAllByFlow(mFlowLvl, mCourse, mGroup, mSubgroup);
         if (homeworks.isEmpty()) {
             TextView textView = new TextView(getContext());
             textView.setText(getString(R.string.homeworks_not_founded));

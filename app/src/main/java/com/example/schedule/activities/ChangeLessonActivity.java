@@ -1,7 +1,5 @@
 package com.example.schedule.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,13 +7,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.schedule.R;
-import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.repo.ScheduleRepo;
+import com.example.schedule.repo.TempScheduleRepo;
+
+import java.time.LocalDate;
 
 public class ChangeLessonActivity extends AppCompatActivity {
-    private EditText lessonNameEditText, cabinetEditText;
-    private EditText surnameEditText, teacherNameEditText, patronymicEditText;
+    private EditText lessonNameEditText, cabinetEditText, teacherEditText;
     private int flowLvl, course, group, subgroup, dayOfWeek, lessonNum;
     private int year, month, day;
     private boolean isNumerator, isDenominator, isTempView;
@@ -39,16 +41,12 @@ public class ChangeLessonActivity extends AppCompatActivity {
         isNumerator = intent.getBooleanExtra("isNumerator", true);
         isDenominator = intent.getBooleanExtra("isDenominator", true);
         isTempView = intent.getBooleanExtra("isTempView", false);
-        String lessonName = intent.getStringExtra("lessonName");
-        String surname = intent.getStringExtra("surname");
-        String teacherName = intent.getStringExtra("teacherName");
-        String patronymic = intent.getStringExtra("patronymic");
+        String lesson = intent.getStringExtra("lesson");
+        String teacher = intent.getStringExtra("teacher");
         String cabinet = intent.getStringExtra("cabinet");
 
         lessonNameEditText = findViewById(R.id.lessonNameEditText);
-        surnameEditText = findViewById(R.id.surnameEditText);
-        teacherNameEditText = findViewById(R.id.teacherNameEditText);
-        patronymicEditText = findViewById(R.id.patronymicEditText);
+        teacherEditText = findViewById(R.id.teacherEditText);
         cabinetEditText = findViewById(R.id.cabinetEditText);
         Button cancelBtn = findViewById(R.id.cancelBtn);
         Button nextBtn = findViewById(R.id.nextBtn);
@@ -63,9 +61,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
         switch (SettingsStorage.textSize) {
             case 0:
                 lessonNameEditText.setTextSize(10.0f);
-                surnameEditText.setTextSize(10.0f);
-                teacherNameEditText.setTextSize(10.0f);
-                patronymicEditText.setTextSize(10.0f);
+                teacherEditText.setTextSize(10.0f);
                 cabinetEditText.setTextSize(10.0f);
                 cancelBtn.setTextSize(10.0f);
                 nextBtn.setTextSize(10.0f);
@@ -74,9 +70,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
                 break;
             case 1:
                 lessonNameEditText.setTextSize(20.0f);
-                surnameEditText.setTextSize(20.0f);
-                teacherNameEditText.setTextSize(20.0f);
-                patronymicEditText.setTextSize(20.0f);
+                teacherEditText.setTextSize(20.0f);
                 cabinetEditText.setTextSize(20.0f);
                 cancelBtn.setTextSize(20.0f);
                 nextBtn.setTextSize(20.0f);
@@ -85,9 +79,7 @@ public class ChangeLessonActivity extends AppCompatActivity {
                 break;
             case 2:
                 lessonNameEditText.setTextSize(30.0f);
-                surnameEditText.setTextSize(30.0f);
-                teacherNameEditText.setTextSize(30.0f);
-                patronymicEditText.setTextSize(30.0f);
+                teacherEditText.setTextSize(30.0f);
                 cabinetEditText.setTextSize(30.0f);
                 cancelBtn.setTextSize(30.0f);
                 nextBtn.setTextSize(30.0f);
@@ -96,18 +88,10 @@ public class ChangeLessonActivity extends AppCompatActivity {
                 break;
         }
 
-        lessonNameEditText.setText(lessonName);
-        surnameEditText.setText(
-                surname == null || surname.isEmpty() ? ""
-                        : surname.substring(0, 1).toUpperCase() + surname.substring(1)
-        );
-        teacherNameEditText.setText(
-                teacherName == null || teacherName.isEmpty() ? ""
-                        : teacherName.substring(0, 1).toUpperCase() + teacherName.substring(1)
-        );
-        patronymicEditText.setText(
-                patronymic == null || patronymic.isEmpty() ? ""
-                        : patronymic.substring(0, 1).toUpperCase() + patronymic.substring(1)
+        lessonNameEditText.setText(lesson);
+        teacherEditText.setText(
+                teacher == null || teacher.isEmpty() ? ""
+                        : teacher.substring(0, 1).toUpperCase() + teacher.substring(1)
         );
         cabinetEditText.setText(cabinet);
         isNumeratorCheckBox.setChecked(isNumerator);
@@ -130,48 +114,44 @@ public class ChangeLessonActivity extends AppCompatActivity {
             if (lessonNameEditText.getText().toString().trim().isEmpty() ||
                     !(isNumeratorCheckBox.isChecked() || isDenominatorCheckBox.isChecked()))
                 return;
-            ScheduleDBHelper dbHelper = new ScheduleDBHelper(ChangeLessonActivity.this);
+            ScheduleRepo scheduleRepo = new ScheduleRepo(ChangeLessonActivity.this);
+            TempScheduleRepo tempScheduleRepo = new TempScheduleRepo(
+                    ChangeLessonActivity.this
+            );
             if (isTempView) {
-                dbHelper.addOrUpdateTempSchedule(
-                        flowLvl, course, group, subgroup, year, month, day, lessonNum,
-                        lessonNameEditText.getText().toString(),
-                        cabinetEditText.getText().toString(),
-                        surnameEditText.getText().toString(),
-                        teacherNameEditText.getText().toString(),
-                        patronymicEditText.getText().toString()
+                tempScheduleRepo.addOrUpdate(
+                        flowLvl, course, group, subgroup, lessonNameEditText.getText().toString(),
+                        teacherEditText.getText().toString(), cabinetEditText.getText().toString(),
+                        LocalDate.of(year, month, day), lessonNum, true
                 );
-
             } else {
                 if (isNumeratorCheckBox.isChecked()) {
-                    dbHelper.addOrUpdateSchedule(
-                            flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true,
+                    scheduleRepo.addOrUpdate(
+                            flowLvl, course, group, subgroup,
                             lessonNameEditText.getText().toString(),
+                            teacherEditText.getText().toString(),
                             cabinetEditText.getText().toString(),
-                            surnameEditText.getText().toString(),
-                            teacherNameEditText.getText().toString(),
-                            patronymicEditText.getText().toString()
+                            dayOfWeek, lessonNum, true
                     );
                 } else if (isNumerator) {
-                    dbHelper.deleteSchedule(
+                    scheduleRepo.deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
                             flowLvl, course, group, subgroup, dayOfWeek, lessonNum, true
                     );
                 }
                 if (isDenominatorCheckBox.isChecked()) {
-                    dbHelper.addOrUpdateSchedule(
-                            flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false,
+                    scheduleRepo.addOrUpdate(
+                            flowLvl, course, group, subgroup,
                             lessonNameEditText.getText().toString(),
-                            cabinetEditText.getText().toString(),
-                            surnameEditText.getText().toString(),
-                            teacherNameEditText.getText().toString(),
-                            patronymicEditText.getText().toString()
+                            teacherEditText.getText().toString(),
+                            cabinetEditText.getText().toString(), dayOfWeek, lessonNum,
+                            false
                     );
                 } else if (isDenominator) {
-                    dbHelper.deleteSchedule(
+                    scheduleRepo.deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
                             flowLvl, course, group, subgroup, dayOfWeek, lessonNum, false
                     );
                 }
             }
-            dbHelper.close();
             finish();
         }
     }
