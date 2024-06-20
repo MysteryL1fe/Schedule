@@ -1,8 +1,10 @@
 package com.example.schedule;
 
 import com.example.schedule.dto.FlowResponse;
+import com.example.schedule.dto.HomeworkResponse;
 import com.example.schedule.dto.LessonResponse;
 import com.example.schedule.dto.ScheduleResponse;
+import com.example.schedule.dto.TempScheduleResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -33,8 +35,16 @@ public class RetrofitHelper {
                         new LessonResponseJsonDeserializer()
                 )
                 .registerTypeAdapter(
+                        HomeworkResponse.class,
+                        new HomeworkResponseJsonDeserializer()
+                )
+                .registerTypeAdapter(
                         ScheduleResponse.class,
                         new ScheduleResponseJsonDeserializer()
+                )
+                .registerTypeAdapter(
+                        TempScheduleResponse.class,
+                        new TempScheduleResponseJsonDeserializer()
                 )
                 .create();
 
@@ -104,6 +114,33 @@ public class RetrofitHelper {
         }
     }
 
+    private static class HomeworkResponseJsonDeserializer
+            implements JsonDeserializer<HomeworkResponse> {
+        @Override
+        public HomeworkResponse deserialize(
+                JsonElement json, Type typeOfT, JsonDeserializationContext context
+        ) throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+            JsonObject flowResponse = jsonObject.getAsJsonObject("flow");
+            JsonPrimitive lessonName = jsonObject.getAsJsonPrimitive("lesson_name");
+            JsonPrimitive homework = jsonObject.getAsJsonPrimitive("homework");
+            JsonPrimitive lessonDate = jsonObject.getAsJsonPrimitive("lesson_date");
+            JsonPrimitive lessonNum = jsonObject.getAsJsonPrimitive("lesson_num");
+
+            HomeworkResponse result = new HomeworkResponse();
+            result.setFlow(
+                    new FlowResponseJsonDeserializer()
+                            .deserialize(flowResponse, null, context)
+            );
+            result.setLessonName(lessonName.getAsString());
+            result.setHomework(homework.getAsString());
+            result.setLessonDate(LocalDate.parse(lessonDate.getAsString()));
+            result.setLessonNum(lessonNum.getAsInt());
+
+            return result;
+        }
+    }
+
     private static class ScheduleResponseJsonDeserializer
             implements JsonDeserializer<ScheduleResponse> {
         @Override
@@ -129,6 +166,36 @@ public class RetrofitHelper {
             result.setDayOfWeek(dayOfWeek.getAsInt());
             result.setLessonNum(lessonNum.getAsInt());
             result.setNumerator(numerator.getAsBoolean());
+
+            return result;
+        }
+    }
+
+    private static class TempScheduleResponseJsonDeserializer
+            implements JsonDeserializer<TempScheduleResponse> {
+        @Override
+        public TempScheduleResponse deserialize(
+                JsonElement json, Type typeOfT, JsonDeserializationContext context
+        ) throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+            JsonObject flowResponse = jsonObject.getAsJsonObject("flow");
+            JsonObject lessonResponse = jsonObject.getAsJsonObject("lesson");
+            JsonPrimitive lessonDate = jsonObject.getAsJsonPrimitive("lesson_date");
+            JsonPrimitive lessonNum = jsonObject.getAsJsonPrimitive("lesson_num");
+            JsonPrimitive willLessonBe = jsonObject.getAsJsonPrimitive("will_lesson_be");
+
+            TempScheduleResponse result = new TempScheduleResponse();
+            result.setFlow(
+                    new FlowResponseJsonDeserializer()
+                            .deserialize(flowResponse, null, context)
+            );
+            result.setLesson(
+                    new LessonResponseJsonDeserializer()
+                            .deserialize(lessonResponse, null, context)
+            );
+            result.setLessonDate(LocalDate.parse(lessonDate.getAsString()));
+            result.setLessonNum(lessonNum.getAsInt());
+            result.setWillLessonBe(willLessonBe.getAsBoolean());
 
             return result;
         }

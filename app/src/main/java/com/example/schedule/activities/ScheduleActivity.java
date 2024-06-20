@@ -19,7 +19,9 @@ import com.example.schedule.RetrofitHelper;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.dto.FlowResponse;
+import com.example.schedule.dto.HomeworkResponse;
 import com.example.schedule.dto.ScheduleResponse;
+import com.example.schedule.dto.TempScheduleResponse;
 import com.example.schedule.entity.Flow;
 import com.example.schedule.fragments.ChangeScheduleFragment;
 import com.example.schedule.fragments.HomeworkFragment;
@@ -28,8 +30,10 @@ import com.example.schedule.fragments.ScheduleFragment;
 import com.example.schedule.fragments.SettingsFragment;
 import com.example.schedule.fragments.TempScheduleFragment;
 import com.example.schedule.repo.FlowRepo;
+import com.example.schedule.repo.HomeworkRepo;
 import com.example.schedule.repo.LessonRepo;
 import com.example.schedule.repo.ScheduleRepo;
+import com.example.schedule.repo.TempScheduleRepo;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
@@ -176,13 +180,23 @@ public class ScheduleActivity extends AppCompatActivity {
     private class UpdateSchedule extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
+            BackendService backendService = null;
             try {
-                BackendService backendService = RetrofitHelper.getBackendService();
-                ScheduleDBHelper dbHelper = new ScheduleDBHelper(ScheduleActivity.this);
-                FlowRepo flowRepo = new FlowRepo(dbHelper);
-                LessonRepo lessonRepo = new LessonRepo(dbHelper);
-                ScheduleRepo scheduleRepo = new ScheduleRepo(dbHelper, flowRepo, lessonRepo);
+                backendService = RetrofitHelper.getBackendService();
+            } catch (Exception e) {
+                return null;
+            }
 
+            ScheduleDBHelper dbHelper = new ScheduleDBHelper(ScheduleActivity.this);
+            FlowRepo flowRepo = new FlowRepo(dbHelper);
+            LessonRepo lessonRepo = new LessonRepo(dbHelper);
+            HomeworkRepo homeworkRepo = new HomeworkRepo(dbHelper, flowRepo);
+            ScheduleRepo scheduleRepo = new ScheduleRepo(dbHelper, flowRepo, lessonRepo);
+            TempScheduleRepo tempScheduleRepo = new TempScheduleRepo(
+                    dbHelper, flowRepo, lessonRepo
+            );
+
+            try {
                 Call<FlowResponse> flowCall = backendService.flow(
                         flowLvl, course, group, subgroup
                 );
@@ -193,31 +207,61 @@ public class ScheduleActivity extends AppCompatActivity {
                         flowLvl, course, group, subgroup
                 );
 
-                if (foundFlow.getLastEdit().isAfter(backFlow.getLastEdit())) return null;
+                if (foundFlow.getLastEdit().isBefore(backFlow.getLastEdit())) {
+                    Call<List<ScheduleResponse>> scheduleCall = backendService.schedules(
+                            flowLvl, course, group, subgroup
+                    );
+                    Response<List<ScheduleResponse>> scheduleResponse = scheduleCall.execute();
+                    List<ScheduleResponse> schedules = scheduleResponse.body();
 
-                Call<List<ScheduleResponse>> scheduleCall = backendService.schedules(
-                        flowLvl, course, group, subgroup
-                );
-                Response<List<ScheduleResponse>> scheduleResponse = scheduleCall.execute();
-                List<ScheduleResponse> schedules = scheduleResponse.body();
-
-                schedules.forEach((e) -> {
-                    scheduleRepo.addOrUpdate(
+                    schedules.forEach((e) -> scheduleRepo.addOrUpdate(
                             flowLvl, course, group, subgroup, e.getLesson().getName(),
                             e.getLesson().getTeacher(), e.getLesson().getCabinet(),
                             e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
-                    );
-                });
-                flowRepo.update(flowLvl, course, group, subgroup, LocalDateTime.now());
-
-                fragmentManager.beginTransaction().replace(
-                        R.id.fragment_view,
-                        ScheduleFragment.newInstance(flowLvl, course, group, subgroup)
-                ).commit();
-                navView.setCheckedItem(R.id.nav_schedule);
+                    ));
+                    flowRepo.update(flowLvl, course, group, subgroup, LocalDateTime.now());
+                }
             } catch (Exception e) {
                 Log.e("Backend", e.toString());
             }
+
+            try {
+                Call<List<HomeworkResponse>> call = backendService.homeworks(
+                        flowLvl, course, group, subgroup
+                );
+                Response<List<HomeworkResponse>> response = call.execute();
+                List<HomeworkResponse> homeworks = response.body();
+
+                homeworks.forEach((e) -> homeworkRepo.addOrUpdate(
+                        flowLvl, course, group, subgroup, e.getLessonName(), e.getHomework(),
+                        e.getLessonDate(), e.getLessonNum()
+                ));
+            } catch (Exception e) {
+                Log.e("Backend", e.toString());
+            }
+
+            try {
+                Call<List<TempScheduleResponse>> call = backendService.tempSchedules(
+                        flowLvl, course, group, subgroup
+                );
+                Response<List<TempScheduleResponse>> response = call.execute();
+                List<TempScheduleResponse> tempSchedules = response.body();
+
+                tempSchedules.forEach((e) -> tempScheduleRepo.addOrUpdate(
+                        flowLvl, course, group, subgroup, e.getLesson().getName(),
+                        e.getLesson().getTeacher(), e.getLesson().getCabinet(),
+                        e.getLessonDate(), e.getLessonNum(), e.isWillLessonBe()
+                ));
+            } catch (Exception e) {
+                Log.e("Backend", e.toString());
+            }
+
+            fragmentManager.beginTransaction().replace(
+                    R.id.fragment_view,
+                    ScheduleFragment.newInstance(flowLvl, course, group, subgroup)
+            ).commit();
+            navView.setCheckedItem(R.id.nav_schedule);
+
             return null;
         }
     }
