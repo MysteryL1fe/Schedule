@@ -22,7 +22,7 @@ import com.example.schedule.R;
 import com.example.schedule.RetrofitHelper;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.entity.Flow;
+import com.example.schedule.dto.FlowResponse;
 import com.example.schedule.repo.FlowRepo;
 import com.example.schedule.repo.HomeworkRepo;
 import com.example.schedule.repo.LessonRepo;
@@ -421,9 +421,9 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
             try {
                 BackendService backendService = RetrofitHelper.getBackendService();
-                Call<List<Flow>> call = backendService.allFlows();
-                Response<List<Flow>> response = call.execute();
-                List<Flow> flows = response.body();
+                Call<List<FlowResponse>> call = backendService.allFlows();
+                Response<List<FlowResponse>> response = call.execute();
+                List<FlowResponse> flows = response.body();
                 flows.forEach((e) -> {
                     if (flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(
                             e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup()

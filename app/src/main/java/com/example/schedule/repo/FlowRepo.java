@@ -109,7 +109,7 @@ public class FlowRepo {
                 String.valueOf(subgroup)
         };
 
-        int count = db.update("homework", values, whereClause, whereArgs);
+        int count = db.update("flow", values, whereClause, whereArgs);
         db.close();
         return count;
     }
@@ -131,7 +131,7 @@ public class FlowRepo {
                 String.valueOf(subgroup)
         };
 
-        int count = db.update("homework", values, whereClause, whereArgs);
+        int count = db.update("flow", values, whereClause, whereArgs);
         db.close();
         return count;
     }

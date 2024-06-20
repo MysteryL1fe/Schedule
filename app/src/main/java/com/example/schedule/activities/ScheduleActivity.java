@@ -1,7 +1,9 @@
 package com.example.schedule.activities;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -11,16 +13,31 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.schedule.BackendService;
 import com.example.schedule.R;
+import com.example.schedule.RetrofitHelper;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.dto.FlowResponse;
+import com.example.schedule.dto.ScheduleResponse;
+import com.example.schedule.entity.Flow;
 import com.example.schedule.fragments.ChangeScheduleFragment;
 import com.example.schedule.fragments.HomeworkFragment;
 import com.example.schedule.fragments.NewHomeworkFragment;
 import com.example.schedule.fragments.ScheduleFragment;
 import com.example.schedule.fragments.SettingsFragment;
 import com.example.schedule.fragments.TempScheduleFragment;
+import com.example.schedule.repo.FlowRepo;
+import com.example.schedule.repo.LessonRepo;
+import com.example.schedule.repo.ScheduleRepo;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class ScheduleActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
@@ -53,6 +70,9 @@ public class ScheduleActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
 
         if (savedInstanceState == null) {
+            UpdateSchedule updateSchedule = new UpdateSchedule();
+            updateSchedule.execute();
+
             fragmentManager.beginTransaction().replace(
                     R.id.fragment_view,
                     ScheduleFragment.newInstance(flowLvl, course, group, subgroup)
@@ -150,6 +170,55 @@ public class ScheduleActivity extends AppCompatActivity {
                 default:
                     return false;
             }
+        }
+    }
+
+    private class UpdateSchedule extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                BackendService backendService = RetrofitHelper.getBackendService();
+                ScheduleDBHelper dbHelper = new ScheduleDBHelper(ScheduleActivity.this);
+                FlowRepo flowRepo = new FlowRepo(dbHelper);
+                LessonRepo lessonRepo = new LessonRepo(dbHelper);
+                ScheduleRepo scheduleRepo = new ScheduleRepo(dbHelper, flowRepo, lessonRepo);
+
+                Call<FlowResponse> flowCall = backendService.flow(
+                        flowLvl, course, group, subgroup
+                );
+                Response<FlowResponse> flowResponse = flowCall.execute();
+                FlowResponse backFlow = flowResponse.body();
+
+                Flow foundFlow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(
+                        flowLvl, course, group, subgroup
+                );
+
+                if (foundFlow.getLastEdit().isAfter(backFlow.getLastEdit())) return null;
+
+                Call<List<ScheduleResponse>> scheduleCall = backendService.schedules(
+                        flowLvl, course, group, subgroup
+                );
+                Response<List<ScheduleResponse>> scheduleResponse = scheduleCall.execute();
+                List<ScheduleResponse> schedules = scheduleResponse.body();
+
+                schedules.forEach((e) -> {
+                    scheduleRepo.addOrUpdate(
+                            flowLvl, course, group, subgroup, e.getLesson().getName(),
+                            e.getLesson().getTeacher(), e.getLesson().getCabinet(),
+                            e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
+                    );
+                });
+                flowRepo.update(flowLvl, course, group, subgroup, LocalDateTime.now());
+
+                fragmentManager.beginTransaction().replace(
+                        R.id.fragment_view,
+                        ScheduleFragment.newInstance(flowLvl, course, group, subgroup)
+                ).commit();
+                navView.setCheckedItem(R.id.nav_schedule);
+            } catch (Exception e) {
+                Log.e("Backend", e.toString());
+            }
+            return null;
         }
     }
 }
