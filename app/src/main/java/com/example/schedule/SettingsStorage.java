@@ -9,6 +9,7 @@ public class SettingsStorage {
     public static int textSize = 1;
     public static boolean displayModeFull = true;
     public static String backendBaseUrl = "http://192.168.1.128:8080";
+    public static boolean useServer = true;
 
     public static void updateTextSize(SharedPreferences saves) {
         textSize = saves.getInt("textSize", 1);
@@ -70,6 +71,17 @@ public class SettingsStorage {
         SettingsStorage.displayModeFull = isFullDisplay;
         Editor editor = saves.edit();
         editor.putBoolean("displayFull", isFullDisplay);
+        editor.apply();
+    }
+
+    public static void updateUseServer(SharedPreferences saves) {
+        SettingsStorage.useServer = saves.getBoolean("useServer", true);
+    }
+
+    public static void saveUseServer(boolean useServer, SharedPreferences saves) {
+        SettingsStorage.useServer = useServer;
+        Editor editor = saves.edit();
+        editor.putBoolean("useServer", useServer);
         editor.apply();
     }
 }

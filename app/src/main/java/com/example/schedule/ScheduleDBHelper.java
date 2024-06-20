@@ -100,4 +100,13 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
 
         onCreate(db);
     }
+
+    public void clearData() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM temp_schedule;");
+        db.execSQL("DELETE FROM homework;");
+        db.execSQL("DELETE FROM schedule;");
+        db.execSQL("DELETE FROM lesson;");
+        db.execSQL("DELETE FROM flow;");
+    }
 }

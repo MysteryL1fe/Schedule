@@ -17,18 +17,19 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.example.schedule.R;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.activities.ScheduleActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class SettingsFragment extends Fragment {
     private TextView fontSizeTV, displayModeTV;
-    private Button chooseThemeBtn, chooseFlowBtn;
-    private ToggleButton displayModeToggleBtn;
+    private Button chooseThemeBtn, chooseFlowBtn, clearDBBtn;
+    private ToggleButton displayModeToggleBtn, serverToggleButton;
 
     public SettingsFragment() {}
 
-    public static SettingsFragment newInstance(int flowLvl, int course, int group, int subgroup) {
+    public static SettingsFragment newInstance() {
         SettingsFragment fragment = new SettingsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -51,14 +52,19 @@ public class SettingsFragment extends Fragment {
         chooseFlowBtn = view.findViewById(R.id.chooseFlowBtn);
         SeekBar seekBar = view.findViewById(R.id.textSizeSeekBar);
         displayModeToggleBtn = view.findViewById(R.id.displayModeToggleBtn);
+        serverToggleButton = view.findViewById(R.id.serverToggleBtn);
+        clearDBBtn = view.findViewById(R.id.clearDBBtn);
 
         chooseThemeBtn.setOnClickListener(new ChooseThemeBtnListener());
         chooseFlowBtn.setOnClickListener(new ChooseFlowBtnListener());
         seekBar.setOnSeekBarChangeListener(new TextSizeSeekBarListener());
         seekBar.setProgress(SettingsStorage.textSize);
         displayModeToggleBtn.setOnCheckedChangeListener(new DisplayModeToggleBtnListener());
+        serverToggleButton.setOnCheckedChangeListener(new ServerToggleBtnListener());
+        clearDBBtn.setOnClickListener(new ClearDBBtnListener());
 
         displayModeToggleBtn.setChecked(SettingsStorage.displayModeFull);
+        serverToggleButton.setChecked(SettingsStorage.useServer);
         updateScreen();
 
         return view;
@@ -72,6 +78,8 @@ public class SettingsFragment extends Fragment {
                 chooseThemeBtn.setTextSize(10.0f);
                 chooseFlowBtn.setTextSize(10.0f);
                 displayModeToggleBtn.setTextSize(10.0f);
+                serverToggleButton.setTextSize(10.0f);
+                clearDBBtn.setTextSize(10.0f);
                 break;
             case 2:
                 fontSizeTV.setTextSize(36.0f);
@@ -79,6 +87,8 @@ public class SettingsFragment extends Fragment {
                 chooseThemeBtn.setTextSize(30.0f);
                 chooseFlowBtn.setTextSize(30.0f);
                 displayModeToggleBtn.setTextSize(30.0f);
+                serverToggleButton.setTextSize(30.0f);
+                clearDBBtn.setTextSize(30.0f);
                 break;
             default:
                 fontSizeTV.setTextSize(24.0f);
@@ -86,6 +96,8 @@ public class SettingsFragment extends Fragment {
                 chooseThemeBtn.setTextSize(20.0f);
                 chooseFlowBtn.setTextSize(20.0f);
                 displayModeToggleBtn.setTextSize(20.0f);
+                serverToggleButton.setTextSize(20.0f);
+                clearDBBtn.setTextSize(20.0f);
                 break;
         }
     }
@@ -171,6 +183,24 @@ public class SettingsFragment extends Fragment {
             SettingsStorage.saveDisplayMode(isChecked, getActivity().getSharedPreferences(
                     SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
             ));
+        }
+    }
+
+    private class ServerToggleBtnListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            SettingsStorage.saveUseServer(isChecked, getActivity().getSharedPreferences(
+                    SettingsStorage.SCHEDULE_SAVES, Context.MODE_PRIVATE
+            ));
+        }
+    }
+
+    private class ClearDBBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
+            dbHelper.clearData();
+            ((ScheduleActivity) getContext()).finish();
         }
     }
 }

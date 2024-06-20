@@ -106,6 +106,42 @@
                 android:text="@string/change_flow"
                 android:textSize="20sp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="25dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <ToggleButton
+                android:id="@+id/serverToggleBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="@string/deactivate_server"
+                android:textOff="@string/activate_server"
+                android:background="?attr/colorPrimary"
+                android:padding="20dp"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="25dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/clearDBBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="25dp"
+                android:text="@string/clear_db"
+                android:textSize="20sp" />
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

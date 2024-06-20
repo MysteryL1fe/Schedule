@@ -168,7 +168,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 case R.id.nav_settings:
                     fragmentManager.beginTransaction().replace(
                             R.id.fragment_view,
-                            SettingsFragment.newInstance(flowLvl, course, group, subgroup)
+                            SettingsFragment.newInstance()
                     ).commit();
                     return true;
                 default:
@@ -180,10 +180,13 @@ public class ScheduleActivity extends AppCompatActivity {
     private class UpdateSchedule extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
+            if (!SettingsStorage.useServer) return null;
+
             BackendService backendService = null;
             try {
                 backendService = RetrofitHelper.getBackendService();
             } catch (Exception e) {
+                Log.e("Backend", e.toString());
                 return null;
             }
 

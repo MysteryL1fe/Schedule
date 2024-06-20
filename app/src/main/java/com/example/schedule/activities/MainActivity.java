@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         saves = getSharedPreferences(SettingsStorage.SCHEDULE_SAVES, MODE_PRIVATE);
+        SettingsStorage.updateDisplayMode(saves);
+        SettingsStorage.updateUseServer(saves);
+        SettingsStorage.updateTextSize(saves);
 
         ScheduleDBHelper dbHelper = new ScheduleDBHelper(this);
         flowRepo = new FlowRepo(dbHelper);
@@ -67,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
         LocalDate now = LocalDate.now();
         homeworkRepo.deleteAllBeforeDate(now);
         tempScheduleRepo.deleteAllBeforeDate(now);
-
-        SettingsStorage.updateDisplayMode(saves);
 
         int theme = SettingsStorage.getTheme(saves);
         switch (theme) {
@@ -114,18 +115,13 @@ public class MainActivity extends AppCompatActivity {
         contBtn = findViewById(R.id.contBtn);
         flowLvlBtn = findViewById(R.id.flowLvlBtn);
 
-        SettingsStorage.updateTextSize(saves);
-        updateScreen();
-        updateFlowLvlBtn();
-        updateCourseBtn();
-        updateGroupBtn();
-        updateSubgroupBtn();
-
         courseBtn.setOnClickListener(new CourseBtnListener());
         groupBtn.setOnClickListener(new GroupBtnListener());
         subgroupBtn.setOnClickListener(new SubgroupBtnListener());
         contBtn.setOnClickListener(new ContBtnListener());
         flowLvlBtn.setOnClickListener(new FlowLvlBtnListener());
+
+        updateScreen();
 
         newFlowActivity = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -167,6 +163,11 @@ public class MainActivity extends AppCompatActivity {
                 flowLvlBtn.setTextSize(30.0f);
                 break;
         }
+
+        updateFlowLvlBtn();
+        updateCourseBtn();
+        updateGroupBtn();
+        updateSubgroupBtn();
     }
 
     private void updateFlowLvlBtn() {
@@ -419,6 +420,8 @@ public class MainActivity extends AppCompatActivity {
     private class UploadFlows extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
+            if (!SettingsStorage.useServer) return null;
+
             try {
                 BackendService backendService = RetrofitHelper.getBackendService();
                 Call<List<FlowResponse>> call = backendService.allFlows();
