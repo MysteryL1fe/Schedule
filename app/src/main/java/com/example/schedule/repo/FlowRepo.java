@@ -37,6 +37,17 @@ public class FlowRepo {
     }
 
     public long add(
+            int flowLvl, int course, int flow, int subgroup, LocalDate lessonsStartDate,
+            LocalDate sessionStartDate, LocalDate sessionEndDate, boolean active
+    ) {
+        return add(
+                flowLvl, course, flow, subgroup,
+                LocalDateTime.of(1970, 1, 1, 0, 0, 0),
+                lessonsStartDate, sessionStartDate, sessionEndDate, active
+        );
+    }
+
+    public long add(
             int flowLvl, int course, int flow, int subgroup, LocalDateTime lastEdit,
             LocalDate lessonsStartDate, LocalDate sessionStartDate, LocalDate sessionEndDate,
             boolean active
@@ -64,11 +75,65 @@ public class FlowRepo {
                 "session_end_date",
                 sessionEndDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         );
-        values.put("active", active);
+        values.put("active", active ? "1" : "0");
 
         long id = db.insert("flow", null, values);
         db.close();
         return id;
+    }
+
+    public int update(
+            int flowLvl, int course, int flow, int subgroup, LocalDate lessonsStartDate,
+            LocalDate sessionStartDate, LocalDate sessionEndDate, boolean active
+    ) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(
+                "lessons_start_date",
+                lessonsStartDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        );
+        values.put(
+                "session_start_date",
+                sessionStartDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        );
+        values.put(
+                "session_end_date",
+                sessionEndDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        );
+        values.put("active", active ? "1" : "0");
+
+        String whereClause = "flow_lvl=? AND course=? AND flow=? AND subgroup=?";
+        String[] whereArgs = new String[] {
+                String.valueOf(flowLvl), String.valueOf(course), String.valueOf(flow),
+                String.valueOf(subgroup)
+        };
+
+        int count = db.update("homework", values, whereClause, whereArgs);
+        db.close();
+        return count;
+    }
+
+    public int update(
+            int flowLvl, int course, int flow, int subgroup, LocalDateTime lastEdit
+    ) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(
+                "last_edit",
+                lastEdit.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        );
+
+        String whereClause = "flow_lvl=? AND course=? AND flow=? AND subgroup=?";
+        String[] whereArgs = new String[] {
+                String.valueOf(flowLvl), String.valueOf(course), String.valueOf(flow),
+                String.valueOf(subgroup)
+        };
+
+        int count = db.update("homework", values, whereClause, whereArgs);
+        db.close();
+        return count;
     }
 
     @SuppressLint("Range")
@@ -100,6 +165,7 @@ public class FlowRepo {
                     cursor.getString(cursor.getColumnIndex("session_end_date")),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
             );
+            boolean active = cursor.getInt(cursor.getColumnIndex("active")) == 1;
 
             result = new Flow();
             result.setId(id);
@@ -111,6 +177,7 @@ public class FlowRepo {
             result.setLessonsStartDate(lessonsStartDate);
             result.setSessionStartDate(sessionStartDate);
             result.setSessionEndDate(sessionEndDate);
+            result.setActive(active);
         }
         cursor.close();
         db.close();
@@ -149,6 +216,7 @@ public class FlowRepo {
                     cursor.getString(cursor.getColumnIndex("session_end_date")),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
             );
+            boolean active = cursor.getInt(cursor.getColumnIndex("active")) == 1;
 
             result = new Flow();
             result.setId(id);
@@ -160,6 +228,7 @@ public class FlowRepo {
             result.setLessonsStartDate(lessonsStartDate);
             result.setSessionStartDate(sessionStartDate);
             result.setSessionEndDate(sessionEndDate);
+            result.setActive(active);
         }
         cursor.close();
         db.close();
@@ -195,6 +264,7 @@ public class FlowRepo {
                     cursor.getString(cursor.getColumnIndex("session_end_date")),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
             );
+            boolean active = cursor.getInt(cursor.getColumnIndex("active")) == 1;
 
             Flow foundFlow = new Flow();
             foundFlow.setId(id);
@@ -206,6 +276,7 @@ public class FlowRepo {
             foundFlow.setLessonsStartDate(lessonsStartDate);
             foundFlow.setSessionStartDate(sessionStartDate);
             foundFlow.setSessionEndDate(sessionEndDate);
+            foundFlow.setActive(active);
 
             result.add(foundFlow);
         }
@@ -242,6 +313,7 @@ public class FlowRepo {
                     cursor.getString(cursor.getColumnIndex("session_end_date")),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
             );
+            boolean active = cursor.getInt(cursor.getColumnIndex("active")) == 1;
 
             Flow foundFlow = new Flow();
             foundFlow.setId(id);
@@ -253,6 +325,7 @@ public class FlowRepo {
             foundFlow.setLessonsStartDate(lessonsStartDate);
             foundFlow.setSessionStartDate(sessionStartDate);
             foundFlow.setSessionEndDate(sessionEndDate);
+            foundFlow.setActive(active);
 
             result.add(foundFlow);
         }
@@ -290,6 +363,7 @@ public class FlowRepo {
                     cursor.getString(cursor.getColumnIndex("session_end_date")),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
             );
+            boolean active = cursor.getInt(cursor.getColumnIndex("active")) == 1;
 
             Flow foundFlow = new Flow();
             foundFlow.setId(id);
@@ -301,6 +375,7 @@ public class FlowRepo {
             foundFlow.setLessonsStartDate(lessonsStartDate);
             foundFlow.setSessionStartDate(sessionStartDate);
             foundFlow.setSessionEndDate(sessionEndDate);
+            foundFlow.setActive(active);
 
             result.add(foundFlow);
         }
@@ -310,11 +385,11 @@ public class FlowRepo {
     }
 
     @SuppressLint("Range")
-    public List<Integer> findDistinctCourseByFlowLvl(int flowLvl) {
+    public List<Integer> findDistinctActiveCourseByFlowLvl(int flowLvl) {
         List<Integer> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String sql = "SELECT DISTINCT course FROM flow WHERE flow_lvl=?;";
+        String sql = "SELECT DISTINCT course FROM flow WHERE flow_lvl=? AND active=1;";
         String[] selectionArgs = new String[] {String.valueOf(flowLvl)};
         Cursor cursor = db.rawQuery(sql, selectionArgs);
         while (cursor.moveToNext()) {
@@ -327,11 +402,11 @@ public class FlowRepo {
     }
 
     @SuppressLint("Range")
-    public List<Integer> findDistinctFlowByFlowLvlAndCourse(int flowLvl, int course) {
+    public List<Integer> findDistinctActiveFlowByFlowLvlAndCourse(int flowLvl, int course) {
         List<Integer> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String sql = "SELECT DISTINCT flow FROM flow WHERE flow_lvl=? AND course=?;";
+        String sql = "SELECT DISTINCT flow FROM flow WHERE flow_lvl=? AND course=? AND active=1;";
         String[] selectionArgs = new String[] {String.valueOf(flowLvl), String.valueOf(course)};
         Cursor cursor = db.rawQuery(sql, selectionArgs);
         while (cursor.moveToNext()) {
@@ -344,13 +419,14 @@ public class FlowRepo {
     }
 
     @SuppressLint("Range")
-    public List<Integer> findDistinctSubgroupByFlowLvlAndCourseAndFlow(
+    public List<Integer> findDistinctActiveSubgroupByFlowLvlAndCourseAndFlow(
             int flowLvl, int course, int flow
     ) {
         List<Integer> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String sql = "SELECT DISTINCT subgroup FROM flow WHERE flow_lvl=? AND course=? AND flow=?;";
+        String sql = "SELECT DISTINCT subgroup " +
+                "FROM flow WHERE flow_lvl=? AND course=? AND flow=? AND active=1;";
         String[] selectionArgs = new String[] {
                 String.valueOf(flowLvl), String.valueOf(course), String.valueOf(flow)
         };

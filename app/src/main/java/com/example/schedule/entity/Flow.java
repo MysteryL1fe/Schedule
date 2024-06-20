@@ -13,6 +13,7 @@ public class Flow {
     private LocalDate lessonsStartDate;
     private LocalDate sessionStartDate;
     private LocalDate sessionEndDate;
+    private boolean active;
 
     public long getId() {
         return id;
@@ -84,5 +85,13 @@ public class Flow {
 
     public void setSessionEndDate(LocalDate sessionEndDate) {
         this.sessionEndDate = sessionEndDate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

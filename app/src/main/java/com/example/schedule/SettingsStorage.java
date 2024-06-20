@@ -8,6 +8,7 @@ public class SettingsStorage {
     public static final String SCHEDULE_SAVES = "ScheduleSaves";
     public static int textSize = 1;
     public static boolean displayModeFull = true;
+    public static String backendBaseUrl = "http://192.168.1.128:8080";
 
     public static void updateTextSize(SharedPreferences saves) {
         textSize = saves.getInt("textSize", 1);

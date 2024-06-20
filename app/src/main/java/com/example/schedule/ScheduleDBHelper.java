@@ -24,7 +24,7 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
                 "lessons_start_date text NOT NULL, " +
                 "session_start_date text NOT NULL, " +
                 "session_end_date text NOT NULL, " +
-                "active boolean NOT NULL, " +
+                "active integer NOT NULL, " +
                 "UNIQUE (flow_lvl, course, flow, subgroup)" +
                 ");";
         db.execSQL(sql);

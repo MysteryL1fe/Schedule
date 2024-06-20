@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -15,9 +17,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.example.schedule.BackendService;
 import com.example.schedule.R;
+import com.example.schedule.RetrofitHelper;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.entity.Flow;
 import com.example.schedule.repo.FlowRepo;
 import com.example.schedule.repo.HomeworkRepo;
 import com.example.schedule.repo.LessonRepo;
@@ -27,6 +32,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private int flowLvl, course, group, subgroup;
@@ -52,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         LessonRepo lessonRepo = new LessonRepo(dbHelper);
         HomeworkRepo homeworkRepo = new HomeworkRepo(dbHelper, flowRepo);
         TempScheduleRepo tempScheduleRepo = new TempScheduleRepo(dbHelper, flowRepo, lessonRepo);
+
+        UploadFlows uploadFlows = new UploadFlows();
+        uploadFlows.execute();
 
         LocalDate now = LocalDate.now();
         homeworkRepo.deleteAllBeforeDate(now);
@@ -232,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             ArrayList<String> itemsList = new ArrayList<>();
-            List<Integer> courses = flowRepo.findDistinctCourseByFlowLvl(flowLvl);
+            List<Integer> courses = flowRepo.findDistinctActiveCourseByFlowLvl(flowLvl);
             courses.forEach((e) -> itemsList.add(String.valueOf(e)));
             itemsList.add("...");
             items = itemsList.toArray(new String[0]);
@@ -274,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             if (course > 0) {
                 ArrayList<String> itemsList = new ArrayList<>();
-                List<Integer> flows = flowRepo.findDistinctFlowByFlowLvlAndCourse(flowLvl, course);
+                List<Integer> flows = flowRepo.findDistinctActiveFlowByFlowLvlAndCourse(flowLvl, course);
                 flows.forEach((e) -> itemsList.add(String.valueOf(e)));
                 itemsList.add("...");
                 items = itemsList.toArray(new String[0]);
@@ -317,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             if (course > 0 && group > 0) {
                 ArrayList<String> itemsList = new ArrayList<>();
-                List<Integer> subgroups = flowRepo.findDistinctSubgroupByFlowLvlAndCourseAndFlow(
+                List<Integer> subgroups = flowRepo.findDistinctActiveSubgroupByFlowLvlAndCourseAndFlow(
                         flowLvl, course, group
                 );
                 subgroups.forEach((e) -> itemsList.add(String.valueOf(e)));
@@ -402,6 +413,36 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } catch (Exception ignored) {}
+        }
+    }
+
+    private class UploadFlows extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                BackendService backendService = RetrofitHelper.getBackendService();
+                Call<List<Flow>> call = backendService.allFlows();
+                Response<List<Flow>> response = call.execute();
+                List<Flow> flows = response.body();
+                flows.forEach((e) -> {
+                    if (flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(
+                            e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup()
+                    ) != null)
+                        flowRepo.update(
+                                e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup(),
+                                e.getLessonsStartDate(), e.getSessionStartDate(),
+                                e.getSessionEndDate(), e.isActive()
+                        );
+                    else flowRepo.add(
+                            e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup(),
+                            e.getLessonsStartDate(), e.getSessionStartDate(),
+                            e.getSessionEndDate(), e.isActive()
+                    );
+                });
+            } catch (Exception e) {
+                Log.e("Backend", e.toString());
+            }
+            return null;
         }
     }
 }
