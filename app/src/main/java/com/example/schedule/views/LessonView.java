@@ -24,6 +24,7 @@ import com.example.schedule.activities.ScheduleActivity;
 import com.example.schedule.entity.Homework;
 import com.example.schedule.entity.Lesson;
 import com.example.schedule.entity.Schedule;
+import com.example.schedule.entity.ScheduleJoined;
 import com.example.schedule.entity.TempSchedule;
 import com.example.schedule.fragments.NewHomeworkFragment;
 import com.example.schedule.fragments.TempScheduleFragment;
@@ -41,8 +42,9 @@ import java.time.ZoneOffset;
 public class LessonView extends LinearLayout {
     private LinearLayout firstStroke;
     private TimerView timerView;
-    private int flowLvl, course, group, subgroup, day, month, year, lessonNum, dayOfWeek;
-    private boolean isNumerator, isTempView, isHomeworkView, isTempLesson, willLessonBe = true;
+    private int flowLvl, course, group, subgroup, lessonNum;
+    private LocalDate date;
+    private boolean isTempView, isHomeworkView, isTempLesson, willLessonBe = true;
     private boolean shouldShow, isTimerViewBefore;
     private String lessonName, lessonTeacher, lessonCabinet, homework;
     private TempScheduleFragment tempScheduleFragment;
@@ -62,41 +64,172 @@ public class LessonView extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
-    public LessonView(Context context, int flowLvl, int course, int group, int subgroup, int year,
-                      int month, int day, int dayOfWeek, boolean isNumerator, int lessonNum) {
+    public LessonView(
+            Context context, int flowLvl, int course, int group, int subgroup, LocalDate date,
+            int lessonNum
+    ) {
         super(context);
-        init(
-                flowLvl, course, group, subgroup, year, month, day, dayOfWeek, isNumerator,
-                lessonNum
-        );
+        init(flowLvl, course, group, subgroup, date, lessonNum);
     }
 
-    public LessonView(Context context, int flowLvl, int course, int group, int subgroup, int year,
-                      int month, int day, int dayOfWeek, boolean isNumerator, int lessonNum,
-                      TempScheduleFragment tempScheduleFragment) {
+    public LessonView(
+            Context context, int flowLvl, int course, int group, int subgroup, LocalDate date,
+            int lessonNum, TempScheduleFragment tempScheduleFragment
+    ) {
         super(context);
         this.isTempView = true;
         this.tempScheduleFragment = tempScheduleFragment;
-        init(
-                flowLvl, course, group, subgroup, year, month, day, dayOfWeek, isNumerator,
-                lessonNum
-        );
+        init(flowLvl, course, group, subgroup, date, lessonNum);
     }
 
-    public LessonView(Context context, int flowLvl, int course, int group, int subgroup, int year,
-                      int month, int day, int dayOfWeek, boolean isNumerator, int lessonNum,
-                      NewHomeworkFragment newHomeworkFragment) {
+    public LessonView(
+            Context context, int flowLvl, int course, int group, int subgroup, LocalDate date,
+            int lessonNum, NewHomeworkFragment newHomeworkFragment
+    ) {
         super(context);
         this.isHomeworkView = true;
         this.newHomeworkFragment = newHomeworkFragment;
-        init(
-                flowLvl, course, group, subgroup, year, month, day, dayOfWeek, isNumerator,
-                lessonNum
-        );
+        init(flowLvl, course, group, subgroup, date, lessonNum);
     }
 
-    private void init(int flowLvl, int course, int group, int subgroup, int year, int month,
-                      int day, int dayOfWeek, boolean isNumerator, int lessonNum) {
+    public LessonView(Context context, ScheduleJoined schedule) {
+        super(context);
+
+        if (schedule == null) return;
+
+        LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1.0f
+        );
+        LayoutParams paramsWrapWrap = new LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT
+        );
+        LayoutParams paramsHomeworkButtons = new LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT
+        );
+        paramsHomeworkButtons.rightMargin = 10;
+
+        this.setLayoutParams(paramsMatchWrap);
+        this.setGravity(Gravity.START);
+        this.setOrientation(VERTICAL);
+        this.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.lesson_background, getContext().getTheme()
+        ));
+
+        shouldShow = SettingsStorage.displayModeFull;
+
+        Lesson lesson = schedule.getLesson();
+
+        lessonName = "";
+        lessonTeacher = "";
+        lessonCabinet = "";
+        if (lesson != null) {
+            lessonName = lesson.getName();
+            lessonTeacher = lesson.getTeacher();
+            lessonCabinet = lesson.getCabinet();
+            shouldShow = true;
+        }
+
+        firstStroke = new LinearLayout(getContext());
+        firstStroke.setLayoutParams(paramsMatchWrap);
+        firstStroke.setOrientation(HORIZONTAL);
+        firstStroke.setPadding(0, 10, 0, 10);
+        this.addView(firstStroke);
+
+        TextView lessonNumTV = new TextView(getContext());
+        lessonNumTV.setLayoutParams(paramsWrapWrap);
+        lessonNumTV.setText(String.format("%s", schedule.getLessonNum()));
+        lessonNumTV.setGravity(Gravity.START);
+        lessonNumTV.setBackgroundResource(R.drawable.behind_lesson_num);
+        lessonNumTV.setPadding(75, 5, 15, 5);
+        firstStroke.addView(lessonNumTV);
+
+        TextView timeTV = new TextView(getContext());
+        timeTV.setLayoutParams(paramsMatchWrap);
+        timeTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_END);
+        timeTV.setText(Utils.getTimeByLesson(schedule.getLessonNum()));
+        timeTV.setGravity(Gravity.END);
+        timeTV.setPadding(0, 0, 25, 0);
+        firstStroke.addView(timeTV);
+
+        switch (SettingsStorage.textSize) {
+            case 0:
+                lessonNumTV.setTextSize(8.0f);
+                timeTV.setTextSize(8.0f);
+                break;
+            case 2:
+                lessonNumTV.setTextSize(24.0f);
+                timeTV.setTextSize(24.0f);
+                break;
+            default:
+                lessonNumTV.setTextSize(16.0f);
+                timeTV.setTextSize(16.0f);
+                break;
+        }
+
+        LinearLayout secondStroke = new LinearLayout(getContext());
+        secondStroke.setLayoutParams(paramsMatchWrap);
+        secondStroke.setOrientation(HORIZONTAL);
+        secondStroke.setPadding(0, 10, 0, 10);
+        this.addView(secondStroke);
+
+        if (!lessonName.isEmpty()) {
+            LinearLayout lessonData = new LinearLayout(getContext());
+            lessonData.setLayoutParams(paramsMatchWrap);
+            lessonData.setOrientation(VERTICAL);
+            secondStroke.addView(lessonData);
+
+            TextView lessonTV = new TextView(getContext());
+            lessonTV.setLayoutParams(paramsMatchWrap);
+            lessonTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+            switch (SettingsStorage.textSize) {
+                case 0:
+                    lessonTV.setTextSize(8.0f);
+                    break;
+                case 2:
+                    lessonTV.setTextSize(24.0f);
+                    break;
+                default:
+                    lessonTV.setTextSize(16.0f);
+                    break;
+            }
+            lessonTV.setText(lessonName);
+            lessonTV.setPadding(50, 0, 0, 0);
+            lessonData.addView(lessonTV);
+
+            if (!lessonCabinet.isEmpty() || !lessonTeacher.isEmpty()) {
+                TextView cabinetTV = new TextView(getContext());
+                cabinetTV.setLayoutParams(paramsMatchWrap);
+                cabinetTV.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+                switch (SettingsStorage.textSize) {
+                    case 0:
+                        cabinetTV.setTextSize(8.0f);
+                        break;
+                    case 2:
+                        cabinetTV.setTextSize(24.0f);
+                        break;
+                    default:
+                        cabinetTV.setTextSize(16.0f);
+                        break;
+                }
+                if (lessonTeacher.isEmpty())
+                    cabinetTV.setText(lessonCabinet);
+                else if (lessonCabinet.isEmpty())
+                    cabinetTV.setText(lessonTeacher);
+                else
+                    cabinetTV.setText(String.format("%s, %s", lessonCabinet, lessonTeacher));
+                cabinetTV.setPadding(50, 0, 0, 25);
+                lessonData.addView(cabinetTV);
+            }
+        }
+    }
+
+    private void init(
+            int flowLvl, int course, int group, int subgroup, LocalDate date, int lessonNum
+    ) {
         LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -116,12 +249,8 @@ public class LessonView extends LinearLayout {
         this.course = course;
         this.group = group;
         this.subgroup = subgroup;
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        this.dayOfWeek = dayOfWeek;
+        this.date = date;
         this.lessonNum = lessonNum;
-        this.isNumerator = isNumerator;
         this.isTempLesson = false;
         this.willLessonBe = true;
 
@@ -135,7 +264,8 @@ public class LessonView extends LinearLayout {
         tempScheduleRepo = new TempScheduleRepo(dbHelper, flowRepo, lessonRepo);
 
         Schedule schedule = scheduleRepo.findByFlowAndDayOfWeekAndLessonNumAndNumerator(
-                flowLvl, course, group, subgroup, dayOfWeek, lessonNum, isNumerator
+                flowLvl, course, group, subgroup, date.getDayOfWeek().getValue(), lessonNum,
+                Utils.isNumerator(date)
         );
         Lesson lesson = schedule == null ? null : lessonRepo.findById(
                 schedule.getLesson()
@@ -152,7 +282,7 @@ public class LessonView extends LinearLayout {
         }
 
         TempSchedule tempSchedule = tempScheduleRepo.findByFlowAndLessonDateAndLessonNum(
-                flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
+                flowLvl, course, group, subgroup, date, lessonNum
         );
         Lesson tempLesson = tempSchedule == null ? null :
                 lessonRepo.findById(tempSchedule.getLesson());
@@ -168,7 +298,7 @@ public class LessonView extends LinearLayout {
         }
 
         Homework homework = homeworkRepo.findByFlowAndLessonDateAndLessonNum(
-                flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
+                flowLvl, course, group, subgroup, date, lessonNum
         );
         if (homework != null) this.homework = homework.getHomework();
 
@@ -480,7 +610,8 @@ public class LessonView extends LinearLayout {
         int hourLessonBegin = Utils.getLessonBeginningHour(lessonNum);
         int minuteLessonBegin = Utils.getLessonBeginningMinute(lessonNum);
         LocalDateTime lessonBegin = LocalDateTime.of(
-                year, month, day, hourLessonBegin, minuteLessonBegin
+                date.getYear(), date.getMonthValue(), date.getDayOfMonth(), hourLessonBegin,
+                minuteLessonBegin
         );
         if (lessonBegin.isAfter(time)) {
             LayoutParams params = new LayoutParams(
@@ -512,7 +643,8 @@ public class LessonView extends LinearLayout {
         int hourLessonEnd = Utils.getLessonEndingHour(lessonNum);
         int minuteLessonEnd = Utils.getLessonEndingMinute(lessonNum);
         LocalDateTime lessonEnd = LocalDateTime.of(
-                year, month, day, hourLessonEnd, minuteLessonEnd
+                date.getYear(), date.getMonthValue(), date.getDayOfMonth(), hourLessonEnd,
+                minuteLessonEnd
         );
         if (lessonEnd.isAfter(time)) {
             LayoutParams params = new LayoutParams(
@@ -566,9 +698,9 @@ public class LessonView extends LinearLayout {
             intent.putExtra("course", course);
             intent.putExtra("group", group);
             intent.putExtra("subgroup", subgroup);
-            intent.putExtra("year", year);
-            intent.putExtra("month", month);
-            intent.putExtra("day", day);
+            intent.putExtra("year", date.getYear());
+            intent.putExtra("month", date.getMonthValue());
+            intent.putExtra("day", date.getDayOfMonth());
             intent.putExtra("lessonNum", lessonNum);
             intent.putExtra("lessonName", lessonName);
             intent.putExtra("homework", homework);
@@ -580,14 +712,13 @@ public class LessonView extends LinearLayout {
         @Override
         public void onClick(View v) {
             homeworkRepo.deleteByFlowAndLessonDateAndLessonNum(
-                    flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
+                    flowLvl, course, group, subgroup, date, lessonNum
             );
             homework = "";
             boolean updateTimer = timerView != null;
             LessonView.this.removeAllViews();
             init(
-                    flowLvl, course, group, subgroup, day, month, year, dayOfWeek,
-                    isNumerator, lessonNum
+                    flowLvl, course, group, subgroup, date, lessonNum
             );
             Context context = getContext();
             if (updateTimer && context instanceof ScheduleActivity) {
@@ -600,7 +731,7 @@ public class LessonView extends LinearLayout {
         @Override
         public void onClick(View v) {
             tempScheduleRepo.deleteByFlowAndLessonDateAndLessonNum(
-                    flowLvl, course, group, subgroup, LocalDate.of(year, month, day), lessonNum
+                    flowLvl, course, group, subgroup, date, lessonNum
             );
             tempScheduleFragment.updateFragment();
         }
@@ -611,7 +742,7 @@ public class LessonView extends LinearLayout {
         public void onClick(View v) {
             tempScheduleRepo.addOrUpdate(
                     flowLvl, course, group, subgroup, lessonName, lessonTeacher, lessonCabinet,
-                    LocalDate.of(year, month, day), lessonNum, false
+                    date, lessonNum, false
             );
             tempScheduleFragment.updateFragment();
         }
@@ -625,9 +756,9 @@ public class LessonView extends LinearLayout {
             intent.putExtra("course", course);
             intent.putExtra("group", group);
             intent.putExtra("subgroup", subgroup);
-            intent.putExtra("year", year);
-            intent.putExtra("month", month);
-            intent.putExtra("day", day);
+            intent.putExtra("year", date.getYear());
+            intent.putExtra("month", date.getMonthValue());
+            intent.putExtra("day", date.getDayOfMonth());
             intent.putExtra("lessonNum", lessonNum);
             intent.putExtra("isTempView", isTempView);
             getContext().startActivity(intent);

@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 BackendService backendService = RetrofitHelper.getBackendService();
-                Call<List<FlowResponse>> call = backendService.allFlows();
+                Call<List<FlowResponse>> call = backendService.getAllFlows();
                 Response<List<FlowResponse>> response = call.execute();
                 List<FlowResponse> flows = response.body();
                 flows.forEach((e) -> {

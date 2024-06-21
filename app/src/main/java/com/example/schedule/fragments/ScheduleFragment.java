@@ -100,8 +100,7 @@ public class ScheduleFragment extends Fragment {
 
             for (int i = 0; i < 31; i++) {
                 LessonsView lessonsView = new LessonsView(
-                        lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup,
-                        date.getYear(), date.getMonthValue(), date.getDayOfMonth()
+                        lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, date
                 );
                 if (lessonsView.isShouldShow()) {
                     lessonsViews.add(lessonsView);

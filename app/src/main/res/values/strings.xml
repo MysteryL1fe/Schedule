@@ -55,4 +55,7 @@
     <string name="activate_server">Включить серверную синхронизацию</string>
     <string name="deactivate_server">Выключить серверную синхронизацию</string>
     <string name="clear_db">Очистить данные</string>
+    <string name="find">Найти</string>
+    <string name="find_teacher">Найти преподавателя</string>
+    <string name="not_found">Не найдено</string>
 </resources>

@@ -88,7 +88,7 @@ public class TempScheduleRepo {
                 String.valueOf(lessonNum)
         };
 
-        int count = db.update("temp_lesson", values, whereClause, whereArgs);
+        int count = db.update("temp_schedule", values, whereClause, whereArgs);
         db.close();
         return count;
     }

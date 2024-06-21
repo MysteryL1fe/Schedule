@@ -24,6 +24,7 @@ import com.example.schedule.dto.ScheduleResponse;
 import com.example.schedule.dto.TempScheduleResponse;
 import com.example.schedule.entity.Flow;
 import com.example.schedule.fragments.ChangeScheduleFragment;
+import com.example.schedule.fragments.FindTeacherFragment;
 import com.example.schedule.fragments.HomeworkFragment;
 import com.example.schedule.fragments.NewHomeworkFragment;
 import com.example.schedule.fragments.ScheduleFragment;
@@ -165,6 +166,12 @@ public class ScheduleActivity extends AppCompatActivity {
                             HomeworkFragment.newInstance(flowLvl, course, group, subgroup)
                     ).commit();
                     return true;
+                case R.id.nav_teacher:
+                    fragmentManager.beginTransaction().replace(
+                            R.id.fragment_view,
+                            FindTeacherFragment.newInstance()
+                    ).commit();
+                    return true;
                 case R.id.nav_settings:
                     fragmentManager.beginTransaction().replace(
                             R.id.fragment_view,
@@ -200,7 +207,7 @@ public class ScheduleActivity extends AppCompatActivity {
             );
 
             try {
-                Call<FlowResponse> flowCall = backendService.flow(
+                Call<FlowResponse> flowCall = backendService.getFlow(
                         flowLvl, course, group, subgroup
                 );
                 Response<FlowResponse> flowResponse = flowCall.execute();
@@ -211,7 +218,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 );
 
                 if (foundFlow.getLastEdit().isBefore(backFlow.getLastEdit())) {
-                    Call<List<ScheduleResponse>> scheduleCall = backendService.schedules(
+                    Call<List<ScheduleResponse>> scheduleCall = backendService.getAllSchedulesByFlow(
                             flowLvl, course, group, subgroup
                     );
                     Response<List<ScheduleResponse>> scheduleResponse = scheduleCall.execute();
@@ -229,7 +236,7 @@ public class ScheduleActivity extends AppCompatActivity {
             }
 
             try {
-                Call<List<HomeworkResponse>> call = backendService.homeworks(
+                Call<List<HomeworkResponse>> call = backendService.getAllHomeworksByFlow(
                         flowLvl, course, group, subgroup
                 );
                 Response<List<HomeworkResponse>> response = call.execute();
@@ -244,7 +251,7 @@ public class ScheduleActivity extends AppCompatActivity {
             }
 
             try {
-                Call<List<TempScheduleResponse>> call = backendService.tempSchedules(
+                Call<List<TempScheduleResponse>> call = backendService.getAllTempSchedulesByFlow(
                         flowLvl, course, group, subgroup
                 );
                 Response<List<TempScheduleResponse>> response = call.execute();

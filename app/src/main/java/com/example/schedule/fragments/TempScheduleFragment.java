@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.Utils;
 import com.example.schedule.views.LessonView;
 
 import java.time.LocalDate;
@@ -106,15 +105,10 @@ public class TempScheduleFragment extends Fragment {
         ));
 
         tempLessonContainer.removeAllViews();
-        int year = date.getYear();
-        int month = date.getMonthValue();
-        int day = date.getDayOfMonth();
-        int dayOfWeek = date.getDayOfWeek().getValue();
-        boolean isNumerator = Utils.isNumerator(year, month, day);
         for (int i = 1; i < 9; i++) {
             LessonView lessonView = new LessonView(
-                    getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, year, month, day,
-                    dayOfWeek, isNumerator, i, this
+                    getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, date, i,
+                    this
             );
             lessonView.setLayoutParams(params);
             tempLessonContainer.addView(lessonView);

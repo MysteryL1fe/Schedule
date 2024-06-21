@@ -30,8 +30,9 @@ public class ChangeScheduleFragment extends Fragment {
 
     public ChangeScheduleFragment() {}
 
-    public static ChangeScheduleFragment newInstance(int flowLvl, int course, int group,
-                                                     int subgroup) {
+    public static ChangeScheduleFragment newInstance(
+            int flowLvl, int course, int group, int subgroup
+    ) {
         ChangeScheduleFragment fragment = new ChangeScheduleFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_FLOW_LVL, flowLvl);

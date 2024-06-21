@@ -3,14 +3,12 @@ package com.example.schedule;
 import androidx.annotation.IntRange;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Utils {
     public static final String[] daysOfWeekNames = new String[] {
             "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"
-    };
-    public static final String[] monthsNames = new String[] {
-            "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября",
-            "Октября", "Ноября", "Декабря"
     };
     private static final int[] lessonBeginningHours = new int[] {
             8, 9, 11, 13, 15, 16, 18, 20
@@ -56,11 +54,14 @@ public class Utils {
 
     public static boolean isNumerator(int year, int month, int day) {
         LocalDate date = LocalDate.of(year, month, day);
+        return isNumerator(date);
+    }
 
-        LocalDate prevYear = LocalDate.of(year - 1, 9, 1);
+    public static boolean isNumerator(LocalDate date) {
+        LocalDate prevYear = LocalDate.of(date.getYear() - 1, 9, 1);
         prevYear = prevYear.minusDays(prevYear.getDayOfWeek().getValue() - 1);
 
-        LocalDate curYear = LocalDate.of(year, 9, 1);
+        LocalDate curYear = LocalDate.of(date.getYear(), 9, 1);
         curYear = curYear.minusDays(curYear.getDayOfWeek().getValue() - 1);
 
         if (date.isAfter(curYear)) return (date.toEpochDay() - curYear.toEpochDay()) / 7 % 2 == 0;
@@ -71,7 +72,30 @@ public class Utils {
         return dayOfWeek < 1 || dayOfWeek > 7 ? "" : daysOfWeekNames[dayOfWeek - 1];
     }
 
-    public static String monthToStr(@IntRange(from = 1, to = 12) int month) {
-        return month < 1 || month > 12 ? "" : monthsNames[month - 1];
+    public static LocalDateTime getNearestLesson(int dayOfWeek, int lessonNum, boolean isNumerator) {
+        return getNearestLesson(dayOfWeek, lessonNum, isNumerator, LocalDateTime.now());
+    }
+
+    public static LocalDateTime getNearestLesson(
+            int dayOfWeek, int lessonNum, boolean isNumerator, LocalDateTime from
+    ) {
+        LocalDate fromDate = from.toLocalDate();
+        boolean thisWeek = fromDate.getDayOfWeek().getValue() < dayOfWeek
+                || fromDate.getDayOfWeek().getValue() == dayOfWeek
+                && from.toLocalTime().isBefore(LocalTime.of(
+                        lessonEndingHours[lessonNum - 1], lessonEndingMinutes[lessonNum - 1]
+                ));
+        LocalDateTime result = LocalDateTime.of(
+                LocalDate.ofEpochDay(
+                        fromDate.toEpochDay() + dayOfWeek - from.getDayOfWeek().getValue()
+                                + (thisWeek ? 0 : 7)
+                ),
+                LocalTime.of(
+                        lessonBeginningHours[lessonNum - 1],
+                        lessonBeginningMinutes[lessonNum - 1]
+                )
+        );
+        if (isNumerator(result.toLocalDate()) != isNumerator) result = result.plusDays(7);
+        return result;
     }
 }

@@ -13,28 +13,31 @@ import retrofit2.http.Query;
 
 public interface BackendService {
     @GET("flow/all")
-    Call<List<FlowResponse>> allFlows();
+    Call<List<FlowResponse>> getAllFlows();
 
     @GET("flow/flow")
-    Call<FlowResponse> flow(
+    Call<FlowResponse> getFlow(
             @Query("flow_lvl") int flowLvl, @Query("course") int course, @Query("flow") int flow,
             @Query("subgroup") int subgroup
     );
 
     @GET("schedule/flow")
-    Call<List<ScheduleResponse>> schedules(
+    Call<List<ScheduleResponse>> getAllSchedulesByFlow(
             @Query("flow_lvl") int flowLvl, @Query("course") int course, @Query("flow") int flow,
             @Query("subgroup") int subgroup
     );
 
+    @GET("schedule/teacher")
+    Call<List<ScheduleResponse>> getAllSchedulesByTeacher(@Query("teacher") String teacher);
+
     @GET("homework/flow")
-    Call<List<HomeworkResponse>> homeworks(
+    Call<List<HomeworkResponse>> getAllHomeworksByFlow(
             @Query("flow_lvl") int flowLvl, @Query("course") int course, @Query("flow") int flow,
             @Query("subgroup") int subgroup
     );
 
     @GET("temp/flow")
-    Call<List<TempScheduleResponse>> tempSchedules(
+    Call<List<TempScheduleResponse>> getAllTempSchedulesByFlow(
             @Query("flow_lvl") int flowLvl, @Query("course") int course, @Query("flow") int flow,
             @Query("subgroup") int subgroup
     );
