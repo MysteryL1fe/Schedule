@@ -13,8 +13,20 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.example.schedule.R;
+import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
-import com.example.schedule.views.LessonView;
+import com.example.schedule.Utils;
+import com.example.schedule.entity.Flow;
+import com.example.schedule.entity.Homework;
+import com.example.schedule.entity.Lesson;
+import com.example.schedule.entity.Schedule;
+import com.example.schedule.entity.TempSchedule;
+import com.example.schedule.repo.FlowRepo;
+import com.example.schedule.repo.HomeworkRepo;
+import com.example.schedule.repo.LessonRepo;
+import com.example.schedule.repo.ScheduleRepo;
+import com.example.schedule.repo.TempScheduleRepo;
+import com.example.schedule.views.HomeworkLessonView;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +41,11 @@ public class NewHomeworkFragment extends Fragment {
     private LinearLayout homeworkLessonContainer;
     private Button chooseDayBtn;
     private LocalDate date;
+
+    private LessonRepo lessonRepo;
+    private HomeworkRepo homeworkRepo;
+    private ScheduleRepo scheduleRepo;
+    private TempScheduleRepo tempScheduleRepo;
 
     public NewHomeworkFragment() {}
 
@@ -61,6 +78,13 @@ public class NewHomeworkFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_new_homework, container, false);
 
         date = LocalDate.now();
+
+        ScheduleDBHelper dbHelper = new ScheduleDBHelper(getContext());
+        FlowRepo flowRepo = new FlowRepo(dbHelper);
+        lessonRepo = new LessonRepo(dbHelper);
+        homeworkRepo = new HomeworkRepo(dbHelper, flowRepo);
+        scheduleRepo = new ScheduleRepo(dbHelper, flowRepo, lessonRepo);
+        tempScheduleRepo = new TempScheduleRepo(dbHelper, flowRepo, lessonRepo);
 
         homeworkLessonContainer = view.findViewById(R.id.homeworkLessonContainer);
         TextView chooseDayTV = view.findViewById(R.id.chooseDayTV);
@@ -105,10 +129,35 @@ public class NewHomeworkFragment extends Fragment {
         ));
 
         homeworkLessonContainer.removeAllViews();
+
+        boolean isNumerator = Utils.isNumerator(date);
+
         for (int i = 1; i < 9; i++) {
-            LessonView lessonView = new LessonView(
-                    getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, date, i,
-                    this
+            Flow flow = new Flow();
+            flow.setFlowLvl(mFlowLvl);
+            flow.setCourse(mCourse);
+            flow.setFlow(mGroup);
+            flow.setSubgroup(mSubgroup);
+
+            Schedule schedule = scheduleRepo.findByFlowAndDayOfWeekAndLessonNumAndNumerator(
+                    mFlowLvl, mCourse, mGroup, mSubgroup, date.getDayOfWeek().getValue(), i,
+                    isNumerator
+            );
+            Lesson lesson = schedule == null ? null : lessonRepo.findById(schedule.getLesson());
+
+            Homework homework = homeworkRepo.findByFlowAndLessonDateAndLessonNum(
+                    mFlowLvl, mCourse, mGroup, mSubgroup, date, i
+            );
+
+            TempSchedule tempSchedule = tempScheduleRepo.findByFlowAndLessonDateAndLessonNum(
+                    mFlowLvl, mCourse, mGroup, mSubgroup, date, i
+            );
+            Lesson tempLesson = tempSchedule == null ? null
+                    : lessonRepo.findById(tempSchedule.getLesson());
+            boolean willLessonBe = tempSchedule == null || tempSchedule.isWillLessonBe();
+
+            HomeworkLessonView lessonView = new HomeworkLessonView(
+                    getContext(), flow, date, i, lesson, homework, tempLesson, willLessonBe
             );
             lessonView.setLayoutParams(params);
             homeworkLessonContainer.addView(lessonView);

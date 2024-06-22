@@ -1,8 +1,7 @@
 package com.example.schedule.fragments;
 
-import android.os.AsyncTask;
+import android.app.Activity;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import com.example.schedule.views.LessonsView;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ScheduleFragment extends Fragment {
     private static final String ARG_FLOW_LVL = "flowLvl";
@@ -29,6 +29,8 @@ public class ScheduleFragment extends Fragment {
     private final ArrayList<LessonsView> lessonsViews = new ArrayList<>();
     private LinearLayout lessonsContainer;
     private boolean lessonsLoaded = false;
+    private TextView emptyLessonsViews;
+    private LoadLessonsThread loadLessonsThread;
 
     public ScheduleFragment() {}
 
@@ -60,6 +62,19 @@ public class ScheduleFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 
         lessonsContainer = view.findViewById(R.id.lessonsContainer);
+        emptyLessonsViews = view.findViewById(R.id.notFoundTV);
+
+        switch (SettingsStorage.textSize) {
+            case 0:
+                emptyLessonsViews.setTextSize(12.0f);
+                break;
+            case 2:
+                emptyLessonsViews.setTextSize(36.0f);
+                break;
+            default:
+                emptyLessonsViews.setTextSize(24.0f);
+                break;
+        }
 
         return view;
     }
@@ -68,80 +83,79 @@ public class ScheduleFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        LoadLessons loadLessons = new LoadLessons();
-        loadLessons.execute();
+        if (loadLessonsThread != null) loadLessonsThread.stopThread();
+        loadLessonsThread = new LoadLessonsThread();
+        loadLessonsThread.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        loadLessonsThread.stopThread();
     }
 
     public void addTimer() {
         if (lessonsLoaded) {
             LocalDateTime time = LocalDateTime.now();
             for (LessonsView lessonsView : lessonsViews) {
-                if (lessonsView.addTimer(time)) {
-                    break;
-                }
+                if (lessonsView.addTimer(time)) break;
             }
         }
     }
 
-    private class LoadLessons extends AsyncTask<Void, Void, Void> {
-        private TextView emptyLessonsViews;
+    private class LoadLessonsThread extends Thread {
+        private boolean isActive = true;
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        public void run() {
+            super.run();
+
             lessonsLoaded = false;
-            lessonsViews.clear();
-            lessonsContainer.removeAllViews();
-        }
 
-        @Override
-        protected Void doInBackground(Void... voids) {
+            Activity activity = getActivity();
+            if (activity == null) return;
+            activity.runOnUiThread(() -> {
+                lessonsViews.clear();
+                lessonsContainer.removeAllViews();
+            });
+
             LocalDate date = LocalDate.now();
 
-            for (int i = 0; i < 31; i++) {
+            AtomicBoolean timerAdded = new AtomicBoolean(false);
+
+            for (int i = 0; i < 14; i++) {
+                if (!isActive) return;
                 LessonsView lessonsView = new LessonsView(
                         lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, date
                 );
                 if (lessonsView.isShouldShow()) {
                     lessonsViews.add(lessonsView);
+                    activity = getActivity();
+                    if (activity == null) return;
+                    if (!timerAdded.get()) activity.runOnUiThread(() -> timerAdded.set(
+                            lessonsView.addTimer(LocalDateTime.now()))
+                    );
+                    activity.runOnUiThread(() -> lessonsContainer.addView(lessonsView));
                 }
 
                 date = date.plusDays(1);
             }
 
-            emptyLessonsViews = new TextView(lessonsContainer.getContext());
-            emptyLessonsViews.setText("Занятия не найдены");
-            emptyLessonsViews.setGravity(Gravity.CENTER);
-
-            switch (SettingsStorage.textSize) {
-                case 0:
-                    emptyLessonsViews.setTextSize(12.0f);
-                    break;
-                case 2:
-                    emptyLessonsViews.setTextSize(36.0f);
-                    break;
-                default:
-                    emptyLessonsViews.setTextSize(24.0f);
-                    break;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
+            if (!isActive) return;
 
             if (lessonsViews.isEmpty()) {
-                lessonsContainer.addView(emptyLessonsViews);
+                activity = getActivity();
+                if (activity == null) return;
+                activity.runOnUiThread(() -> emptyLessonsViews.setVisibility(View.VISIBLE));
             }
 
-            for (LessonsView lessonsView : lessonsViews) {
-                lessonsContainer.addView(lessonsView);
-            }
+            if (!isActive) return;
 
             lessonsLoaded = true;
-            addTimer();
+        }
+
+        public void stopThread() {
+            this.isActive = false;
         }
     }
 }

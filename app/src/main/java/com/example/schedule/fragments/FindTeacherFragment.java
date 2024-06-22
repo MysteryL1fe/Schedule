@@ -1,5 +1,6 @@
 package com.example.schedule.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +20,7 @@ import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
 import com.example.schedule.dto.ScheduleResponse;
 import com.example.schedule.entity.Lesson;
-import com.example.schedule.entity.ScheduleJoined;
+import com.example.schedule.entity.Schedule;
 import com.example.schedule.views.LessonsView;
 
 import java.time.LocalDate;
@@ -98,7 +99,9 @@ public class FindTeacherFragment extends Fragment {
         public void run() {
             super.run();
             try {
-                getActivity().runOnUiThread(() -> notFoundTV.setVisibility(View.GONE));
+                Activity activity = getActivity();
+                if (activity == null) return;
+                activity.runOnUiThread(() -> notFoundTV.setVisibility(View.GONE));
                 BackendService backendService = RetrofitHelper.getBackendService();
                 Call<List<ScheduleResponse>> call = backendService.getAllSchedulesByTeacher(
                         teacherEditText.getText().toString()
@@ -111,9 +114,12 @@ public class FindTeacherFragment extends Fragment {
 
                 getActivity().runOnUiThread(() -> lessonsContainer.removeAllViews());
 
-                if (schedules == null || schedules.isEmpty()) getActivity().runOnUiThread(
-                        () -> notFoundTV.setVisibility(View.VISIBLE)
-                );
+                if (schedules == null || schedules.isEmpty()) {
+                    getActivity().runOnUiThread(
+                            () -> notFoundTV.setVisibility(View.VISIBLE)
+                    );
+                    return;
+                }
 
                 PriorityQueue<ScheduleHelper> queue = new PriorityQueue<>();
                 for (ScheduleResponse scheduleResponse : schedules) {
@@ -124,14 +130,13 @@ public class FindTeacherFragment extends Fragment {
                     lesson.setTeacher(scheduleResponse.getLesson().getTeacher());
                     lesson.setCabinet(scheduleResponse.getLesson().getCabinet());
 
-                    ScheduleJoined schedule = new ScheduleJoined();
-                    schedule.setLesson(lesson);
+                    Schedule schedule = new Schedule();
                     schedule.setDayOfWeek(scheduleResponse.getDayOfWeek());
                     schedule.setLessonNum(scheduleResponse.getLessonNum());
                     schedule.setNumerator(scheduleResponse.isNumerator());
 
                     ScheduleHelper scheduleHelper = new ScheduleHelper(
-                            schedule,
+                            schedule, lesson,
                             Utils.getNearestLesson(
                                     schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.isNumerator()
                             )
@@ -153,7 +158,10 @@ public class FindTeacherFragment extends Fragment {
                         lessonsView = new LessonsView(getContext(), lastDate);
                         lessonsViews.add(lessonsView);
                     }
-                    lessonsView.addLesson(schedule.schedule);
+                    lessonsView.addLesson(
+                            schedule.schedule.getLessonNum(),
+                            schedule.lesson
+                    );
                 }
 
                 if (!isActive) return;
@@ -164,11 +172,13 @@ public class FindTeacherFragment extends Fragment {
                     }
                 });
             } catch (Exception e) {
-                if (isActive) getActivity().runOnUiThread(
+                Log.e("Backend", e.toString());
+
+                Activity activity = getActivity();
+                if (activity == null) return;
+                if (isActive) activity.runOnUiThread(
                         () -> notFoundTV.setVisibility(View.VISIBLE)
                 );
-
-                Log.e("Backend", e.toString());
             }
         }
 
@@ -177,20 +187,26 @@ public class FindTeacherFragment extends Fragment {
         }
 
         private class ScheduleHelper implements Comparable<ScheduleHelper> {
-            private final ScheduleJoined schedule;
+            private final Schedule schedule;
+            private final Lesson lesson;
             private final LocalDateTime dateTime;
 
-            public ScheduleHelper(ScheduleJoined schedule, LocalDateTime dateTime) {
+            public ScheduleHelper(Schedule schedule, Lesson lesson, LocalDateTime dateTime) {
                 this.schedule = schedule;
+                this.lesson = lesson;
                 this.dateTime = dateTime;
             }
 
-            public ScheduleJoined getSchedule() {
+            public Schedule getSchedule() {
                 return schedule;
             }
 
             public LocalDateTime getDateTime() {
                 return dateTime;
+            }
+
+            public Lesson getLesson() {
+                return lesson;
             }
 
             @Override
@@ -206,7 +222,7 @@ public class FindTeacherFragment extends Fragment {
                 ScheduleHelper that = (ScheduleHelper) o;
 
                 return dateTime.equals(that.dateTime)
-                        && schedule.getLesson().equals(that.schedule.getLesson());
+                        && lesson.equals(that.lesson);
             }
 
             @Override

@@ -1,8 +1,11 @@
 package com.example.schedule.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -12,68 +15,63 @@ import androidx.core.content.res.ResourcesCompat;
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.Utils;
-import com.example.schedule.entity.Homework;
+import com.example.schedule.activities.ChangeLessonActivity;
+import com.example.schedule.entity.Flow;
 import com.example.schedule.entity.Lesson;
+import com.example.schedule.repo.TempScheduleRepo;
 import com.google.android.material.divider.MaterialDivider;
 
-public class LessonView extends LinearLayout {
-    private LinearLayout firstStroke;
-    private int lessonNum;
-    private Lesson lesson, tempLesson = null;
-    private Homework homework = null;
-    private boolean willLessonBe = true;
-    private TimerView timerView;
-    private boolean isTimerViewBefore, containsLesson = false;
+import java.time.LocalDate;
 
-    public LessonView(Context context) {
+public class TempLessonView extends LinearLayout {
+    private Flow flow;
+    private LocalDate date;
+    private int lessonNum;
+    private Lesson lesson, tempLesson;
+    private boolean willLessonBe;
+    private TempScheduleRepo tempScheduleRepo;
+
+    public TempLessonView(Context context) {
         super(context);
     }
 
-    public LessonView(Context context, AttributeSet attrs) {
+    public TempLessonView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public LessonView(Context context, AttributeSet attrs, int defStyle) {
+    public TempLessonView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    public LessonView(Context context, int lessonNum, Lesson lesson) {
-        super(context);
-
-        this.lessonNum = lessonNum;
-        this.lesson = lesson;
-
-        init();
-    }
-
-    public LessonView(
-            Context context, int lessonNum, Lesson lesson, Homework homework,
+    public TempLessonView(
+            Context context, Flow flow, LocalDate date, int lessonNum, Lesson lesson,
             Lesson tempLesson, boolean willLessonBe
     ) {
         super(context);
-
+        this.flow = flow;
+        this.date = date;
         this.lessonNum = lessonNum;
         this.lesson = lesson;
-        this.homework = homework;
         this.tempLesson = tempLesson;
         this.willLessonBe = willLessonBe;
+        this.tempScheduleRepo = new TempScheduleRepo(getContext());
 
         init();
     }
 
     private void init() {
-        LinearLayout.LayoutParams paramsMatchWrap = new LayoutParams(
+        LinearLayout.LayoutParams paramsMatchWrap = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1.0f
         );
-        LayoutParams paramsWrapWrap = new LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT
+        LinearLayout.LayoutParams paramsWrapWrap = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        LayoutParams paramsHomeworkButtons = new LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT
+        LinearLayout.LayoutParams paramsHomeworkButtons = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
         );
         paramsHomeworkButtons.rightMargin = 10;
 
@@ -83,8 +81,6 @@ public class LessonView extends LinearLayout {
         this.setBackground(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.lesson_background, getContext().getTheme()
         ));
-
-        this.containsLesson = lesson != null || homework != null || tempLesson != null;
 
         String lessonName = "";
         String lessonTeacher = "";
@@ -101,7 +97,7 @@ public class LessonView extends LinearLayout {
             lessonCabinet = tempLesson.getCabinet();
         }
 
-        firstStroke = new LinearLayout(getContext());
+        LinearLayout firstStroke = new LinearLayout(getContext());
         firstStroke.setLayoutParams(paramsMatchWrap);
         firstStroke.setOrientation(HORIZONTAL);
         firstStroke.setPadding(0, 10, 0, 10);
@@ -208,77 +204,125 @@ public class LessonView extends LinearLayout {
             }
         }
 
-        if (homework != null) {
-            MaterialDivider divider = new MaterialDivider(getContext());
-            divider.setBackground(ResourcesCompat.getDrawable(
-                    getResources(), R.drawable.divider_color, getContext().getTheme()
-            ));
-            this.addView(divider);
+        MaterialDivider divider = new MaterialDivider(getContext());
+        divider.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.divider_color, getContext().getTheme()
+        ));
+        this.addView(divider);
 
-            LinearLayout thirdStroke = new LinearLayout(getContext());
-            thirdStroke.setLayoutParams(paramsMatchWrap);
-            thirdStroke.setOrientation(HORIZONTAL);
-            thirdStroke.setPadding(25, 0, 0, 0);
-            this.addView(thirdStroke);
+        LinearLayout tempLessonLayout = new LinearLayout(getContext());
+        tempLessonLayout.setLayoutParams(paramsMatchWrap);
+        tempLessonLayout.setOrientation(HORIZONTAL);
+        this.addView(tempLessonLayout);
 
-            TextView homeworkTV = new TextView(getContext());
-            homeworkTV.setLayoutParams(paramsMatchWrap);
-            homeworkTV.setText(String.format(
-                    "Домашнее задание, %s:\n%s", homework.getLessonName(), homework.getHomework()
-            ));
-            thirdStroke.addView(homeworkTV);
+        if (tempLesson != null || !willLessonBe) {
+            Button cancelTempLessonBtn = new Button(getContext());
+            cancelTempLessonBtn.setLayoutParams(paramsMatchWrap);
+            cancelTempLessonBtn.setText(getResources().getString(R.string.cancel));
+            cancelTempLessonBtn.setOnClickListener(new CancelTempLessonBtnListener());
+            tempLessonLayout.addView(cancelTempLessonBtn);
 
             switch (SettingsStorage.textSize) {
                 case 0:
-                    homeworkTV.setTextSize(7.0f);
+                    cancelTempLessonBtn.setTextSize(8.0f);
                     break;
                 case 2:
-                    homeworkTV.setTextSize(21.0f);
+                    cancelTempLessonBtn.setTextSize(24.0f);
                     break;
                 default:
-                    homeworkTV.setTextSize(14.0f);
+                    cancelTempLessonBtn.setTextSize(16.0f);
                     break;
             }
         }
+
+        if (!lessonName.isEmpty() && willLessonBe && tempLesson == null) {
+            Button lessonWontBeBtn = new Button(getContext());
+            lessonWontBeBtn.setLayoutParams(paramsMatchWrap);
+            lessonWontBeBtn.setText(getResources().getString(R.string.lesson_wont_be));
+            lessonWontBeBtn.setOnClickListener(new LessonWontBeBtnListener());
+            tempLessonLayout.addView(lessonWontBeBtn);
+
+            switch (SettingsStorage.textSize) {
+                case 0:
+                    lessonWontBeBtn.setTextSize(8.0f);
+                    break;
+                case 2:
+                    lessonWontBeBtn.setTextSize(24.0f);
+                    break;
+                default:
+                    lessonWontBeBtn.setTextSize(16.0f);
+                    break;
+            }
+        }
+
+        Button replaceLessonBtn = new Button(getContext());
+        replaceLessonBtn.setLayoutParams(paramsMatchWrap);
+        replaceLessonBtn.setText(getResources().getString(R.string.replace));
+        replaceLessonBtn.setOnClickListener(new ReplaceLessonBtnListener());
+        tempLessonLayout.addView(replaceLessonBtn);
+
+        switch (SettingsStorage.textSize) {
+            case 0:
+                replaceLessonBtn.setTextSize(8.0f);
+                break;
+            case 2:
+                replaceLessonBtn.setTextSize(24.0f);
+                break;
+            default:
+                replaceLessonBtn.setTextSize(16.0f);
+                break;
+        }
+
+        divider = new MaterialDivider(getContext());
+        divider.setBackground(ResourcesCompat.getDrawable(
+                getResources(), R.drawable.divider_color, getContext().getTheme()
+        ));
+        this.addView(divider);
     }
 
-    public void addTimerView(TimerView timerView, boolean isBefore) {
-        this.timerView = timerView;
-        if (isBefore) {
-            this.addView(timerView, 0);
-
-            MaterialDivider divider = new MaterialDivider(getContext());
-            divider.setBackground(ResourcesCompat.getDrawable(
-                    getResources(), R.drawable.divider_color, getContext().getTheme()
-            ));
-            this.addView(divider, 1);
-
-            isTimerViewBefore = true;
-        } else {
-            firstStroke.addView(timerView, willLessonBe && tempLesson == null ? 1 : 2);
-
-            isTimerViewBefore = false;
+    private class CancelTempLessonBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            tempScheduleRepo.deleteByFlowAndLessonDateAndLessonNum(
+                    flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
+                    date, lessonNum
+            );
+            TempLessonView.this.tempLesson = null;
+            TempLessonView.this.willLessonBe = true;
+            TempLessonView.this.removeAllViews();
+            init();
         }
     }
 
-    public void removeTimer() {
-        if (timerView != null && isTimerViewBefore) {
-            LessonView.this.removeViewAt(0);
-            LessonView.this.removeViewAt(0);
-            timerView = null;
-        } else if (timerView != null) {
-            firstStroke.removeView(timerView);
-            timerView = null;
+    private class LessonWontBeBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            tempScheduleRepo.addOrUpdate(
+                    flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
+                    lesson.getName(), lesson.getTeacher(), lesson.getCabinet(),
+                    date, lessonNum, false
+            );
+            TempLessonView.this.tempLesson = lesson;
+            TempLessonView.this.willLessonBe = false;
+            TempLessonView.this.removeAllViews();
+            init();
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        removeTimer();
-    }
-
-    public boolean isContainsLesson() {
-        return containsLesson;
+    private class ReplaceLessonBtnListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getContext(), ChangeLessonActivity.class);
+            intent.putExtra("flowLvl", flow.getFlowLvl());
+            intent.putExtra("course", flow.getCourse());
+            intent.putExtra("group", flow.getFlow());
+            intent.putExtra("subgroup", flow.getSubgroup());
+            intent.putExtra("year", date.getYear());
+            intent.putExtra("month", date.getMonthValue());
+            intent.putExtra("day", date.getDayOfMonth());
+            intent.putExtra("lessonNum", lessonNum);
+            intent.putExtra("isTempView", true);
+            getContext().startActivity(intent);
+        }
     }
 }
