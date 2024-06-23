@@ -117,6 +117,7 @@ public class ScheduleFragment extends Fragment {
             activity.runOnUiThread(() -> {
                 lessonsViews.clear();
                 lessonsContainer.removeAllViews();
+                emptyLessonsViews.setVisibility(View.GONE);
             });
 
             LocalDate date = LocalDate.now();

@@ -11,6 +11,9 @@ import com.example.schedule.entity.Flow;
 import com.example.schedule.entity.Lesson;
 import com.example.schedule.entity.Schedule;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScheduleRepo {
     private final ScheduleDBHelper dbHelper;
     private final FlowRepo flowRepo;
@@ -187,6 +190,47 @@ public class ScheduleRepo {
         return findByFlowAndDayOfWeekAndLessonNumAndNumerator(
                 flowId, dayOfWeek, lessonNum, numerator
         );
+    }
+
+    @SuppressLint("Range")
+    public List<Schedule> findAllByFlow(long flow) {
+        List<Schedule> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String sql = "SELECT * FROM schedule WHERE flow=?;";
+        String[] selectionArgs = new String[] {String.valueOf(flow)};
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndex("id"));
+            long lesson = cursor.getLong(cursor.getColumnIndex("lesson"));
+            int dayOfWeek = cursor.getInt(cursor.getColumnIndex("day_of_week"));
+            int lessonNum = cursor.getInt(cursor.getColumnIndex("lesson_num"));
+            boolean numerator = cursor.getInt(cursor.getColumnIndex("numerator")) == 1;
+
+            Schedule schedule = new Schedule();
+            schedule.setId(id);
+            schedule.setFlow(flow);
+            schedule.setLesson(lesson);
+            schedule.setDayOfWeek(dayOfWeek);
+            schedule.setLessonNum(lessonNum);
+            schedule.setNumerator(numerator);
+
+            result.add(schedule);
+        }
+        cursor.close();
+        db.close();
+        return result;
+    }
+
+    public List<Schedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
+        Flow foundFlow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(
+                flowLvl, course, flow, subgroup
+        );
+        if (foundFlow == null) return null;
+
+        long flowId = foundFlow.getId();
+
+        return findAllByFlow(flowId);
     }
 
     public int deleteByFlow(long flow) {

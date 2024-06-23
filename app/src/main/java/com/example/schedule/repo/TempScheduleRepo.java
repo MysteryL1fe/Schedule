@@ -13,6 +13,8 @@ import com.example.schedule.entity.TempSchedule;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TempScheduleRepo {
     private final ScheduleDBHelper dbHelper;
@@ -193,6 +195,52 @@ public class TempScheduleRepo {
         long flowId = foundFlow.getId();
 
         return findByFlowAndLessonDateAndLessonNum(flowId, lessonDate, lessonNum);
+    }
+
+    @SuppressLint("Range")
+    public List<TempSchedule> findAllByFlow(long flow) {
+        List<TempSchedule> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String sql = "SELECT * FROM temp_schedule WHERE flow=?;";
+        String[] selectionArgs = new String[] {String.valueOf(flow)};
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndex("id"));
+            long lesson = cursor.getLong(cursor.getColumnIndex("lesson"));
+            LocalDate lessonDate = LocalDate.parse(
+                    cursor.getString(cursor.getColumnIndex("lesson_date")),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            );
+            int lessonNum = cursor.getInt(cursor.getColumnIndex("lesson_num"));
+            boolean willLessonBe = cursor.getInt(
+                    cursor.getColumnIndex("will_lesson_be")
+            ) == 1;
+
+            TempSchedule tempSchedule = new TempSchedule();
+            tempSchedule.setId(id);
+            tempSchedule.setFlow(flow);
+            tempSchedule.setLesson(lesson);
+            tempSchedule.setLessonDate(lessonDate);
+            tempSchedule.setLessonNum(lessonNum);
+            tempSchedule.setWillLessonBe(willLessonBe);
+
+            result.add(tempSchedule);
+        }
+        cursor.close();
+        db.close();
+        return result;
+    }
+
+    public List<TempSchedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
+        Flow foundFlow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(
+                flowLvl, course, flow, subgroup
+        );
+        if (foundFlow == null) return null;
+
+        long flowId = foundFlow.getId();
+
+        return findAllByFlow(flowId);
     }
 
     public int deleteByFlowAndLessonDateAndLessonNum(

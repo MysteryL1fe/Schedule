@@ -218,6 +218,8 @@ public class ScheduleActivity extends AppCompatActivity {
                 );
 
                 if (foundFlow.getLastEdit().isBefore(backFlow.getLastEdit())) {
+                    scheduleRepo.deleteByFlow(flowLvl, course, group, subgroup);
+
                     Call<List<ScheduleResponse>> scheduleCall = backendService.getAllSchedulesByFlow(
                             flowLvl, course, group, subgroup
                     );
@@ -229,6 +231,22 @@ public class ScheduleActivity extends AppCompatActivity {
                             e.getLesson().getTeacher(), e.getLesson().getCabinet(),
                             e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
                     ));
+
+                    /*scheduleRepo.findAllByFlow(flowLvl, course, group, subgroup).forEach((e) -> {
+                        boolean found = false;
+                        for (ScheduleResponse schedule : schedules) {
+                            if (e.getDayOfWeek() == schedule.getDayOfWeek()
+                                    && e.getLessonNum() == schedule.getLessonNum()
+                                    && e.isNumerator() == schedule.isNumerator()) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) scheduleRepo.deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
+                                e.getFlow(), e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
+                        );
+                    });*/
+
                     flowRepo.update(flowLvl, course, group, subgroup, LocalDateTime.now());
                 }
             } catch (Exception e) {
@@ -246,6 +264,20 @@ public class ScheduleActivity extends AppCompatActivity {
                         flowLvl, course, group, subgroup, e.getLessonName(), e.getHomework(),
                         e.getLessonDate(), e.getLessonNum()
                 ));
+
+                /*homeworkRepo.findAllByFlow(flowLvl, course, group, subgroup).forEach((e) -> {
+                    boolean found = false;
+                    for (HomeworkResponse homework : homeworks) {
+                        if (e.getLessonDate().equals(homework.getLessonDate())
+                                && e.getLessonNum() == homework.getLessonNum()) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) homeworkRepo.deleteByFlowAndLessonDateAndLessonNum(
+                            e.getFlow(), e.getLessonDate(), e.getLessonNum()
+                    );
+                });*/
             } catch (Exception e) {
                 Log.e("Backend", e.toString());
             }
@@ -262,6 +294,20 @@ public class ScheduleActivity extends AppCompatActivity {
                         e.getLesson().getTeacher(), e.getLesson().getCabinet(),
                         e.getLessonDate(), e.getLessonNum(), e.isWillLessonBe()
                 ));
+
+                /*tempScheduleRepo.findAllByFlow(flowLvl, course, group, subgroup).forEach((e) -> {
+                    boolean found = false;
+                    for (TempScheduleResponse tempSchedule : tempSchedules) {
+                        if (e.getLessonDate().equals(tempSchedule.getLessonDate())
+                                && e.getLessonNum() == tempSchedule.getLessonNum()) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) tempScheduleRepo.deleteByFlowAndLessonDateAndLessonNum(
+                            e.getFlow(), e.getLessonDate(), e.getLessonNum()
+                    );
+                });*/
             } catch (Exception e) {
                 Log.e("Backend", e.toString());
             }

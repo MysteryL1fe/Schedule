@@ -82,6 +82,23 @@ public class FlowRepo {
         return id;
     }
 
+    public int update(int flowLvl, int course, int flow, int subgroup, boolean active) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("active", active ? "1" : "0");
+
+        String whereClause = "flow_lvl=? AND course=? AND flow=? AND subgroup=?";
+        String[] whereArgs = new String[] {
+                String.valueOf(flowLvl), String.valueOf(course), String.valueOf(flow),
+                String.valueOf(subgroup)
+        };
+
+        int count = db.update("flow", values, whereClause, whereArgs);
+        db.close();
+        return count;
+    }
+
     public int update(
             int flowLvl, int course, int flow, int subgroup, LocalDate lessonsStartDate,
             LocalDate sessionStartDate, LocalDate sessionEndDate, boolean active
@@ -229,6 +246,57 @@ public class FlowRepo {
             result.setSessionStartDate(sessionStartDate);
             result.setSessionEndDate(sessionEndDate);
             result.setActive(active);
+        }
+        cursor.close();
+        db.close();
+        return result;
+    }
+
+    @SuppressLint("Range")
+    public List<Flow> findAllActive() {
+        List<Flow> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String sql = "SELECT * FROM flow where active=1;";
+        String[] selectionArgs = new String[] {};
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndex("id"));
+            int flowLvl = cursor.getInt(cursor.getColumnIndex("flow_lvl"));
+            int course = cursor.getInt(cursor.getColumnIndex("course"));
+            int flow = cursor.getInt(cursor.getColumnIndex("flow"));
+            int subgroup = cursor.getInt(cursor.getColumnIndex("subgroup"));
+            LocalDateTime lastEdit = LocalDateTime.parse(
+                    cursor.getString(cursor.getColumnIndex("last_edit")),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            );
+            LocalDate lessonsStartDate = LocalDate.parse(
+                    cursor.getString(cursor.getColumnIndex("lessons_start_date")),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            );
+            LocalDate sessionStartDate = LocalDate.parse(
+                    cursor.getString(cursor.getColumnIndex("session_start_date")),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            );
+            LocalDate sessionEndDate = LocalDate.parse(
+                    cursor.getString(cursor.getColumnIndex("session_end_date")),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            );
+            boolean active = cursor.getInt(cursor.getColumnIndex("active")) == 1;
+
+            Flow foundFlow = new Flow();
+            foundFlow.setId(id);
+            foundFlow.setFlowLvl(flowLvl);
+            foundFlow.setCourse(course);
+            foundFlow.setFlow(flow);
+            foundFlow.setSubgroup(subgroup);
+            foundFlow.setLastEdit(lastEdit);
+            foundFlow.setLessonsStartDate(lessonsStartDate);
+            foundFlow.setSessionStartDate(sessionStartDate);
+            foundFlow.setSessionEndDate(sessionEndDate);
+            foundFlow.setActive(active);
+
+            result.add(foundFlow);
         }
         cursor.close();
         db.close();

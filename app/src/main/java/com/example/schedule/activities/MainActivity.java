@@ -23,6 +23,7 @@ import com.example.schedule.RetrofitHelper;
 import com.example.schedule.ScheduleDBHelper;
 import com.example.schedule.SettingsStorage;
 import com.example.schedule.dto.FlowResponse;
+import com.example.schedule.entity.Flow;
 import com.example.schedule.repo.FlowRepo;
 import com.example.schedule.repo.HomeworkRepo;
 import com.example.schedule.repo.LessonRepo;
@@ -92,16 +93,26 @@ public class MainActivity extends AppCompatActivity {
 
         if (SettingsStorage.isLastVersion(saves)) {
             int[] curFlow = SettingsStorage.getCurFlow(saves);
-            flowLvl = Math.max(Math.min(curFlow[0], 3), 1);
+            flowLvl = curFlow[0];
             course = curFlow[1];
             group = curFlow[2];
             subgroup = curFlow[3];
-            startActivitySchedule();
+            if (
+                    flowLvl < 1 || flowLvl > 3 || course < 1 || course > 5
+                            || group < 1 || subgroup < 1
+            ) {
+                flowLvl = 1;
+                course = 1;
+                group = 1;
+                subgroup = 1;
+            } else {
+                startActivitySchedule();
+            }
         } else {
             flowLvl = 1;
-            course = 0;
-            group = 0;
-            subgroup = 0;
+            course = 1;
+            group = 1;
+            subgroup = 1;
             SettingsStorage.saveCurFlow(flowLvl, course, group, subgroup, saves);
             SettingsStorage.changeToLastVersion(saves);
             SharedPreferences.Editor editor = saves.edit();
@@ -205,8 +216,11 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("course", course);
             intent.putExtra("group", group);
             intent.putExtra("subgroup", subgroup);
-            if (flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, group, subgroup)
-                    == null) flowRepo.add(flowLvl, course, group, subgroup);
+            Flow flow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(
+                    flowLvl, course, group, subgroup
+            );
+            if (flow == null) flowRepo.add(flowLvl, course, group, subgroup);
+            else if (!flow.isActive()) flowRepo.update(flowLvl, course, group, subgroup, true);
             startActivity(intent);
         }
     }
@@ -440,6 +454,22 @@ public class MainActivity extends AppCompatActivity {
                             e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup(),
                             e.getLessonsStartDate(), e.getSessionStartDate(),
                             e.getSessionEndDate(), e.isActive()
+                    );
+                });
+
+                flowRepo.findAllActive().forEach((e) -> {
+                    boolean found = false;
+                    for (FlowResponse flowResponse : flows) {
+                        if (flowResponse.getFlowLvl() == e.getFlow()
+                                && flowResponse.getCourse() == e.getCourse()
+                                && flowResponse.getFlow() == e.getFlow()
+                                && flowResponse.getSubgroup() == e.getSubgroup()) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) flowRepo.update(
+                            e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup(), false
                     );
                 });
             } catch (Exception e) {
