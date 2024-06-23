@@ -58,4 +58,6 @@
     <string name="find">Найти</string>
     <string name="find_teacher">Найти преподавателя</string>
     <string name="not_found">Не найдено</string>
+    <string name="session_starts">Занятий больше нет, началась сессия</string>
+    <string name="session_ends">Занятий нет, каникулы</string>
 </resources>

@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.schedule.R;
 import com.example.schedule.SettingsStorage;
+import com.example.schedule.entity.Flow;
+import com.example.schedule.repo.FlowRepo;
 import com.example.schedule.views.LessonsView;
 
 import java.time.LocalDate;
@@ -31,6 +33,13 @@ public class ScheduleFragment extends Fragment {
     private boolean lessonsLoaded = false;
     private TextView emptyLessonsViews;
     private LoadLessonsThread loadLessonsThread;
+
+    private FlowRepo flowRepo;
+
+    LinearLayout.LayoutParams paramsMatchWrap = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+    );
 
     public ScheduleFragment() {}
 
@@ -54,6 +63,7 @@ public class ScheduleFragment extends Fragment {
             mGroup = getArguments().getInt(ARG_GROUP);
             mSubgroup = getArguments().getInt(ARG_SUBGROUP);
         }
+        flowRepo = new FlowRepo(getContext());
     }
 
     @Override
@@ -120,23 +130,77 @@ public class ScheduleFragment extends Fragment {
                 emptyLessonsViews.setVisibility(View.GONE);
             });
 
-            LocalDate date = LocalDate.now();
+            Flow flow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(
+                    mFlowLvl, mCourse, mGroup, mSubgroup
+            );
 
+            LocalDate date = LocalDate.now();
             AtomicBoolean timerAdded = new AtomicBoolean(false);
+            boolean isLessonsTime = true;
 
             for (int i = 0; i < 14; i++) {
                 if (!isActive) return;
-                LessonsView lessonsView = new LessonsView(
-                        lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, date
-                );
-                if (lessonsView.isShouldShow()) {
-                    lessonsViews.add(lessonsView);
+                if (date.isBefore(flow.getSessionStartDate())) {
+                    LessonsView lessonsView = new LessonsView(
+                            lessonsContainer.getContext(), mFlowLvl, mCourse, mGroup, mSubgroup, date
+                    );
+                    if (lessonsView.isShouldShow()) {
+                        lessonsViews.add(lessonsView);
+                        activity = getActivity();
+                        if (activity == null) return;
+                        if (!timerAdded.get()) activity.runOnUiThread(() -> timerAdded.set(
+                                lessonsView.addTimer(LocalDateTime.now()))
+                        );
+                        activity.runOnUiThread(() -> lessonsContainer.addView(lessonsView));
+                    }
+                } else if (date.isBefore(flow.getSessionEndDate())) {
+                    TextView sessionStartsTV = new TextView(getContext());
+                    sessionStartsTV.setLayoutParams(paramsMatchWrap);
+                    sessionStartsTV.setText(getResources().getString(R.string.session_starts));
+                    sessionStartsTV.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+                    switch (SettingsStorage.textSize) {
+                        case 0:
+                            sessionStartsTV.setTextSize(12.0f);
+                            break;
+                        case 2:
+                            sessionStartsTV.setTextSize(36.0f);
+                            break;
+                        default:
+                            sessionStartsTV.setTextSize(24.0f);
+                            break;
+                    }
+
                     activity = getActivity();
                     if (activity == null) return;
-                    if (!timerAdded.get()) activity.runOnUiThread(() -> timerAdded.set(
-                            lessonsView.addTimer(LocalDateTime.now()))
-                    );
-                    activity.runOnUiThread(() -> lessonsContainer.addView(lessonsView));
+                    activity.runOnUiThread(() -> lessonsContainer.addView(sessionStartsTV));
+
+                    isLessonsTime = false;
+                    break;
+                } else {
+                    TextView sessionEndsTV = new TextView(getContext());
+                    sessionEndsTV.setLayoutParams(paramsMatchWrap);
+                    sessionEndsTV.setText(getResources().getString(R.string.session_ends));
+                    sessionEndsTV.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+                    switch (SettingsStorage.textSize) {
+                        case 0:
+                            sessionEndsTV.setTextSize(12.0f);
+                            break;
+                        case 2:
+                            sessionEndsTV.setTextSize(36.0f);
+                            break;
+                        default:
+                            sessionEndsTV.setTextSize(24.0f);
+                            break;
+                    }
+
+                    activity = getActivity();
+                    if (activity == null) return;
+                    activity.runOnUiThread(() -> lessonsContainer.addView(sessionEndsTV));
+
+                    isLessonsTime = false;
+                    break;
                 }
 
                 date = date.plusDays(1);
@@ -144,7 +208,7 @@ public class ScheduleFragment extends Fragment {
 
             if (!isActive) return;
 
-            if (lessonsViews.isEmpty()) {
+            if (lessonsViews.isEmpty() && isLessonsTime) {
                 activity = getActivity();
                 if (activity == null) return;
                 activity.runOnUiThread(() -> emptyLessonsViews.setVisibility(View.VISIBLE));
